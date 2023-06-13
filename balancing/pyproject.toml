@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "platone-balancing-module"
+authors = [
+    {name = "Amir Ahmadifar", email = "aahmadifar@eonerc.rwth-aachen.de"},
+    {name = "Florian Oppermann", email = "florian.oppermann@eonerc.rwth-aachen.de"},
+    {name = "Aytug Yavuzer", email = "aytug.yavuzer@eonerc.rwth-aachen.de"},
+]
+description = "My package description"
+readme = "README.md"
+requires-python = ">=3.8"
+keywords = []
+classifiers = []
+dependencies = ["pandas==1.5.3",
+                "pyomo==6.5.0",
+                "matplotlib==3.7.1",
+                "fastapi[all]==0.94.1"]
+version = "4"
+
+[tool.setuptools.packages.find]
+where = ["Service"]
+include = ["balancer_utils*"]
+# [project.scripts]
+# my-script = "my_package.module:function"

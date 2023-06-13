@@ -1,0 +1,12 @@
+**/*.pyc
+**/venv
+build
+**/*.egg-info
+
+# Saved output files in Service
+Service/results/*.json
+Service/results/*.png
+
+# PyCharm
+.idea/
+
