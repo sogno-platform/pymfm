@@ -6,18 +6,15 @@ from forecast_utils.forecasts import Forecast
 import argparse
 
 
-
-
-
-
-
 def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-level', '--level', action="store", help='Provides forecast level')
     args = parser.parse_args()
+    print('++++++++++++++++++')
+    print(args)
+    print('#####################')
     forecast_level = int(args.level)
-
 
     forecast_input_file = 'Forecast_POST_2021_07_05_V1.json'
     with open(forecast_input_file) as data_file:

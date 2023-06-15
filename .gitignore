@@ -9,8 +9,8 @@
 *gurobi.log
 
 # Saved output files
-balancing/Service/results/*.json
-balancing/Service/results/*.png
+src/balancing/Service/results/*.json
+src/balancing/Service/results/*.png
 
 # Editors
 .vscode/
