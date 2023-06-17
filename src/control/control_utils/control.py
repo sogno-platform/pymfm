@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import timedelta
 from pyomo.environ import SolverFactory
 from pyomo.core import *
 from control_utils import data_input, data_output
@@ -117,7 +118,7 @@ def neg_tot_imp_exp1(model, t):
 
 def neg_tot_imp_exp2(model, t):
     if model.P_tie[t] <= 0:
-        # Note to Amir: As we seperated P_imp and x_imp from each other, make sure we always use P_imp in all of our constraints.
+        # Note for the future works: As we seperated P_imp and x_imp from each other, make sure we always use P_imp in all of our constraints.
         # From now on x_imp can be 1 and P_imp can be 0, therefore we MUST use P_imp in the constraints.
         return model.P_imp[t] <= 0
     else:
@@ -162,8 +163,10 @@ def control(data: InputData):
                     "Rulebased control can not deal with multiple flex nodes"
                 )
         output_df = None
+        delta_T = pd.to_timedelta(df_forecasts.P_net_kW.index.freq)
+
         for time, P_net in df_forecasts.iterrows():
-            output = rule_based_logic(P_net, battery_specs)
+            output = rule_based_logic(P_net, battery_specs, delta_T)
             if output_df is None:
                 output_df = pd.DataFrame(columns=output.index, index=df_forecasts.index)
             output_df.loc[time] = output
@@ -202,7 +205,8 @@ def control(data: InputData):
         return output_df, solver_status
 
 
-def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs):
+def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs, delta_T: timedelta):
+
     # initialize
     output_ds = pd.Series(
         index=[
@@ -219,9 +223,13 @@ def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs):
     output_ds.export_kw = 0
     output_ds.sof_kwh = 0
 
+    # Convert timedelta to float in terms of hours
+    delta_time_in_hours = delta_T.total_seconds() / 3600.0
+
+
     output_ds.ptcb_kw = P_net.P_req_kw + P_net.P_net_kW
     output_ds.sof_kwh = battery_specs.initial_SoC * battery_specs.bat_capacity - (
-        output_ds.ptcb_kw * P_net.delta_t
+        output_ds.ptcb_kw * delta_time_in_hours
     )
 
     # discharging
@@ -232,13 +240,13 @@ def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs):
             output_ds.ptcb_kw = battery_specs.P_dis_max_kW
             output_ds.sof_kwh = (
                 battery_specs.initial_SoC * battery_specs.bat_capacity
-                - (battery_specs.P_dis_max_kW * P_net.delta_t)
+                - (battery_specs.P_dis_max_kW * delta_time_in_hours)
             )
 
         if output_ds.sof_kwh < battery_specs.min_SoC * battery_specs.bat_capacity:
             output_ds.import_kw = output_ds.import_kw + (
                 (battery_specs.min_SoC * battery_specs.bat_capacity - output_ds.sof_kwh)
-                / P_net.delta_t
+                / delta_time_in_hours
             )
             output_ds.ptcb_kw = act_ptcb - output_ds.import_kw
             output_ds.sof_kwh = battery_specs.min_SoC * battery_specs.bat_capacity
@@ -254,12 +262,12 @@ def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs):
             output_ds.ptcb_kw = -battery_specs.P_ch_max_kW
             output_ds.sof_kwh = (
                 battery_specs.initial_SoC * battery_specs.bat_capacity
-                + (battery_specs.P_ch_max_kW * P_net.delta_t)
+                + (battery_specs.P_ch_max_kW * delta_time_in_hours)
             )
         if output_ds.sof_kwh > battery_specs.max_SoC * battery_specs.bat_capacity:
             output_ds.export_kw = output_ds.export_kw + (
                 (output_ds.sof_kwh - battery_specs.max_SoC * battery_specs.bat_capacity)
-                / P_net.delta_t
+                / delta_time_in_hours
             )
             output_ds.ptcb_kw = -(abs(act_ptcb) - (output_ds.export_kw))
             output_ds.sof_kwh = battery_specs.max_SoC * battery_specs.bat_capacity
@@ -283,6 +291,7 @@ def optimizer_logic(
     optimization_solver = SolverFactory("gurobi")
     # optimization_solver = SolverFactory("ipopt")
     # optimization_solver = SolverFactory("scip")
+
 
     start_time = ions.index[0]
     end_time = ions.index[-1]

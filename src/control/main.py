@@ -13,9 +13,14 @@ def open_json(filename):
     return data
 
 
-def main():
+def main(optimizer=True):
     fpath = os.path.dirname(os.path.abspath(__file__))
-    filepath = os.path.join(fpath, "inputs/input_offline.json")
+    if optimizer == True:
+    # Optimizer based control
+        filepath = os.path.join(fpath, "inputs/optimizer_offline.json")
+    else:
+    # Rule based control
+        filepath = os.path.join(fpath, "inputs/rule_based_offline.json")
     data = open_json(filepath)
     # id = Read_input().read_id(data)
     input_data = InputData(**data)
@@ -30,4 +35,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(optimizer=False)
