@@ -71,7 +71,7 @@ def df_to_output(
     output = [{"time": time, "values": d} for time, d in output.items()]
     out = ControlOutput(
         id=id,
-        version=version("platone-control-module"),
+        version=version("pymfm"),
         units={"time": "ISO8601", "P": "kW"},
         output=output,
     )
