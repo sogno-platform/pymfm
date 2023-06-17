@@ -9,8 +9,8 @@
 *gurobi.log
 
 # Saved output files
-src/control/Service/results/*.json
-src/control/Service/results/*.png
+src/control/results/*.json
+src/control/results/*.png
 
 # Editors
 .vscode/

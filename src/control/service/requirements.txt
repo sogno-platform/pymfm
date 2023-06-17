@@ -1,3 +1,0 @@
-pandas==1.5.3
-Pyomo==6.5.0
-fastapi[all]==0.94.1
