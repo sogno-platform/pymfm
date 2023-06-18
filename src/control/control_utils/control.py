@@ -14,9 +14,6 @@ from control_utils import data_output
 import pyomo.kernel as pmo
 
 
-
-
-
 def power_balance(model, t):
     return (
         model.P_tie[t] + sum(model.P_ch_bat[n, t] for n in model.N) + model.P_exp[t]
@@ -170,13 +167,21 @@ def control(data: InputData):
             if output_df is None:
                 output_df = pd.DataFrame(columns=output.index, index=df_forecasts.index)
             output_df.loc[time] = output
-            battery_specs.initial_SoC = output.sof_kwh / battery_specs.bat_capacity
+            battery_specs.initial_SoC = (
+                output.bat_energy_Ws / battery_specs.bat_capacity
+            )
         if battery_specs.id is not None:
             output_df.rename(
-                {"ptcb_kw": f"ptcb_kw_{battery_specs.id}"}, inplace=True, axis=1
+                {"P_bat_kW": f"P_{battery_specs.id}_kW"}, inplace=True, axis=1
+            )
+            output_df.rename(
+                {"SoC_bat": f"SoC_{battery_specs.id}_%"}, inplace=True, axis=1
             )
         else:
-            output_df.rename({"ptcb_kw": "ptcb_kw_0"}, inplace=True, axis=1)
+            output_df.rename({"P_bat_kW": "P_bat_1_kW"}, inplace=True, axis=1)
+            output_df.rename({"SoC_bat": "SoC_bat_1_%"}, inplace=True, axis=1)
+        output_df = output_df.drop(["bat_energy_Ws", "import_W", "export_W"], axis=1)
+
         return output_df, (SolverStatus.ok, TerminationCondition.optimal)
 
     if data.uc_name == CM.OPTIMIZER:
@@ -206,75 +211,82 @@ def control(data: InputData):
 
 
 def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs, delta_T: timedelta):
-
     # initialize
     output_ds = pd.Series(
         index=[
-            "ptcb_kw",
-            "sof_kwh",
-            "import_kw",
-            "export_kw",
-            "ptei_kw",
-            "expected_ptei_kw",
+            "P_tie_kW",
+            "expected_P_tie_kW",
+            "P_bat_kW",
+            "SoC_bat",
+            "bat_energy_Ws",
+            "import_W",
+            "export_W",
         ],
         dtype=float,
     )
-    output_ds.import_kw = 0
-    output_ds.export_kw = 0
-    output_ds.sof_kwh = 0
+    output_ds.import_W = 0
+    output_ds.export_W = 0
+    output_ds.bat_energy_Ws = 0
 
-    # Convert timedelta to float in terms of hours
-    delta_time_in_hours = delta_T.total_seconds() / 3600.0
+    # Convert timedelta to float in terms of seconds
+    delta_time_in_sec = delta_T.total_seconds()
 
-
-    output_ds.ptcb_kw = P_net.P_req_kw + P_net.P_net_kW
-    output_ds.sof_kwh = battery_specs.initial_SoC * battery_specs.bat_capacity - (
-        output_ds.ptcb_kw * delta_time_in_hours
+    output_ds.P_bat_kW = P_net.P_req_kw + P_net.P_net_kW
+    output_ds.bat_energy_Ws = battery_specs.initial_SoC * battery_specs.bat_capacity - (
+        output_ds.P_bat_kW * delta_time_in_sec
     )
 
     # discharging
-    if output_ds.ptcb_kw > 0:
-        act_ptcb = output_ds.ptcb_kw
-        if abs(output_ds.ptcb_kw) >= battery_specs.P_dis_max_kW:
-            output_ds.import_kw = output_ds.ptcb_kw - battery_specs.P_dis_max_kW
-            output_ds.ptcb_kw = battery_specs.P_dis_max_kW
-            output_ds.sof_kwh = (
+    if output_ds.P_bat_kW > 0:
+        act_ptcb = output_ds.P_bat_kW
+        if abs(output_ds.P_bat_kW) >= battery_specs.P_dis_max_kW:
+            output_ds.import_W = output_ds.P_bat_kW - battery_specs.P_dis_max_kW
+            output_ds.P_bat_kW = battery_specs.P_dis_max_kW
+            output_ds.bat_energy_Ws = (
                 battery_specs.initial_SoC * battery_specs.bat_capacity
-                - (battery_specs.P_dis_max_kW * delta_time_in_hours)
+                - (battery_specs.P_dis_max_kW * delta_time_in_sec)
             )
 
-        if output_ds.sof_kwh < battery_specs.min_SoC * battery_specs.bat_capacity:
-            output_ds.import_kw = output_ds.import_kw + (
-                (battery_specs.min_SoC * battery_specs.bat_capacity - output_ds.sof_kwh)
-                / delta_time_in_hours
+        if output_ds.bat_energy_Ws < battery_specs.min_SoC * battery_specs.bat_capacity:
+            output_ds.import_W = output_ds.import_W + (
+                (
+                    battery_specs.min_SoC * battery_specs.bat_capacity
+                    - output_ds.bat_energy_Ws
+                )
+                / delta_time_in_sec
             )
-            output_ds.ptcb_kw = act_ptcb - output_ds.import_kw
-            output_ds.sof_kwh = battery_specs.min_SoC * battery_specs.bat_capacity
+            output_ds.P_bat_kW = act_ptcb - output_ds.import_W
+            output_ds.bat_energy_Ws = battery_specs.min_SoC * battery_specs.bat_capacity
 
     # charging
-    if output_ds.ptcb_kw < 0:
-        act_ptcb = output_ds.ptcb_kw
-        if abs(output_ds.ptcb_kw) <= battery_specs.P_ch_max_kW:
-            output_ds.export_kw = 0
+    if output_ds.P_bat_kW < 0:
+        act_ptcb = output_ds.P_bat_kW
+        if abs(output_ds.P_bat_kW) <= battery_specs.P_ch_max_kW:
+            output_ds.export_W = 0
             pass
         else:
-            output_ds.export_kw = abs(output_ds.ptcb_kw) - battery_specs.P_ch_max_kW
-            output_ds.ptcb_kw = -battery_specs.P_ch_max_kW
-            output_ds.sof_kwh = (
+            output_ds.export_W = abs(output_ds.P_bat_kW) - battery_specs.P_ch_max_kW
+            output_ds.P_bat_kW = -battery_specs.P_ch_max_kW
+            output_ds.bat_energy_Ws = (
                 battery_specs.initial_SoC * battery_specs.bat_capacity
-                + (battery_specs.P_ch_max_kW * delta_time_in_hours)
+                + (battery_specs.P_ch_max_kW * delta_time_in_sec)
             )
-        if output_ds.sof_kwh > battery_specs.max_SoC * battery_specs.bat_capacity:
-            output_ds.export_kw = output_ds.export_kw + (
-                (output_ds.sof_kwh - battery_specs.max_SoC * battery_specs.bat_capacity)
-                / delta_time_in_hours
+        if output_ds.bat_energy_Ws > battery_specs.max_SoC * battery_specs.bat_capacity:
+            output_ds.export_W = output_ds.export_W + (
+                (
+                    output_ds.bat_energy_Ws
+                    - battery_specs.max_SoC * battery_specs.bat_capacity
+                )
+                / delta_time_in_sec
             )
-            output_ds.ptcb_kw = -(abs(act_ptcb) - (output_ds.export_kw))
-            output_ds.sof_kwh = battery_specs.max_SoC * battery_specs.bat_capacity
-        output_ds.ptcb_kw = float(output_ds.ptcb_kw)
+            output_ds.P_bat_kW = -(abs(act_ptcb) - (output_ds.export_W))
+            output_ds.bat_energy_Ws = battery_specs.max_SoC * battery_specs.bat_capacity
+        output_ds.P_bat_kW = float(output_ds.P_bat_kW)
 
-    output_ds.ptei_kw = -P_net.P_net_kW
-    output_ds.expected_ptei_kw = output_ds.export_kw - output_ds.import_kw
+    output_ds.P_tie_kW = -P_net.P_net_kW
+    output_ds.expected_P_tie_kW = (output_ds.export_W - output_ds.import_W) / 3600
+
+    output_ds.SoC_bat = (output_ds.bat_energy_Ws / battery_specs.bat_capacity) * 100
 
     return output_ds
 
@@ -291,7 +303,6 @@ def optimizer_logic(
     optimization_solver = SolverFactory("gurobi")
     # optimization_solver = SolverFactory("ipopt")
     # optimization_solver = SolverFactory("scip")
-
 
     start_time = ions.index[0]
     end_time = ions.index[-1]

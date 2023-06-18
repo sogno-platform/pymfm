@@ -82,6 +82,6 @@ def df_to_output(
     return wrapped_output
 
 
-def output_visualization(output_df):
+def output_visualization(output_df: pd.DataFrame):
     output_df.plot()
     plt.savefig("results/output_offline.png")

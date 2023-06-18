@@ -16,20 +16,18 @@ def open_json(filename):
 def main(optimizer=True):
     fpath = os.path.dirname(os.path.abspath(__file__))
     if optimizer == True:
-    # Optimizer based control
+        # Optimizer based control
         filepath = os.path.join(fpath, "inputs/optimizer_offline.json")
     else:
-    # Rule based control
+        # Rule based control
         filepath = os.path.join(fpath, "inputs/rule_based_offline.json")
     data = open_json(filepath)
-    # id = Read_input().read_id(data)
     input_data = InputData(**data)
     output, status = control(input_data)
     print(output)
     data_output.output_visualization(output)
 
     output = data_output.df_to_output(output, input_data.id, status)
-    # print(output.json(by_alias=True, sort_keys=False, indent=4))
     with open("results/output_offline.json", "w") as outfile:
         outfile.write(output.json(by_alias=True, sort_keys=False, indent=4))
 
