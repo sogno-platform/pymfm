@@ -7,6 +7,7 @@ from control_utils.data_input import (
     InputData,
     BatterySpecs,
     Bulk,
+    ImportExportLimitation,
     ControlMethod as CM,
 )
 from pyomo.opt import SolverStatus, TerminationCondition
@@ -50,15 +51,17 @@ def bat_max_SoC(model, n, t):
 
 
 def exp_limit(model, t):
-    if model.export_limit is not None:
+    if model.with_export_limit is not False:
         return model.P_exp[t] <= model.export_limit * model.x_exp[t]
     else:
         return model.P_exp[t] <= 100000000000 * model.x_exp[t]
 
 
-# TODO: Do we have an import limit? If yes, please change 100000000000 to it. This can lead to numerical issues in the solver.
-def imp_big_M(model, t):
-    return model.P_imp[t] <= 100000000000 * model.x_imp[t]
+def imp_limit(model, t):
+    if model.with_import_limit is not False:
+        return model.P_imp[t] <= model.import_limit * model.x_imp[t]
+    else:
+        return model.P_imp[t] <= 100000000000 * model.x_imp[t]
 
 
 def bat_final_SoC(model, n):
@@ -185,7 +188,6 @@ def control(data: InputData):
         return output_df, (SolverStatus.ok, TerminationCondition.optimal)
 
     if data.uc_name == CM.OPTIMIZER:
-        export_limit = None  # If float, this limits the export power
         df_battery_specs = data_input.battery_to_df(battery_specs)
         (
             import_profile,
@@ -198,7 +200,7 @@ def control(data: InputData):
             df_battery_specs,
             data.day_end,
             data.bulk,
-            export_limit,
+            data.imp_exp_lim,
         )
         output_df = data_output.prep_optimizer_output(
             import_profile,
@@ -296,7 +298,7 @@ def optimizer_logic(
     df_battery: pd.DataFrame,
     day_end,
     bulk_data: Bulk,
-    export_limit: float = None,
+    imp_exp_lim: ImportExportLimitation
 ) -> tuple[pd.Series, pd.Series, pd.DataFrame, pd.DataFrame, SolverStatus]:
     # Selected optimization solver
     # optimization_solver = SolverFactory("bonmin")
@@ -344,7 +346,11 @@ def optimizer_logic(
     model.start_time = start_time
     model.end_time = end_time
     model.day_end = day_end
-    model.export_limit = export_limit
+    # Import-export limits enabling the microgrid to go full islanding (if both are zero)
+    model.import_limit = imp_exp_lim.import_limit
+    model.export_limit = imp_exp_lim.export_limit
+    model.with_import_limit = imp_exp_lim.with_import_limit
+    model.with_export_limit = imp_exp_lim.with_export_limit
     # Forecast parameters
     # Total import-export forecast
     model.P_tie = considered_ions_forecast
@@ -424,7 +430,7 @@ def optimizer_logic(
     model.bat_min_SoC = Constraint(model.N, model.T_SoC_bat, rule=bat_min_SoC)
     model.bat_max_SoC = Constraint(model.N, model.T_SoC_bat, rule=bat_max_SoC)
     model.exp_limit = Constraint(model.T, rule=exp_limit)
-    model.imp_big_M = Constraint(model.T, rule=imp_big_M)
+    model.imp_limit = Constraint(model.T, rule=imp_limit)
     model.ch_dis_binary = Constraint(model.N, model.T, rule=ch_dis_binary)
     model.imp_exp_binary = Constraint(model.T, rule=imp_exp_binary)
     model.penalty_for_imp = Constraint(model.T, rule=penalty_for_imp)
