@@ -1,42 +1,62 @@
-import json
+from utils.input_generation import generate_scenario, generate_optimizer_input
 
-from forecast_utils.data_prep import Prepare
-from forecast_utils.data_output import Forecast_output
-from forecast_utils.forecasts import Forecast
-import argparse
+# Example usage
+input_folder = "inputs"
+output_folder = "outputs"
+time_resolution = 15  # in minutes
+uc_name = "optimiser"
+day_end = "2021-04-01T11:00:00.000Z"
+bulk = {
+    "with_bulk": False,
+    "bulk_start": "2021-04-01T13:00:00.000Z",
+    "bulk_end": "2021-04-01T17:00:00.000Z",
+    "bulk_energy_kWh": 100,
+}
+import_export_limitation = {
+    "with_import_limit": True,
+    "with_export_limit": False,
+    "import_limit": 1000000,
+    "export_limit": 100000,
+}
+battery_specs = [
+    {
+        "id": "bat_1",
+        "bat_type": "cbes",
+        "with_final_SoC": True,
+        "initial_SoC": 60,
+        "final_SoC": 87,
+        "P_dis_max_kW": 300,
+        "P_ch_max_kW": 300,
+        "min_SoC": 8.75,
+        "max_SoC": 87.5,
+        "bat_capacity": 800,
+        "ch_efficiency": 1,
+        "dis_efficiency": 1,
+    },
+    {
+        "id": "bat_2",
+        "bat_type": "hbes",
+        "with_final_SoC": True,
+        "initial_SoC": 40,
+        "final_SoC": 61.4,
+        "P_dis_max_kW": 30,
+        "P_ch_max_kW": 30,
+        "min_SoC": 8.75,
+        "max_SoC": 87.5,
+        "bat_capacity": 80,
+        "ch_efficiency": 1,
+        "dis_efficiency": 1,
+    },
+]
 
+scenario_data = generate_scenario(input_folder, time_resolution)
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "-level", "--level", action="store", help="Provides forecast level"
-    )
-    args = parser.parse_args()
-    print("++++++++++++++++++")
-    print(args)
-    print("#####################")
-    forecast_level = int(args.level)
-
-    forecast_input_file = "Forecast_POST_2021_07_05_V1.json"
-    with open(forecast_input_file) as data_file:
-        data = json.load(data_file)
-
-    (
-        forecast_df,
-        time_start,
-        pv_metadata,
-        load_metadata,
-        time_end,
-        forecast_level,
-    ) = Prepare().read_forecast_input(data, forecast_level)
-    forecast_data = Forecast().forecast(
-        forecast_df, time_start, time_end, pv_metadata, load_metadata, forecast_level
-    )
-    forecast_results = Forecast_output().write_forecast_output(
-        forecast_data.copy(), pv_metadata, load_metadata, forecast_level
-    )
-    print(forecast_results)
-
-
-if __name__ == "__main__":
-    main()
+generate_optimizer_input(
+    scenario_data,
+    uc_name,
+    day_end,
+    bulk,
+    import_export_limitation,
+    battery_specs,
+    output_folder,
+)

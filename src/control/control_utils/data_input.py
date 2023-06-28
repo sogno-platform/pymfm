@@ -25,11 +25,13 @@ class Bulk(BaseModel):
     bulk_end: datetime = Field(..., alias="bulk_end")
     bulk_energy_kwh: float = Field(..., alias="bulk_energy_kWh")
 
+
 class ImportExportLimitation(BaseModel):
     with_import_limit: bool = Field(True)
     with_export_limit: bool = Field(True)
     import_limit: float = Field(..., alias="import_limit")
     export_limit: float = Field(..., alias="export_limit")
+
 
 class P_net(BaseModel):
     time: datetime = Field(..., alias="time")

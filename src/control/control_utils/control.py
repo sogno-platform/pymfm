@@ -51,14 +51,14 @@ def bat_max_SoC(model, n, t):
 
 
 def exp_limit(model, t):
-    if model.with_export_limit is not False:
+    if model.with_export_limit is True:
         return model.P_exp[t] <= model.export_limit * model.x_exp[t]
     else:
         return model.P_exp[t] <= 100000000000 * model.x_exp[t]
 
 
 def imp_limit(model, t):
-    if model.with_import_limit is not False:
+    if model.with_import_limit is True:
         return model.P_imp[t] <= model.import_limit * model.x_imp[t]
     else:
         return model.P_imp[t] <= 100000000000 * model.x_imp[t]
@@ -298,7 +298,7 @@ def optimizer_logic(
     df_battery: pd.DataFrame,
     day_end,
     bulk_data: Bulk,
-    imp_exp_lim: ImportExportLimitation
+    imp_exp_lim: ImportExportLimitation,
 ) -> tuple[pd.Series, pd.Series, pd.DataFrame, pd.DataFrame, SolverStatus]:
     # Selected optimization solver
     # optimization_solver = SolverFactory("bonmin")

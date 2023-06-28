@@ -11,6 +11,7 @@
 # Saved output files
 src/control/results/*.json
 src/control/results/*.png
+src/forecast/outputs/*.json
 
 # Editors
 .vscode/
