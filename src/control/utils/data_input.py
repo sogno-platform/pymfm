@@ -27,16 +27,17 @@ class Bulk(BaseModel):
 
 
 class ImportExportLimitation(BaseModel):
+    timestamp: datetime = Field(..., alias="timestamp")
     with_import_limit: bool = Field(True)
     with_export_limit: bool = Field(True)
     import_limit: float = Field(..., alias="import_limit")
     export_limit: float = Field(..., alias="export_limit")
 
 
-class P_net(BaseModel):
-    time: datetime = Field(..., alias="time")
-    P_req_kw: float = Field(..., alias="P_req_kW")
-    P_net_kW: float = Field(..., alias="P_net_kW")
+class generation_and_load(BaseModel):
+    timestamp: datetime = Field(..., alias="timestamp")
+    P_gen_kW: float = Field(..., alias="P_gen_kW")
+    P_load_kW: float = Field(..., alias="P_load_kW")
 
 
 # TODO add constraints
@@ -96,8 +97,8 @@ class InputData(BaseModel):
     day_end: datetime = Field(..., alias="day_end")
     id: str
     bulk: Bulk = Field(..., alias="bulk")
-    imp_exp_lim: ImportExportLimitation = Field(..., alias="import_export_limitation")
-    P_net: list[P_net]
+    import_export_limitation: list[ImportExportLimitation]
+    generation_and_load: list[generation_and_load]
     battery_specs: BatterySpecs | list[BatterySpecs]
 
     @validator("uc_name", pre=True)
@@ -106,21 +107,21 @@ class InputData(BaseModel):
             return "optimizer"
         return value
 
-    @validator("P_net")
-    def P_net_start_before_timewindow(cls, meas, values):
+    @validator("generation_and_load")
+    def generation_and_load_start_before_timewindow(cls, meas, values):
         uc_start = values["uc_start"]
-        if uc_start < meas[0].time:
+        if uc_start < meas[0].timestamp:
             raise ValueError(
-                f"P_net have to start at or before uc_start. P_net start at {meas[0].time} uc_start was {uc_start}"
+                f"generation_and_load have to start at or before uc_start. generation_and_load start at {meas[0].timestamp} uc_start was {uc_start}"
             )
         return meas
 
-    @validator("P_net")
-    def P_net_end_after_timewindow(cls, meas, values):
+    @validator("generation_and_load")
+    def generation_and_load_end_after_timewindow(cls, meas, values):
         uc_end = values["uc_end"]
-        if uc_end > meas[-1].time:
+        if uc_end > meas[-1].timestamp:
             raise ValueError(
-                f"P_net have to end at or after uc_end. P_net end at {meas[0].time} uc_end was {uc_end}"
+                f"generation_and_load have to end at or after uc_end. generation_and_load end at {meas[0].timestamp} uc_end was {uc_end}"
             )
         return meas
 
@@ -158,11 +159,11 @@ def input_prep(battery_specs: BatterySpecs | list[BatterySpecs]):
     return battery_specs
 
 
-def P_net_to_df(
-    meas: list[P_net], start: datetime = None, end: datetime = None
+def generation_and_load_to_df(
+    meas: list[generation_and_load], start: datetime = None, end: datetime = None
 ) -> pd.DataFrame:
     df_forecasts = pd.json_normalize([mes.dict(by_alias=False) for mes in meas])
-    df_forecasts.set_index("time", inplace=True)
+    df_forecasts.set_index("timestamp", inplace=True)
     df_forecasts.index.freq = pd.infer_freq(df_forecasts.index)
     df_forecasts = df_forecasts.loc[start:end]
     return df_forecasts
@@ -181,6 +182,13 @@ def battery_to_df(battery_specs: BatterySpecs | list[BatterySpecs]) -> pd.DataFr
     if ~df_battery.id.isna().any():
         df_battery.set_index("id", inplace=True)
     return df_battery
+
+def imp_exp_to_df(meas: list[ImportExportLimitation], start: datetime = None, end: datetime = None) -> pd.DataFrame:
+    df_imp_exp = pd.json_normalize([mes.dict(by_alias=False) for mes in meas])
+    df_imp_exp.set_index("timestamp", inplace=True)
+    df_imp_exp.index.freq = pd.infer_freq(df_imp_exp.index)
+    df_imp_exp = df_imp_exp.loc[start:end]
+    return df_imp_exp
 
 
 class Solver(StrEnum):

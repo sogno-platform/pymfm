@@ -11,978 +11,1167 @@
         "bulk_end": "2021-04-01T17:00:00.000Z",
         "bulk_energy_kWh": 100
     },
-    "import_export_limitation": {
-        "with_import_limit": true,
-        "with_export_limit": false,
-        "import_limit": 1000000,
-        "export_limit": 100000
-    },
-    "P_net": [
+    "import_export_limitation": [
         {
-            "time": "2021-04-01T00:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 20.7        },
-        {
-            "time": "2021-04-01T00:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 18.675
+            "timestamp": "2021-04-01T00:00:00.000000Z",
+            "with_import_limit": true,
+            "with_export_limit": false,
+            "import_limit": 10,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T00:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 16.65
+            "timestamp": "2021-04-01T00:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T00:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 14.85
+            "timestamp": "2021-04-01T00:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T01:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 13.5
+            "timestamp": "2021-04-01T00:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T01:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 12.6
+            "timestamp": "2021-04-01T01:00:00.000000Z",
+            "with_import_limit": true,
+            "with_export_limit": true,
+            "import_limit": 10,
+            "export_limit": 10
         },
         {
-            "time": "2021-04-01T01:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 11.925
+            "timestamp": "2021-04-01T01:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T01:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 11.475
+            "timestamp": "2021-04-01T01:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T02:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 11.25
+            "timestamp": "2021-04-01T01:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T02:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.8
+            "timestamp": "2021-04-01T02:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T02:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.575
+            "timestamp": "2021-04-01T02:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T02:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.575
+            "timestamp": "2021-04-01T02:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T03:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T02:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T03:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T03:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T03:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T03:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T03:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T03:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T04:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T03:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T04:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T04:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T04:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T04:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T04:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.575
+            "timestamp": "2021-04-01T04:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T05:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.8
+            "timestamp": "2021-04-01T04:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T05:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 11.025
+            "timestamp": "2021-04-01T05:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T05:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 11.7
+            "timestamp": "2021-04-01T05:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T05:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 12.825
+            "timestamp": "2021-04-01T05:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T06:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 14.85
+            "timestamp": "2021-04-01T05:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T06:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 17.55
+            "timestamp": "2021-04-01T06:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T06:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 20.7
+            "timestamp": "2021-04-01T06:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T06:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 24.075
+            "timestamp": "2021-04-01T06:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T07:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 27.0
+            "timestamp": "2021-04-01T06:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T07:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 25.0975
+            "timestamp": "2021-04-01T07:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T07:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 22.52
+            "timestamp": "2021-04-01T07:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T07:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 19.2675
+            "timestamp": "2021-04-01T07:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T08:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 15.79
+            "timestamp": "2021-04-01T07:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T08:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 4.09
+            "timestamp": "2021-04-01T08:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T08:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -7.835
+            "timestamp": "2021-04-01T08:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T08:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -19.985
+            "timestamp": "2021-04-01T08:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T09:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -32.36
+            "timestamp": "2021-04-01T08:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T09:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -43.9875
+            "timestamp": "2021-04-01T09:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T09:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -55.84
+            "timestamp": "2021-04-01T09:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T09:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -67.6925
+            "timestamp": "2021-04-01T09:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T10:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -79.545
+            "timestamp": "2021-04-01T09:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T10:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -89.3
+            "timestamp": "2021-04-01T10:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T10:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -99.055
+            "timestamp": "2021-04-01T10:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T10:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -108.81
+            "timestamp": "2021-04-01T10:30:00.000000Z",
+            "with_import_limit": true,
+            "with_export_limit": true,
+            "import_limit": 10,
+            "export_limit": 10
         },
         {
-            "time": "2021-04-01T11:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -118.565
+            "timestamp": "2021-04-01T10:45:00.000000Z",
+            "with_import_limit": true,
+            "with_export_limit": true,
+            "import_limit": 10,
+            "export_limit": 10
         },
         {
-            "time": "2021-04-01T11:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -125.3025
+            "timestamp": "2021-04-01T11:00:00.000000Z",
+            "with_import_limit": true,
+            "with_export_limit": true,
+            "import_limit": 10,
+            "export_limit": 10
         },
         {
-            "time": "2021-04-01T11:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -131.815
+            "timestamp": "2021-04-01T11:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T11:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -138.1025
+            "timestamp": "2021-04-01T11:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T12:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -143.94
+            "timestamp": "2021-04-01T11:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T12:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -145.4375
+            "timestamp": "2021-04-01T12:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T12:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -146.935
+            "timestamp": "2021-04-01T12:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T12:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -148.6575
+            "timestamp": "2021-04-01T12:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T13:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -151.055
+            "timestamp": "2021-04-01T12:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T13:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -150.43
+            "timestamp": "2021-04-01T13:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T13:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -150.48
+            "timestamp": "2021-04-01T13:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T13:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -150.755
+            "timestamp": "2021-04-01T13:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T14:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -151.03
+            "timestamp": "2021-04-01T13:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T14:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -147.325
+            "timestamp": "2021-04-01T14:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T14:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -143.395
+            "timestamp": "2021-04-01T14:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T14:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -139.465
+            "timestamp": "2021-04-01T14:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T15:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -135.535
+            "timestamp": "2021-04-01T14:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T15:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -127.7025
+            "timestamp": "2021-04-01T15:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T15:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -120.095
+            "timestamp": "2021-04-01T15:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T15:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -112.2625
+            "timestamp": "2021-04-01T15:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T16:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -104.43
+            "timestamp": "2021-04-01T15:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T16:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -93.1725
+            "timestamp": "2021-04-01T16:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T16:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -81.915
+            "timestamp": "2021-04-01T16:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T16:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -70.2075
+            "timestamp": "2021-04-01T16:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T17:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -58.275
+            "timestamp": "2021-04-01T16:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T17:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -45.25
+            "timestamp": "2021-04-01T17:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T17:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -32.0
+            "timestamp": "2021-04-01T17:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T17:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -18.3
+            "timestamp": "2021-04-01T17:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T18:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -4.375
+            "timestamp": "2021-04-01T17:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T18:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 2.6025
+            "timestamp": "2021-04-01T18:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T18:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 9.805
+            "timestamp": "2021-04-01T18:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T18:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 17.0075
+            "timestamp": "2021-04-01T18:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T19:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 23.985
+            "timestamp": "2021-04-01T18:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T19:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 28.0275
+            "timestamp": "2021-04-01T19:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T19:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 31.845
+            "timestamp": "2021-04-01T19:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T19:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 34.9875
+            "timestamp": "2021-04-01T19:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T20:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 37.68
+            "timestamp": "2021-04-01T19:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T20:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 38.385
+            "timestamp": "2021-04-01T20:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T20:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 38.415
+            "timestamp": "2021-04-01T20:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T20:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 38.445
+            "timestamp": "2021-04-01T20:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T21:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 38.7
+            "timestamp": "2021-04-01T20:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T21:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 38.025
+            "timestamp": "2021-04-01T21:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T21:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 37.575
+            "timestamp": "2021-04-01T21:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T21:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 37.125
+            "timestamp": "2021-04-01T21:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T22:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 36.45
+            "timestamp": "2021-04-01T21:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T22:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 35.325
+            "timestamp": "2021-04-01T22:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T22:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 33.525
+            "timestamp": "2021-04-01T22:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T22:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 31.725
+            "timestamp": "2021-04-01T22:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T23:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 29.475
+            "timestamp": "2021-04-01T22:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T23:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 27.225
+            "timestamp": "2021-04-01T23:00:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T23:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 25.2
+            "timestamp": "2021-04-01T23:15:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
         {
-            "time": "2021-04-01T23:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 22.95
+            "timestamp": "2021-04-01T23:30:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
         },
+        {
+            "timestamp": "2021-04-01T23:45:00.000000Z",
+            "with_import_limit": false,
+            "with_export_limit": false,
+            "import_limit": 0,
+            "export_limit": 0
+        }
+    ],
+    "generation_and_load": [
         {
-            "time": "2021-04-02T00:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 19.35
+            "timestamp": "2021-04-01T00:00:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 24.934559208072987
         },
         {
-            "time": "2021-04-02T00:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 22.275
+            "timestamp": "2021-04-01T00:15:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 22.495308850772116
         },
         {
-            "time": "2021-04-02T00:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 20.7
+            "timestamp": "2021-04-01T00:30:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 20.056058493442517
         },
         {
-            "time": "2021-04-02T00:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 19.35
+            "timestamp": "2021-04-01T00:45:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 17.887835953616328
         },
         {
-            "time": "2021-04-02T01:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 18.0
+            "timestamp": "2021-04-01T01:00:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 16.261669048739506
         },
         {
-            "time": "2021-04-02T01:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 16.65
+            "timestamp": "2021-04-01T01:15:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 15.177557778812048
         },
         {
-            "time": "2021-04-02T01:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 15.3
+            "timestamp": "2021-04-01T01:30:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 14.364474326388
         },
         {
-            "time": "2021-04-02T01:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 14.175
+            "timestamp": "2021-04-01T01:45:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 13.822418691438633
         },
         {
-            "time": "2021-04-02T02:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 13.05
+            "timestamp": "2021-04-01T02:00:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 13.551390873963951
         },
         {
-            "time": "2021-04-02T02:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 12.375
+            "timestamp": "2021-04-01T02:15:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 13.009335238985859
         },
         {
-            "time": "2021-04-02T02:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 11.7
+            "timestamp": "2021-04-01T02:30:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 12.738307421511175
         },
         {
-            "time": "2021-04-02T02:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 11.475
+            "timestamp": "2021-04-01T02:45:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 12.738307421511175
         },
         {
-            "time": "2021-04-02T03:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 11.025
+            "timestamp": "2021-04-01T03:00:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 12.467279604036493
         },
         {
-            "time": "2021-04-02T03:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.8
+            "timestamp": "2021-04-01T03:15:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 12.467279604036493
         },
         {
-            "time": "2021-04-02T03:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.575
+            "timestamp": "2021-04-01T03:30:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 12.467279604036493
         },
         {
-            "time": "2021-04-02T03:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T03:45:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 12.467279604036493
         },
         {
-            "time": "2021-04-02T04:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T04:00:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 12.467279604036493
         },
         {
-            "time": "2021-04-02T04:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T04:15:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 12.467279604036493
         },
         {
-            "time": "2021-04-02T04:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T04:30:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 12.467279604036493
         },
         {
-            "time": "2021-04-02T04:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T04:45:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 12.738307421511175
         },
         {
-            "time": "2021-04-02T05:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T05:00:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 13.009335238985859
         },
         {
-            "time": "2021-04-02T05:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T05:15:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 13.280363056460542
         },
         {
-            "time": "2021-04-02T05:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T05:30:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 14.093446508913319
         },
         {
-            "time": "2021-04-02T05:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T05:45:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 15.448585596315457
         },
         {
-            "time": "2021-04-02T06:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T06:00:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 17.887835953616328
         },
         {
-            "time": "2021-04-02T06:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.35
+            "timestamp": "2021-04-01T06:15:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 21.140169763369972
         },
         {
-            "time": "2021-04-02T06:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 10.575
+            "timestamp": "2021-04-01T06:30:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 24.934559208072987
         },
         {
-            "time": "2021-04-02T06:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 11.025
+            "timestamp": "2021-04-01T06:45:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 28.99997647025068
         },
         {
-            "time": "2021-04-02T07:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 11.7
+            "timestamp": "2021-04-01T07:00:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 32.52333809747901
         },
         {
-            "time": "2021-04-02T07:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 9.165
+            "timestamp": "2021-04-01T07:15:00.000000Z",
+            "P_gen_kW": 4.1525,
+            "P_load_kW": 35.233616272283285
         },
         {
-            "time": "2021-04-02T07:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 7.08
+            "timestamp": "2021-04-01T07:30:00.000000Z",
+            "P_gen_kW": 8.305,
+            "P_load_kW": 37.13081099463481
         },
         {
-            "time": "2021-04-02T07:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 5.445
+            "timestamp": "2021-04-01T07:45:00.000000Z",
+            "P_gen_kW": 12.4575,
+            "P_load_kW": 38.214922264533534
         },
         {
-            "time": "2021-04-02T08:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 4.26
+            "timestamp": "2021-04-01T08:00:00.000000Z",
+            "P_gen_kW": 16.61,
+            "P_load_kW": 39.02800571698631
         },
         {
-            "time": "2021-04-02T08:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -2.39
+            "timestamp": "2021-04-01T08:15:00.000000Z",
+            "P_gen_kW": 28.76,
+            "P_load_kW": 39.570061351935664
         },
         {
-            "time": "2021-04-02T08:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -8.815
+            "timestamp": "2021-04-01T08:30:00.000000Z",
+            "P_gen_kW": 40.91,
+            "P_load_kW": 39.841089169410346
         },
         {
-            "time": "2021-04-02T08:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -15.24
+            "timestamp": "2021-04-01T08:45:00.000000Z",
+            "P_gen_kW": 53.06,
+            "P_load_kW": 39.841089169410346
         },
         {
-            "time": "2021-04-02T09:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -21.665
+            "timestamp": "2021-04-01T09:00:00.000000Z",
+            "P_gen_kW": 65.21,
+            "P_load_kW": 39.570061351935664
         },
         {
-            "time": "2021-04-02T09:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -27.24
+            "timestamp": "2021-04-01T09:15:00.000000Z",
+            "P_gen_kW": 76.8375,
+            "P_load_kW": 39.570061351935664
         },
         {
-            "time": "2021-04-02T09:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -33.265
+            "timestamp": "2021-04-01T09:30:00.000000Z",
+            "P_gen_kW": 88.465,
+            "P_load_kW": 39.29903353446099
         },
         {
-            "time": "2021-04-02T09:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -39.74
+            "timestamp": "2021-04-01T09:45:00.000000Z",
+            "P_gen_kW": 100.0925,
+            "P_load_kW": 39.02800571698631
         },
         {
-            "time": "2021-04-02T10:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -46.44
+            "timestamp": "2021-04-01T10:00:00.000000Z",
+            "P_gen_kW": 111.72,
+            "P_load_kW": 38.756977899511625
         },
         {
-            "time": "2021-04-02T10:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -51.845
+            "timestamp": "2021-04-01T10:15:00.000000Z",
+            "P_gen_kW": 121.25,
+            "P_load_kW": 38.485950082008216
         },
         {
-            "time": "2021-04-02T10:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -57.7
+            "timestamp": "2021-04-01T10:30:00.000000Z",
+            "P_gen_kW": 130.78,
+            "P_load_kW": 38.214922264533534
         },
         {
-            "time": "2021-04-02T10:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -63.555
+            "timestamp": "2021-04-01T10:45:00.000000Z",
+            "P_gen_kW": 140.31,
+            "P_load_kW": 37.943894447058845
         },
         {
-            "time": "2021-04-02T11:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -69.185
+            "timestamp": "2021-04-01T11:00:00.000000Z",
+            "P_gen_kW": 149.84,
+            "P_load_kW": 37.67286662958417
         },
         {
-            "time": "2021-04-02T11:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -77.26
+            "timestamp": "2021-04-01T11:15:00.000000Z",
+            "P_gen_kW": 156.5775,
+            "P_load_kW": 37.67286662958417
         },
         {
-            "time": "2021-04-02T11:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -85.335
+            "timestamp": "2021-04-01T11:30:00.000000Z",
+            "P_gen_kW": 163.315,
+            "P_load_kW": 37.943894447058845
         },
         {
-            "time": "2021-04-02T11:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -93.41
+            "timestamp": "2021-04-01T11:45:00.000000Z",
+            "P_gen_kW": 170.0525,
+            "P_load_kW": 38.485950082008216
         },
         {
-            "time": "2021-04-02T12:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -101.935
+            "timestamp": "2021-04-01T12:00:00.000000Z",
+            "P_gen_kW": 176.79,
+            "P_load_kW": 39.570061351935664
         },
         {
-            "time": "2021-04-02T12:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -104.95
+            "timestamp": "2021-04-01T12:15:00.000000Z",
+            "P_gen_kW": 179.6375,
+            "P_load_kW": 41.19622825681249
         },
         {
-            "time": "2021-04-02T12:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -108.415
+            "timestamp": "2021-04-01T12:30:00.000000Z",
+            "P_gen_kW": 182.485,
+            "P_load_kW": 42.82239516168931
         },
         {
-            "time": "2021-04-02T12:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -113.005
+            "timestamp": "2021-04-01T12:45:00.000000Z",
+            "P_gen_kW": 185.3325,
+            "P_load_kW": 44.17753424909146
         },
         {
-            "time": "2021-04-02T13:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -118.045
+            "timestamp": "2021-04-01T13:00:00.000000Z",
+            "P_gen_kW": 188.18,
+            "P_load_kW": 44.71958988404083
         },
         {
-            "time": "2021-04-02T13:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -121.1825
+            "timestamp": "2021-04-01T13:15:00.000000Z",
+            "P_gen_kW": 187.105,
+            "P_load_kW": 44.17753424909146
         },
         {
-            "time": "2021-04-02T13:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -124.77
+            "timestamp": "2021-04-01T13:30:00.000000Z",
+            "P_gen_kW": 186.03,
+            "P_load_kW": 42.82239516168931
         },
         {
-            "time": "2021-04-02T13:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -128.3575
+            "timestamp": "2021-04-01T13:45:00.000000Z",
+            "P_gen_kW": 184.955,
+            "P_load_kW": 41.19622825681249
         },
         {
-            "time": "2021-04-02T14:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -131.27
+            "timestamp": "2021-04-01T14:00:00.000000Z",
+            "P_gen_kW": 183.88,
+            "P_load_kW": 39.570061351935664
         },
         {
-            "time": "2021-04-02T14:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -127.7925
+            "timestamp": "2021-04-01T14:15:00.000000Z",
+            "P_gen_kW": 179.05,
+            "P_load_kW": 38.214922264533534
         },
         {
-            "time": "2021-04-02T14:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -123.415
+            "timestamp": "2021-04-01T14:30:00.000000Z",
+            "P_gen_kW": 174.22,
+            "P_load_kW": 37.13081099463481
         },
         {
-            "time": "2021-04-02T14:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -118.8125
+            "timestamp": "2021-04-01T14:45:00.000000Z",
+            "P_gen_kW": 169.39,
+            "P_load_kW": 36.046699724707345
         },
         {
-            "time": "2021-04-02T15:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -113.985
+            "timestamp": "2021-04-01T15:00:00.000000Z",
+            "P_gen_kW": 164.56,
+            "P_load_kW": 34.96258845477988
         },
         {
-            "time": "2021-04-02T15:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -106.1375
+            "timestamp": "2021-04-01T15:15:00.000000Z",
+            "P_gen_kW": 156.0525,
+            "P_load_kW": 34.14950500235583
         },
         {
-            "time": "2021-04-02T15:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -98.29
+            "timestamp": "2021-04-01T15:30:00.000000Z",
+            "P_gen_kW": 147.545,
+            "P_load_kW": 33.065393732428376
         },
         {
-            "time": "2021-04-02T15:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -90.6675
+            "timestamp": "2021-04-01T15:45:00.000000Z",
+            "P_gen_kW": 139.0375,
+            "P_load_kW": 32.25231028000433
         },
         {
-            "time": "2021-04-02T16:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -82.82
+            "timestamp": "2021-04-01T16:00:00.000000Z",
+            "P_gen_kW": 130.53,
+            "P_load_kW": 31.43922682758028
         },
         {
-            "time": "2021-04-02T16:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -72.7975
+            "timestamp": "2021-04-01T16:15:00.000000Z",
+            "P_gen_kW": 118.8225,
+            "P_load_kW": 30.897171192602187
         },
         {
-            "time": "2021-04-02T16:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -62.775
+            "timestamp": "2021-04-01T16:30:00.000000Z",
+            "P_gen_kW": 107.115,
+            "P_load_kW": 30.355115557652823
         },
         {
-            "time": "2021-04-02T16:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -52.3025
+            "timestamp": "2021-04-01T16:45:00.000000Z",
+            "P_gen_kW": 95.4075,
+            "P_load_kW": 30.355115557652823
         },
         {
-            "time": "2021-04-02T17:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -41.605
+            "timestamp": "2021-04-01T17:00:00.000000Z",
+            "P_gen_kW": 83.7,
+            "P_load_kW": 30.626143375127505
         },
         {
-            "time": "2021-04-02T17:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -29.715
+            "timestamp": "2021-04-01T17:15:00.000000Z",
+            "P_gen_kW": 71.35,
+            "P_load_kW": 31.43922682758028
         },
         {
-            "time": "2021-04-02T17:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -17.375
+            "timestamp": "2021-04-01T17:30:00.000000Z",
+            "P_gen_kW": 59.0,
+            "P_load_kW": 32.52333809747901
         },
         {
-            "time": "2021-04-02T17:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": -4.585
+            "timestamp": "2021-04-01T17:45:00.000000Z",
+            "P_gen_kW": 46.65,
+            "P_load_kW": 34.14950500235583
         },
         {
-            "time": "2021-04-02T18:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 8.43
+            "timestamp": "2021-04-01T18:00:00.000000Z",
+            "P_gen_kW": 34.3,
+            "P_load_kW": 36.046699724707345
         },
         {
-            "time": "2021-04-02T18:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 14.27
+            "timestamp": "2021-04-01T18:15:00.000000Z",
+            "P_gen_kW": 29.1225,
+            "P_load_kW": 38.214922264533534
         },
         {
-            "time": "2021-04-02T18:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 20.11
+            "timestamp": "2021-04-01T18:30:00.000000Z",
+            "P_gen_kW": 23.945,
+            "P_load_kW": 40.654172621863125
         },
         {
-            "time": "2021-04-02T18:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 25.95
+            "timestamp": "2021-04-01T18:45:00.000000Z",
+            "P_gen_kW": 18.7675,
+            "P_load_kW": 43.093422979163996
         },
         {
-            "time": "2021-04-02T19:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 31.79
+            "timestamp": "2021-04-01T19:00:00.000000Z",
+            "P_gen_kW": 13.59,
+            "P_load_kW": 45.26164551899019
         },
         {
-            "time": "2021-04-02T19:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 33.9425
+            "timestamp": "2021-04-01T19:15:00.000000Z",
+            "P_gen_kW": 11.3475,
+            "P_load_kW": 47.42986805881637
         },
         {
-            "time": "2021-04-02T19:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 35.645
+            "timestamp": "2021-04-01T19:30:00.000000Z",
+            "P_gen_kW": 9.105,
+            "P_load_kW": 49.32706278116788
         },
         {
-            "time": "2021-04-02T19:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 36.8975
+            "timestamp": "2021-04-01T19:45:00.000000Z",
+            "P_gen_kW": 6.8625,
+            "P_load_kW": 50.41117405109534
         },
         {
-            "time": "2021-04-02T20:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 37.7
+            "timestamp": "2021-04-01T20:00:00.000000Z",
+            "P_gen_kW": 4.62,
+            "P_load_kW": 50.9532296860447
         },
         {
-            "time": "2021-04-02T20:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 37.3875
+            "timestamp": "2021-04-01T20:15:00.000000Z",
+            "P_gen_kW": 3.465,
+            "P_load_kW": 50.41117405109534
         },
         {
-            "time": "2021-04-02T20:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 36.85
+            "timestamp": "2021-04-01T20:30:00.000000Z",
+            "P_gen_kW": 2.31,
+            "P_load_kW": 49.05603496369319
         },
         {
-            "time": "2021-04-02T20:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 35.8625
+            "timestamp": "2021-04-01T20:45:00.000000Z",
+            "P_gen_kW": 1.155,
+            "P_load_kW": 47.70089587631979
         },
         {
-            "time": "2021-04-02T21:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 35.325
+            "timestamp": "2021-04-01T21:00:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 46.616784606392336
         },
         {
-            "time": "2021-04-02T21:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 34.875
+            "timestamp": "2021-04-01T21:15:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 45.803701153968284
         },
         {
-            "time": "2021-04-02T21:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 34.425
+            "timestamp": "2021-04-01T21:30:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 45.26164551899019
         },
         {
-            "time": "2021-04-02T21:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 34.2
+            "timestamp": "2021-04-01T21:45:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 44.71958988404083
         },
         {
-            "time": "2021-04-02T22:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 33.75
+            "timestamp": "2021-04-01T22:00:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 43.90650643158805
         },
         {
-            "time": "2021-04-02T22:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 32.85
+            "timestamp": "2021-04-01T22:15:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 42.55136734421463
         },
         {
-            "time": "2021-04-02T22:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 31.5
+            "timestamp": "2021-04-01T22:30:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 40.38314480435971
         },
         {
-            "time": "2021-04-02T22:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 29.7
+            "timestamp": "2021-04-01T22:45:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 38.214922264533534
         },
         {
-            "time": "2021-04-02T23:00:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 27.9
+            "timestamp": "2021-04-01T23:00:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 35.50464408975798
         },
         {
-            "time": "2021-04-02T23:15:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 25.65
+            "timestamp": "2021-04-01T23:15:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 32.794365914953694
         },
         {
-            "time": "2021-04-02T23:30:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 23.4
+            "timestamp": "2021-04-01T23:30:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 30.355115557652823
         },
         {
-            "time": "2021-04-02T23:45:00.000Z",
-            "P_req_kW": 0,
-            "P_net_kW": 21.375
+            "timestamp": "2021-04-01T23:45:00.000000Z",
+            "P_gen_kW": 0.0,
+            "P_load_kW": 27.64483738284854
         }
     ],
     "battery_specs": [
         {
             "id": "bat_1",
             "bat_type": "cbes",
-            "with_final_SoC": true,
+            "with_final_SoC": false,
             "initial_SoC": 60,
             "final_SoC": 87,
             "P_dis_max_kW": 300,
@@ -996,7 +1185,7 @@
         {
             "id": "bat_2",
             "bat_type": "hbes",
-            "with_final_SoC": true,
+            "with_final_SoC": false,
             "initial_SoC": 40,
             "final_SoC": 61.4,
             "P_dis_max_kW": 30,

@@ -2,8 +2,8 @@ import pandas as pd
 from datetime import timedelta
 from pyomo.environ import SolverFactory
 from pyomo.core import *
-from control_utils import data_input, data_output
-from control_utils.data_input import (
+from utils import data_input, data_output
+from utils.data_input import (
     InputData,
     BatterySpecs,
     Bulk,
@@ -11,7 +11,7 @@ from control_utils.data_input import (
     ControlMethod as CM,
 )
 from pyomo.opt import SolverStatus, TerminationCondition
-from control_utils import data_output
+from utils import data_output
 import pyomo.kernel as pmo
 
 
@@ -51,15 +51,14 @@ def bat_max_SoC(model, n, t):
 
 
 def exp_limit(model, t):
-    if model.with_export_limit is True:
-        return model.P_exp[t] <= model.export_limit * model.x_exp[t]
+    if model.with_export_limit[t]:
+        return model.P_exp[t] <= model.export_limit[t] * model.x_exp[t]
     else:
         return model.P_exp[t] <= 100000000000 * model.x_exp[t]
 
-
 def imp_limit(model, t):
-    if model.with_import_limit is True:
-        return model.P_imp[t] <= model.import_limit * model.x_imp[t]
+    if model.with_import_limit[t]:
+        return model.P_imp[t] <= model.import_limit[t] * model.x_imp[t]
     else:
         return model.P_imp[t] <= 100000000000 * model.x_imp[t]
 
@@ -151,8 +150,11 @@ def obj_rule(model):
 
 def control(data: InputData):
     battery_specs = data_input.input_prep(data.battery_specs)
-    df_forecasts = data_input.P_net_to_df(
-        data.P_net, start=data.uc_start, end=data.uc_end
+    df_forecasts = data_input.generation_and_load_to_df(
+        data.generation_and_load, start=data.uc_start, end=data.uc_end
+    )
+    imp_exp_limits = data_input.imp_exp_to_df(
+        data.import_export_limitation, start=data.uc_start, end=data.uc_end
     )
     if data.uc_name == CM.RULE_BASED:
         if isinstance(battery_specs, list):
@@ -196,11 +198,11 @@ def control(data: InputData):
             sof_profiles,
             solver_status,
         ) = optimizer_logic(
-            df_forecasts.P_net_kW,
+            df_forecasts.P_load_kW,
             df_battery_specs,
             data.day_end,
             data.bulk,
-            data.imp_exp_lim,
+            imp_exp_limits,
         )
         output_df = data_output.prep_optimizer_output(
             import_profile,
@@ -298,7 +300,7 @@ def optimizer_logic(
     df_battery: pd.DataFrame,
     day_end,
     bulk_data: Bulk,
-    imp_exp_lim: ImportExportLimitation,
+    imp_exp_limits: pd.DataFrame,
 ) -> tuple[pd.Series, pd.Series, pd.DataFrame, pd.DataFrame, SolverStatus]:
     # Selected optimization solver
     # optimization_solver = SolverFactory("bonmin")
@@ -346,11 +348,12 @@ def optimizer_logic(
     model.start_time = start_time
     model.end_time = end_time
     model.day_end = day_end
-    # Import-export limits enabling the microgrid to go full islanding (if both are zero)
-    model.import_limit = imp_exp_lim.import_limit
-    model.export_limit = imp_exp_lim.export_limit
-    model.with_import_limit = imp_exp_lim.with_import_limit
-    model.with_export_limit = imp_exp_lim.with_export_limit
+    # Import-export limits for every each timestamp enabling the microgrid to go full islanding (if both are zero)
+    model.import_limit = imp_exp_limits.import_limit
+    model.export_limit = imp_exp_limits.export_limit
+    model.with_import_limit = imp_exp_limits.with_import_limit
+    model.with_export_limit = imp_exp_limits.with_export_limit
+
     # Forecast parameters
     # Total import-export forecast
     model.P_tie = considered_ions_forecast
@@ -445,6 +448,7 @@ def optimizer_logic(
     #####################################################################################################
     ##################################       OPTIMIZATION MODEL          ################################
     solver = optimization_solver.solve(model).solver
+    #model.pprint()
     #####################################################################################################
     ##################################       POST PROCESSING             ################################
     bat_supply = pd.DataFrame(index=model.T, columns=df_battery.index)

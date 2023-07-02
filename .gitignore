@@ -11,7 +11,8 @@
 # Saved output files
 src/control/results/*.json
 src/control/results/*.png
-src/forecast/outputs/*.json
+src/scenario_forecast_kit/outputs/forecast/*.json
+src/scenario_forecast_kit/outputs/scenario/*.json
 
 # Editors
 .vscode/

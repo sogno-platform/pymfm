@@ -43,7 +43,7 @@ def prep_optimizer_output(
         index=forecasts.index,
         columns=["P_tie_kW", "expected_P_tie_kW"],
     )
-    result_overview["P_tie_kW"] = forecasts["P_net_kW"]
+    result_overview["P_tie_kW"] = forecasts["P_load_kW"]
 
     result_overview["expected_P_tie_kW"] = import_profile
     for col in bat_profiles.columns:

@@ -20,14 +20,18 @@ def calc_dynamic_factor(day_of_year):
     return dynamic_factor
 
 
-def calc_dynamic_load(slp_value, dynamic_factor, load_scaling_factor):
+def calc_total_load(slp_value, dynamic_factor, load_scaling_factor):
     dynamic_load = (slp_value * dynamic_factor * load_scaling_factor) / 1000
     return dynamic_load
 
 
-def generate_scenario(input_folder_path, time_resolution):
+def generate_forecast(input_folder_path, output_folder_path, time_resolution):
+    # Create the output folder if it doesn't exist
+    if not os.path.exists(output_folder_path):
+        os.makedirs(output_folder_path)
+
     # Output scenario list
-    scenario_list = []
+    forecast_list = []
 
     # Process each JSON file in the input folder
     for filename in os.listdir(input_folder_path):
@@ -42,8 +46,10 @@ def generate_scenario(input_folder_path, time_resolution):
             application = data["application"]
             # TO-DO: Update uc name
             uc_name = "balancer"
-            uc_start = datetime.strptime(data["start_forecast"], "%Y-%m-%dT%H:%M:%SZ")
-            uc_end = datetime.strptime(data["end_forecast"], "%Y-%m-%dT%H:%M:%SZ")
+            start_forecast = datetime.strptime(
+                data["start_forecast"], "%Y-%m-%dT%H:%M:%SZ"
+            )
+            end_forecast = datetime.strptime(data["end_forecast"], "%Y-%m-%dT%H:%M:%SZ")
             # TO-DO: Update day end
             day_end = datetime.strptime(data["end_forecast"], "%Y-%m-%dT%H:%M:%SZ")
             avg_consumption = data["household_sta"]["metadata"]["avgconsumption"]
@@ -58,19 +64,13 @@ def generate_scenario(input_folder_path, time_resolution):
             generation_and_load = []
 
             # Iterate over the timestamps from uc_start to uc_end with the desired time resolution
-            timestamp = uc_start
-            while timestamp <= uc_end:
+            timestamp = start_forecast
+            while timestamp <= end_forecast:
                 # Calculate the day of the year
                 day_of_year = timestamp.timetuple().tm_yday
 
                 # Calculate the dynamic factor
                 dynamic_factor = calc_dynamic_factor(day_of_year)
-
-                # Check lengths of slp_values[0] and slp_values[1]
-                if len(slp_values[0]) != len(slp_values[1]):
-                    raise ValueError(
-                        "slp_values[0] and slp_values[1] must have the same length."
-                    )
 
                 # Convert timestamp strings to datetime objects
                 slp_timestamps = [
@@ -87,7 +87,7 @@ def generate_scenario(input_folder_path, time_resolution):
                     [ts.timestamp() for ts in slp_timestamps],
                     [entry["value"] for entry in slp_values],
                 )(timestamp.timestamp())
-                p_load_kw = calc_dynamic_load(
+                p_load_kw = calc_total_load(
                     slp_value, dynamic_factor, load_scaling_factor
                 )
 
@@ -113,66 +113,32 @@ def generate_scenario(input_folder_path, time_resolution):
             # Create the output JSON object
             output_data = {
                 "application": application,
-                "uc_name": uc_name,
-                "uc_start": uc_start.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-                "uc_end": uc_end.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-                "day_end": day_end.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+                "start_forecast": start_forecast.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+                "end_forecast": end_forecast.strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
                 "generation_and_load": generation_and_load,
             }
 
             # Add output data of the input file to the output scenario list
-            scenario_list.append(output_data)
+            forecast_list.append(output_data)
 
-    return scenario_list
+            # The output file name
+            # Get the start date of the forecast
+            start_date = datetime.strptime(
+                output_data["start_forecast"], "%Y-%m-%dT%H:%M:%S.%fZ"
+            ).strftime("%Y-%m-%d")
+            output_filename = f"forecast_{start_date}.json"
 
+            # Generate the output file path
+            output_file_path = os.path.join(output_folder_path, output_filename)
 
-def generate_optimizer_input(
-    scenario_list,
-    uc_name,
-    day_end,
-    bulk,
-    import_export_limitation,
-    battery_specs,
-    output_folder_path,
-):
-    # Create the output folder if it doesn't exist
-    if not os.path.exists(output_folder_path):
-        os.makedirs(output_folder_path)
+            # Save the output JSON file
+            with open(output_file_path, "w") as file:
+                json.dump(output_data, file, indent=4)
+            # Get the absolute file path of the generated .json file
+            absolute_output_file_path = os.path.abspath(output_file_path)
 
-    for scenario_data in scenario_list:
-        # Extract relevant data from the scenario_data
-        application = scenario_data["application"]
-        uc_start = scenario_data["uc_start"]
-        uc_end = scenario_data["uc_end"]
-        generation_and_load = scenario_data["generation_and_load"]
-
-        # Create the output JSON object
-        output_data = {
-            "application": application,
-            "uc_name": uc_name,
-            "uc_start": uc_start,
-            "uc_end": uc_end,
-            "day_end": day_end,
-            "bulk": bulk,
-            "import_export_limitation": import_export_limitation,
-            "generation_and_load": generation_and_load,
-            "battery_specs": battery_specs,
-        }
-
-        # The output file name
-        # Get the start date of the forecast
-        start_date = datetime.strptime(uc_start, "%Y-%m-%dT%H:%M:%S.%fZ").strftime(
-            "%Y-%m-%d"
-        )
-        output_filename = f"forecast_{start_date}.json"
-
-        # Generate the output file path
-        output_file_path = os.path.join(output_folder_path, output_filename)
-
-        # Save the output JSON file
-        with open(output_file_path, "w") as file:
-            json.dump(output_data, file, indent=4)
-
-        print(f"Output file generated: {output_file_path}")
+            print(f"Forecast file generated: {absolute_output_file_path}")
 
     print("All files processed.")
+
+    return forecast_list

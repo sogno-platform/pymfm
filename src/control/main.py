@@ -2,9 +2,9 @@ import json
 import os
 import pandas as pd
 import dateutil.parser
-from control_utils.data_input import InputData
-from control_utils.control import control
-from control_utils import data_output
+from utils.data_input import InputData
+from utils.control import control
+from utils import data_output
 
 
 def open_json(filename):
@@ -33,4 +33,4 @@ def main(optimizer=True):
 
 
 if __name__ == "__main__":
-    main(optimizer=False)
+    main(optimizer=True)
