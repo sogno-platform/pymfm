@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 import pandas as pd
 from pydantic import BaseModel as PydBaseModel, Field, ValidationError, validator
 from datetime import datetime, timedelta
@@ -20,7 +20,7 @@ class ControlMethod(StrEnum):
 
 
 class Bulk(BaseModel):
-    with_bulk: bool = Field(True)
+    #with_bulk: bool = Field(True)
     bulk_start: datetime = Field(..., alias="bulk_start")
     bulk_end: datetime = Field(..., alias="bulk_end")
     bulk_energy_kwh: float = Field(..., alias="bulk_energy_kWh")
@@ -28,10 +28,8 @@ class Bulk(BaseModel):
 
 class ImportExportLimitation(BaseModel):
     timestamp: datetime = Field(..., alias="timestamp")
-    with_import_limit: bool = Field(True)
-    with_export_limit: bool = Field(True)
-    import_limit: float = Field(..., alias="import_limit")
-    export_limit: float = Field(..., alias="export_limit")
+    import_limit: Optional[float] = Field(None, alias="import_limit")
+    export_limit: Optional[float] = Field(None, alias="export_limit")
 
 
 class generation_and_load(BaseModel):
@@ -96,8 +94,10 @@ class InputData(BaseModel):
     uc_end: datetime = Field(..., alias="uc_end")
     day_end: datetime = Field(..., alias="day_end")
     id: str
-    bulk: Bulk = Field(..., alias="bulk")
-    import_export_limitation: list[ImportExportLimitation]
+    bulk: Optional[Bulk] = Field(
+            None, alias="bulk")
+    import_export_limitation: Optional[List[ImportExportLimitation]] = Field(
+        None, alias="import_export_limitation")
     generation_and_load: list[generation_and_load]
     battery_specs: BatterySpecs | list[BatterySpecs]
 
@@ -124,7 +124,6 @@ class InputData(BaseModel):
                 f"generation_and_load have to end at or after uc_end. generation_and_load end at {meas[0].timestamp} uc_end was {uc_end}"
             )
         return meas
-
 
 def minutes_horizon(starttime: datetime, endtime: datetime) -> float:
     time_delta = endtime - starttime
@@ -190,6 +189,52 @@ def imp_exp_to_df(meas: list[ImportExportLimitation], start: datetime = None, en
     df_imp_exp = df_imp_exp.loc[start:end]
     return df_imp_exp
 
+
+def imp_exp_lim_to_df(import_export_limits: List[ImportExportLimitation], gen_load_data: List[generation_and_load]) -> pd.DataFrame:
+    # Check if import_export_limits is None
+    if import_export_limits is None:
+        # Create a DataFrame with default values and use timestamps from gen_load_data
+        all_timestamps = set(item.timestamp for item in gen_load_data)
+        missing_data = pd.DataFrame(
+            {
+                "import_limit": [0] * len(all_timestamps),
+                "with_import_limit": [False] * len(all_timestamps),
+                "export_limit": [0] * len(all_timestamps),
+                "with_export_limit": [False] * len(all_timestamps),
+            },
+            index=list(all_timestamps),  # Convert set to list
+        )
+        missing_data.index.name = "timestamp"  # Set the index name
+        return missing_data
+    
+    # Convert the list of ImportExportLimitation objects to a DataFrame
+    df = pd.DataFrame([item.dict() for item in import_export_limits])
+    df.set_index("timestamp", inplace=True)
+    
+    # Adding new columns and filling default values
+    df["with_import_limit"] = df["import_limit"].notnull()
+    df["with_export_limit"] = df["export_limit"].notnull()
+    df.fillna(0, inplace=True)
+    
+    # Handle timestamps not present in ImportExportLimitation but in generation_and_load
+    all_timestamps = set(df.index).union(set(item.timestamp for item in gen_load_data))
+    missing_timestamps = list(set(all_timestamps).difference(df.index))
+    missing_data = pd.DataFrame(
+        {
+            "import_limit": [0] * len(missing_timestamps),
+            "with_import_limit": [False] * len(missing_timestamps),
+            "export_limit": [0] * len(missing_timestamps),
+            "with_export_limit": [False] * len(missing_timestamps),
+        },
+        index=missing_timestamps,
+    )
+    
+    # Concatenate the two DataFrames
+    result_df = pd.concat([df, missing_data], axis=0)
+    result_df.index.name = "timestamp"  # Set the index name
+    
+    return result_df
+    
 
 class Solver(StrEnum):
     GUROBI = "gurobi"

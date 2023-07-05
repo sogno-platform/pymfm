@@ -16,10 +16,12 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
     uc_start = data2["uc_start"]
     uc_end = data2["uc_end"]
     day_end = data2["day_end"]
-    bulk_data = data2["bulk"]
-    import_export_data = data2["import_export_limitation"]
     generation_and_load_data = data1["generation_and_load"]
     battery_specs_data = data2["battery_specs"]
+    # Check if "bulk" data is present in data2
+    bulk_data = data2.get("bulk", None)
+    # Check if "import_export_limitation" data is present in data2
+    import_export_data = data2.get("import_export_limitation", None)
 
     # Create a set of timestamps from the first .json file
     generation_and_load_timestamps = {
@@ -40,6 +42,36 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
             f"Warning: day_end '{day_end}' is not present in generation_and_load timestamps."
         )
 
+    # Merge the extracted information into a new dictionary
+    new_data = {
+        "application": app_data,
+        "uc_name": uc_name,
+        "uc_start": uc_start,
+        "uc_end": uc_end,
+        "day_end": day_end,
+        "generation_and_load": generation_and_load_data,
+        "battery_specs": battery_specs_data,
+    }
+
+    # Add "bulk" data to the new dictionary if it exists in data2
+    if bulk_data:
+        new_data["bulk"] = bulk_data
+
+    # Add "import_export_limitation" data to the new dictionary if it exists in data2
+    if import_export_data:
+        new_data["import_export_limitation"] = import_export_data
+
+    # Convert the new dictionary to a JSON string
+    new_json_string = json.dumps(new_data, indent=4)
+
+    # Write the JSON string to the output file
+    with open(output_file, "w") as json_file:
+        json_file.write(new_json_string)
+    # Get the absolute file path of the generated .json file
+    absolute_output_file_path = os.path.abspath(output_file)
+    print(f"Scenario file generated and saved under: {absolute_output_file_path}")
+
+    '''
     # Create a set of existing timestamps from the second .json file
     existing_timestamps = {entry["timestamp"] for entry in import_export_data}
 
@@ -55,7 +87,7 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
                 "export_limit": 0,
             }
             import_export_data.append(default_entry)
-
+    
     # Sort the import_export_data list based on the "timestamp" key in ascending order
     import_export_data.sort(key=lambda item: item["timestamp"])
 
@@ -69,7 +101,7 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
             entry["with_import_limit"] = False
             entry["with_export_limit"] = True
             entry["import_limit"] = 0
-
+    
     # Merge the extracted information into a new dictionary
     new_data = {
         "application": app_data,
@@ -91,13 +123,4 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
         "generation_and_load": generation_and_load_data,
         "battery_specs": battery_specs_data,
     }
-
-    # Convert the new dictionary to a JSON string
-    new_json_string = json.dumps(new_data, indent=4)
-
-    # Write the JSON string to the output file
-    with open(output_file, "w") as json_file:
-        json_file.write(new_json_string)
-    # Get the absolute file path of the generated .json file
-    absolute_output_file_path = os.path.abspath(output_file)
-    print(f"Scenario file generated and saved under: {absolute_output_file_path}")
+    '''

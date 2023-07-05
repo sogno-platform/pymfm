@@ -153,9 +153,13 @@ def control(data: InputData):
     df_forecasts = data_input.generation_and_load_to_df(
         data.generation_and_load, start=data.uc_start, end=data.uc_end
     )
+    '''
     imp_exp_limits = data_input.imp_exp_to_df(
         data.import_export_limitation, start=data.uc_start, end=data.uc_end
     )
+    '''
+    imp_exp_limits = data_input.imp_exp_lim_to_df(data.import_export_limitation, data.generation_and_load)
+    print(imp_exp_limits)
     if data.uc_name == CM.RULE_BASED:
         if isinstance(battery_specs, list):
             if len(battery_specs) == 1:
@@ -165,8 +169,7 @@ def control(data: InputData):
                     "Rulebased control can not deal with multiple flex nodes"
                 )
         output_df = None
-        delta_T = pd.to_timedelta(df_forecasts.P_net_kW.index.freq)
-
+        delta_T = pd.to_timedelta(df_forecasts.P_load_kW.index.freq)
         for time, P_net in df_forecasts.iterrows():
             output = rule_based_logic(P_net, battery_specs, delta_T)
             if output_df is None:
@@ -235,7 +238,10 @@ def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs, delta_T: tim
     # Convert timedelta to float in terms of seconds
     delta_time_in_sec = delta_T.total_seconds()
 
-    output_ds.P_bat_kW = P_net.P_req_kw + P_net.P_net_kW
+    # output_ds.P_bat_kW = P_net.P_req_kw + P_net.P_net_kW
+    # TODO: ask this to amir
+    output_ds.P_bat_kW = P_net.P_load_kW - P_net.P_gen_kW
+
     output_ds.bat_energy_Ws = battery_specs.initial_SoC * battery_specs.bat_capacity - (
         output_ds.P_bat_kW * delta_time_in_sec
     )
@@ -287,7 +293,7 @@ def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs, delta_T: tim
             output_ds.bat_energy_Ws = battery_specs.max_SoC * battery_specs.bat_capacity
         output_ds.P_bat_kW = float(output_ds.P_bat_kW)
 
-    output_ds.P_tie_kW = -P_net.P_net_kW
+    output_ds.P_tie_kW = -P_net.P_load_kW + P_net.P_gen_kW
     output_ds.expected_P_tie_kW = (output_ds.export_W - output_ds.import_W) / 3600
 
     output_ds.SoC_bat = (output_ds.bat_energy_Ws / battery_specs.bat_capacity) * 100
@@ -307,7 +313,6 @@ def optimizer_logic(
     optimization_solver = SolverFactory("gurobi")
     # optimization_solver = SolverFactory("ipopt")
     # optimization_solver = SolverFactory("scip")
-
     start_time = ions.index[0]
     end_time = ions.index[-1]
     delta_T = pd.to_timedelta(ions.index.freq)
@@ -319,9 +324,10 @@ def optimizer_logic(
     sof_horizon = pd.date_range(
         start_time, end_time + delta_T, freq=delta_T, inclusive="both"
     )
-    bulk_horizon = pd.date_range(
-        bulk_data.bulk_start, bulk_data.bulk_end, freq=delta_T, inclusive="both"
-    )
+    if bulk_data is not None:
+        bulk_horizon = pd.date_range(
+            bulk_data.bulk_start, bulk_data.bulk_end, freq=delta_T, inclusive="both"
+        )
 
     considered_ions_forecast = ions[
         opt_horizon
@@ -340,7 +346,8 @@ def optimizer_logic(
     # Index set with battery horizon time step identifiers
     model.T_SoC_bat = tuple(sof_horizon)
     # Index set with bulk horizon time step identifiers
-    model.T_bulk = tuple(bulk_horizon)
+    if bulk_data is not None:
+        model.T_bulk = tuple(bulk_horizon)
 
     # Parameters
     # TimeDelta in one time step
@@ -385,8 +392,7 @@ def optimizer_logic(
     # Discharging efficiency of the battery n
     model.dis_eff_bat = df_battery.dis_efficiency
     # Bulk parameters (bulk energy)
-    with_bulk = bulk_data.with_bulk
-    if with_bulk:
+    if bulk_data is not None:
         # Bulk energy of battery assets (kWsec)
         model.Bulk_Energy = pd.Series([bulk_data.bulk_energy_kwh]) * 3600
 
@@ -426,7 +432,7 @@ def optimizer_logic(
     model.bat_charging = Constraint(model.N, model.T, rule=bat_charging)
     model.bat_init_SoC = Constraint(model.N, rule=bat_init_SoC)
     model.bat_final_SoC = Constraint(model.N, rule=bat_final_SoC)
-    if with_bulk:
+    if bulk_data is not None:
         model.bulk_energy = Constraint(rule=bulk_energy)
     model.bat_max_ch_power = Constraint(model.N, model.T, rule=bat_max_ch_power)
     model.bat_max_dis_power = Constraint(model.N, model.T, rule=bat_max_dis_power)
