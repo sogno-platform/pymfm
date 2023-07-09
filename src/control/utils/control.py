@@ -17,8 +17,8 @@ import pyomo.kernel as pmo
 
 def power_balance(model, t):
     return (
-        model.P_tie[t] + sum(model.P_ch_bat[n, t] for n in model.N) + model.P_exp[t]
-        == sum(model.P_dis_bat[n, t] for n in model.N) + model.P_imp[t]
+        model.P_load[t] + sum(model.P_ch_bat[n, t] for n in model.N) + model.P_exp[t]
+        == sum(model.P_dis_bat[n, t] for n in model.N) + model.P_imp[t] + model.P_PV[t]
     )
 
 
@@ -137,6 +137,9 @@ def hbes_avoid_diss(model, n, t):
         return model.P_dis_bat[n, t] <= 0
     else:
         return Constraint.Feasible
+    
+def pv_curtailment_constr(model, t):
+    return model.P_PV[t] <= model.P_PV_limit[t]
 
 
 # Objective: Minimize the power exchange with the grid (Minimum interaction with the grid)
@@ -153,12 +156,7 @@ def control(data: InputData):
     df_forecasts = data_input.generation_and_load_to_df(
         data.generation_and_load, start=data.uc_start, end=data.uc_end
     )
-    print(df_forecasts)
-    '''
-    imp_exp_limits = data_input.imp_exp_to_df(
-        data.import_export_limitation, start=data.uc_start, end=data.uc_end
-    )
-    '''
+
     imp_exp_limits = data_input.imp_exp_lim_to_df(data.import_export_limitation, data.generation_and_load)
     if data.uc_name == CM.RULE_BASED:
         if isinstance(battery_specs, list):
@@ -202,10 +200,12 @@ def control(data: InputData):
             solver_status,
         ) = optimizer_logic(
             df_forecasts.P_load_kW,
+            df_forecasts.P_gen_kW,
             df_battery_specs,
             data.day_end,
             data.bulk,
             imp_exp_limits,
+            data.generation_and_load.pv_curtailment,
         )
         output_df = data_output.prep_optimizer_output(
             import_profile,
@@ -238,8 +238,6 @@ def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs, delta_T: tim
     # Convert timedelta to float in terms of seconds
     delta_time_in_sec = delta_T.total_seconds()
 
-    # output_ds.P_bat_kW = P_net.P_req_kw + P_net.P_net_kW
-    # TODO: ask this to amir
     output_ds.P_bat_kW = P_net.P_load_kW - P_net.P_gen_kW
 
     output_ds.bat_energy_Ws = battery_specs.initial_SoC * battery_specs.bat_capacity - (
@@ -293,7 +291,7 @@ def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs, delta_T: tim
             output_ds.bat_energy_Ws = battery_specs.max_SoC * battery_specs.bat_capacity
         output_ds.P_bat_kW = float(output_ds.P_bat_kW)
 
-    output_ds.P_tie_kW = -P_net.P_load_kW + P_net.P_gen_kW
+    output_ds.P_tie_kW = P_net.P_load_kW - P_net.P_gen_kW
     output_ds.expected_P_tie_kW = (output_ds.export_W - output_ds.import_W) / 3600
 
     output_ds.SoC_bat = (output_ds.bat_energy_Ws / battery_specs.bat_capacity) * 100
@@ -302,20 +300,23 @@ def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs, delta_T: tim
 
 
 def optimizer_logic(
-    ions: pd.Series,
+    load: pd.Series,
+    generation: pd.Series,
     df_battery: pd.DataFrame,
     day_end,
     bulk_data: Bulk,
     imp_exp_limits: pd.DataFrame,
+    pv_curtailment: Boolean,
+
 ) -> tuple[pd.Series, pd.Series, pd.DataFrame, pd.DataFrame, SolverStatus]:
     # Selected optimization solver
     # optimization_solver = SolverFactory("bonmin")
     optimization_solver = SolverFactory("gurobi")
     # optimization_solver = SolverFactory("ipopt")
     # optimization_solver = SolverFactory("scip")
-    start_time = ions.index[0]
-    end_time = ions.index[-1]
-    delta_T = pd.to_timedelta(ions.index.freq)
+    start_time = load.index[0]
+    end_time = load.index[-1]
+    delta_T = pd.to_timedelta(load.index.freq)
     # XXX it is a bit weird to that the end time is not the time of the end
     # but the start of the last interval
     opt_horizon = pd.date_range(
@@ -329,9 +330,12 @@ def optimizer_logic(
             bulk_data.bulk_start, bulk_data.bulk_end, freq=delta_T, inclusive="both"
         )
 
-    considered_ions_forecast = ions[
+    considered_load_forecast = load[
         opt_horizon
-    ]  # Only the specified time instances in the ion forecast will be taken into account
+    ]  # Only the specified time instances in the load forecast will be taken into account
+    considered_generation_forecast = generation[
+        opt_horizon
+    ]  # Only the specified time instances in the generation forecast will be taken into account
 
     #####################################################################################################
     ##################################       OPTIMIZATION MODEL          #################################
@@ -363,7 +367,11 @@ def optimizer_logic(
 
     # Forecast parameters
     # Total import-export forecast
-    model.P_tie = considered_ions_forecast
+    model.P_tie = considered_load_forecast
+    # Load
+    model.P_load = considered_load_forecast
+    # Generation limits
+    model.P_PV_limit = considered_generation_forecast
     # Battery parameters
     # Type of the battery
     # cbes: comunity battery energy storage, hbes: household battery energy storage
@@ -448,6 +456,8 @@ def optimizer_logic(
     model.neg_tot_imp_exp1 = Constraint(model.T, rule=neg_tot_imp_exp1)
     model.neg_tot_imp_exp2 = Constraint(model.T, rule=neg_tot_imp_exp2)
     model.hbes_avoid_diss = Constraint(model.N, model.T, rule=hbes_avoid_diss)
+    if pv_curtailment:
+        model.pv_curtailment = Constraint(model.T, rule=pv_curtailment_constr)
 
     model.obj = Objective(rule=obj_rule, sense=minimize)
 

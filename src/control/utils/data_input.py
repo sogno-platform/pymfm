@@ -162,7 +162,7 @@ def input_prep(battery_specs: BatterySpecs | list[BatterySpecs]):
 
 
 def generation_and_load_to_df(
-    meas: list[GenerationAndLoad], start: datetime = None, end: datetime = None
+    meas: dict[GenerationAndLoad], start: datetime = None, end: datetime = None
 ) -> pd.DataFrame:
     df_forecasts = pd.json_normalize([mes.dict(by_alias=False) for mes in meas.values])
     df_forecasts.set_index("timestamp", inplace=True)
