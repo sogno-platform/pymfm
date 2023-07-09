@@ -19,7 +19,6 @@ class TimeseriesData(BaseModel):
 
 
 class ControlOutput(BaseModel):
-    id: str
     version: str
     units: dict[str, str] = Field(default_factory=dict)
     output: list[TimeseriesData]
@@ -60,7 +59,7 @@ def values_mapper(col_name: str):
 
 
 def df_to_output(
-    output: pd.DataFrame, id: str, status: tuple[SolverStatus, TerminationCondition]
+    output: pd.DataFrame, status: tuple[SolverStatus, TerminationCondition]
 ) -> ControlOutputWrapper:
     # Remove "kW" from column names
     output.columns = output.columns.str.replace("_kW", "")
@@ -70,7 +69,6 @@ def df_to_output(
     output = output[value_cols].to_dict(orient="index")
     output = [{"time": time, "values": d} for time, d in output.items()]
     out = ControlOutput(
-        id=id,
         version=version("pymfm"),
         units={"time": "ISO8601", "P": "kW"},
         output=output,

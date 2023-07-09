@@ -137,7 +137,7 @@ def generate_forecast(input_folder_path, output_folder_path, time_resolution):
             # Get the absolute file path of the generated .json file
             absolute_output_file_path = os.path.abspath(output_file_path)
 
-            print(f"Forecast file generated: {absolute_output_file_path}")
+            print(f"Forecast file generated and saved under: {absolute_output_file_path}")
 
     print("All files processed.")
 

@@ -20,7 +20,6 @@ class ControlMethod(StrEnum):
 
 
 class Bulk(BaseModel):
-    #with_bulk: bool = Field(True)
     bulk_start: datetime = Field(..., alias="bulk_start")
     bulk_end: datetime = Field(..., alias="bulk_end")
     bulk_energy_kwh: float = Field(..., alias="bulk_energy_kWh")
@@ -32,11 +31,16 @@ class ImportExportLimitation(BaseModel):
     export_limit: Optional[float] = Field(None, alias="export_limit")
 
 
-class generation_and_load(BaseModel):
+class GenerationAndLoadValues(BaseModel):
     timestamp: datetime = Field(..., alias="timestamp")
     P_gen_kW: float = Field(..., alias="P_gen_kW")
     P_load_kW: float = Field(..., alias="P_load_kW")
 
+
+class GenerationAndLoad(BaseModel):
+    pv_curtailment: bool = Field(..., alias='pv_curtailment')
+    values: List[GenerationAndLoadValues] = Field(..., alias="values")
+    
 
 # TODO add constraints
 # - initial_SoC and final_SoC should always be in the acceptable range, i.e., between min_SoC and max_SoC
@@ -93,12 +97,11 @@ class InputData(BaseModel):
     uc_start: datetime = Field(..., alias="uc_start")
     uc_end: datetime = Field(..., alias="uc_end")
     day_end: datetime = Field(..., alias="day_end")
-    id: str
     bulk: Optional[Bulk] = Field(
             None, alias="bulk")
     import_export_limitation: Optional[List[ImportExportLimitation]] = Field(
         None, alias="import_export_limitation")
-    generation_and_load: list[generation_and_load]
+    generation_and_load: GenerationAndLoad = Field(..., alias="generation_and_load")
     battery_specs: BatterySpecs | list[BatterySpecs]
 
     @validator("uc_name", pre=True)
@@ -110,18 +113,18 @@ class InputData(BaseModel):
     @validator("generation_and_load")
     def generation_and_load_start_before_timewindow(cls, meas, values):
         uc_start = values["uc_start"]
-        if uc_start < meas[0].timestamp:
+        if uc_start < meas.values[0].timestamp:
             raise ValueError(
-                f"generation_and_load have to start at or before uc_start. generation_and_load start at {meas[0].timestamp} uc_start was {uc_start}"
+                f"generation_and_load have to start at or before uc_start. generation_and_load start at {meas.values[0].timestamp} uc_start was {uc_start}"
             )
         return meas
 
     @validator("generation_and_load")
     def generation_and_load_end_after_timewindow(cls, meas, values):
         uc_end = values["uc_end"]
-        if uc_end > meas[-1].timestamp:
+        if uc_end > meas.values[-1].timestamp:
             raise ValueError(
-                f"generation_and_load have to end at or after uc_end. generation_and_load end at {meas[0].timestamp} uc_end was {uc_end}"
+                f"generation_and_load have to end at or after uc_end. generation_and_load end at {meas.values[-1].timestamp} uc_end was {uc_end}"
             )
         return meas
 
@@ -159,9 +162,9 @@ def input_prep(battery_specs: BatterySpecs | list[BatterySpecs]):
 
 
 def generation_and_load_to_df(
-    meas: list[generation_and_load], start: datetime = None, end: datetime = None
+    meas: list[GenerationAndLoad], start: datetime = None, end: datetime = None
 ) -> pd.DataFrame:
-    df_forecasts = pd.json_normalize([mes.dict(by_alias=False) for mes in meas])
+    df_forecasts = pd.json_normalize([mes.dict(by_alias=False) for mes in meas.values])
     df_forecasts.set_index("timestamp", inplace=True)
     df_forecasts.index.freq = pd.infer_freq(df_forecasts.index)
     df_forecasts = df_forecasts.loc[start:end]
@@ -190,11 +193,11 @@ def imp_exp_to_df(meas: list[ImportExportLimitation], start: datetime = None, en
     return df_imp_exp
 
 
-def imp_exp_lim_to_df(import_export_limits: List[ImportExportLimitation], gen_load_data: List[generation_and_load]) -> pd.DataFrame:
+def imp_exp_lim_to_df(import_export_limits: List[ImportExportLimitation], gen_load_data: List[GenerationAndLoad]) -> pd.DataFrame:
     # Check if import_export_limits is None
     if import_export_limits is None:
         # Create a DataFrame with default values and use timestamps from gen_load_data
-        all_timestamps = set(item.timestamp for item in gen_load_data)
+        all_timestamps = set(item.timestamp for item in gen_load_data.values)
         missing_data = pd.DataFrame(
             {
                 "import_limit": [0] * len(all_timestamps),
@@ -217,7 +220,7 @@ def imp_exp_lim_to_df(import_export_limits: List[ImportExportLimitation], gen_lo
     df.fillna(0, inplace=True)
     
     # Handle timestamps not present in ImportExportLimitation but in generation_and_load
-    all_timestamps = set(df.index).union(set(item.timestamp for item in gen_load_data))
+    all_timestamps = set(df.index).union(set(item.timestamp for item in gen_load_data.values))
     missing_timestamps = list(set(all_timestamps).difference(df.index))
     missing_data = pd.DataFrame(
         {
@@ -230,7 +233,7 @@ def imp_exp_lim_to_df(import_export_limits: List[ImportExportLimitation], gen_lo
     )
     
     # Concatenate the two DataFrames
-    result_df = pd.concat([df, missing_data], axis=0)
+    result_df = pd.concat([df, missing_data.astype(int)], axis=0)
     result_df.index.name = "timestamp"  # Set the index name
     
     return result_df

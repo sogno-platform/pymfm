@@ -27,7 +27,7 @@ def main(optimizer=True):
     print(output)
     data_output.output_visualization(output)
 
-    output = data_output.df_to_output(output, input_data.id, status)
+    output = data_output.df_to_output(output, status)
     with open("results/output_offline.json", "w") as outfile:
         outfile.write(output.json(by_alias=True, sort_keys=False, indent=4))
 

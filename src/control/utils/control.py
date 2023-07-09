@@ -153,13 +153,13 @@ def control(data: InputData):
     df_forecasts = data_input.generation_and_load_to_df(
         data.generation_and_load, start=data.uc_start, end=data.uc_end
     )
+    print(df_forecasts)
     '''
     imp_exp_limits = data_input.imp_exp_to_df(
         data.import_export_limitation, start=data.uc_start, end=data.uc_end
     )
     '''
     imp_exp_limits = data_input.imp_exp_lim_to_df(data.import_export_limitation, data.generation_and_load)
-    print(imp_exp_limits)
     if data.uc_name == CM.RULE_BASED:
         if isinstance(battery_specs, list):
             if len(battery_specs) == 1:

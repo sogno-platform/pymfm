@@ -4,24 +4,34 @@ import os
 def generate_scenario(forecast_input_file, scenario_input_file, output_file):
     # Read the content of the first input JSON file
     with open(forecast_input_file, "r") as file1:
-        data1 = json.load(file1)
+        forecast_data = json.load(file1)
 
     # Read the content of the second input JSON file
     with open(scenario_input_file, "r") as file2:
-        data2 = json.load(file2)
+        scenario_data = json.load(file2)
 
     # Extract the required information from each dictionary
-    app_data = data1["application"]
-    uc_name = data2["uc_name"]
-    uc_start = data2["uc_start"]
-    uc_end = data2["uc_end"]
-    day_end = data2["day_end"]
-    generation_and_load_data = data1["generation_and_load"]
-    battery_specs_data = data2["battery_specs"]
-    # Check if "bulk" data is present in data2
-    bulk_data = data2.get("bulk", None)
-    # Check if "import_export_limitation" data is present in data2
-    import_export_data = data2.get("import_export_limitation", None)
+    app_data = forecast_data["application"]
+    uc_name = scenario_data["uc_name"]
+    uc_start = scenario_data["uc_start"]
+    uc_end = scenario_data["uc_end"]
+    day_end = scenario_data["day_end"]
+    pv_curtailment = scenario_data["pv_curtailment"]
+    generation_and_load_data = forecast_data["generation_and_load"]
+    battery_specs_data = scenario_data["battery_specs"]
+    # Check if "bulk" data is present in scenario_data
+    bulk_data = scenario_data.get("bulk", None)
+    # Check if "import_export_limitation" data is present in scenario_data
+    import_export_data = scenario_data.get("import_export_limitation", None)
+
+    # Extract the values from the "generation_and_load" data
+    generation_and_load_values = forecast_data["generation_and_load"]
+
+    # Create a new dictionary for "generation_and_load" with updated structure
+    generation_and_load = {
+        "pv_curtailment": scenario_data["pv_curtailment"],
+        "values": generation_and_load_values
+    }
 
     # Create a set of timestamps from the first .json file
     generation_and_load_timestamps = {
@@ -49,15 +59,15 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
         "uc_start": uc_start,
         "uc_end": uc_end,
         "day_end": day_end,
-        "generation_and_load": generation_and_load_data,
+        "generation_and_load": generation_and_load,
         "battery_specs": battery_specs_data,
     }
 
-    # Add "bulk" data to the new dictionary if it exists in data2
+    # Add "bulk" data to the new dictionary if it exists in scenario_data
     if bulk_data:
         new_data["bulk"] = bulk_data
 
-    # Add "import_export_limitation" data to the new dictionary if it exists in data2
+    # Add "import_export_limitation" data to the new dictionary if it exists in scenario_data
     if import_export_data:
         new_data["import_export_limitation"] = import_export_data
 
@@ -70,57 +80,3 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
     # Get the absolute file path of the generated .json file
     absolute_output_file_path = os.path.abspath(output_file)
     print(f"Scenario file generated and saved under: {absolute_output_file_path}")
-
-    '''
-    # Create a set of existing timestamps from the second .json file
-    existing_timestamps = {entry["timestamp"] for entry in import_export_data}
-
-    # Iterate through timestamps from the first .json file
-    for entry in generation_and_load_data:
-        timestamp = entry["timestamp"]
-        if timestamp not in existing_timestamps:
-            default_entry = {
-                "timestamp": timestamp,
-                "with_import_limit": False,
-                "with_export_limit": False,
-                "import_limit": 0,
-                "export_limit": 0,
-            }
-            import_export_data.append(default_entry)
-    
-    # Sort the import_export_data list based on the "timestamp" key in ascending order
-    import_export_data.sort(key=lambda item: item["timestamp"])
-
-    # Fill missing import/export limits in import_export_data
-    for entry in import_export_data:
-        if "import_limit" in entry and "export_limit" not in entry:
-            entry["with_import_limit"] = True
-            entry["with_export_limit"] = False
-            entry["export_limit"] = 0
-        elif "export_limit" in entry and "import_limit" not in entry:
-            entry["with_import_limit"] = False
-            entry["with_export_limit"] = True
-            entry["import_limit"] = 0
-    
-    # Merge the extracted information into a new dictionary
-    new_data = {
-        "application": app_data,
-        "uc_name": uc_name,
-        "uc_start": uc_start,
-        "uc_end": uc_end,
-        "day_end": day_end,
-        "bulk": bulk_data,
-        "import_export_limitation": [
-            {
-                "timestamp": item["timestamp"],
-                "with_import_limit": item["import_limit"] > 0,
-                "with_export_limit": item["export_limit"] > 0,
-                "import_limit": item["import_limit"],
-                "export_limit": item["export_limit"],
-            }
-            for item in import_export_data
-        ],
-        "generation_and_load": generation_and_load_data,
-        "battery_specs": battery_specs_data,
-    }
-    '''
