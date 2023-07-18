@@ -16,9 +16,10 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
     uc_start = scenario_data["uc_start"]
     uc_end = scenario_data["uc_end"]
     day_end = scenario_data["day_end"]
-    pv_curtailment = scenario_data["pv_curtailment"]
     generation_and_load_data = forecast_data["generation_and_load"]
     battery_specs_data = scenario_data["battery_specs"]
+    # Check if "pv_curtailment" data is present in scenario_data
+    pv_curtailment = scenario_data.get("pv_curtailment", None)
     # Check if "bulk" data is present in scenario_data
     bulk_data = scenario_data.get("bulk", None)
     # Check if "import_export_limitation" data is present in scenario_data
@@ -28,10 +29,16 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
     generation_and_load_values = forecast_data["generation_and_load"]
 
     # Create a new dictionary for "generation_and_load" with updated structure
-    generation_and_load = {
-        "pv_curtailment": scenario_data["pv_curtailment"],
-        "values": generation_and_load_values
-    }
+    # Add "pv_curtailment" data to the new dictionary if it exists in scenario_data
+    if pv_curtailment:
+        generation_and_load = {
+            "pv_curtailment": scenario_data["pv_curtailment"],
+            "values": generation_and_load_values
+        }
+    else:
+        generation_and_load = {
+            "values": generation_and_load_values
+        }
 
     # Create a set of timestamps from the first .json file
     generation_and_load_timestamps = {

@@ -405,7 +405,10 @@ def optimizer_logic(
     if bulk_data is not None:
         # Bulk energy of battery assets (kWsec)
         model.Bulk_Energy = pd.Series([bulk_data.bulk_energy_kwh]) * 3600
-    model.pv_curtailment = pv_curtailment
+    if pv_curtailment is not None:
+        model.pv_curtailment = pv_curtailment
+    else:
+        model.pv_curtailment = False
 
     # Variables
     # Power output of PV in timestamp t

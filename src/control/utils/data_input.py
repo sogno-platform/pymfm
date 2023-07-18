@@ -38,7 +38,8 @@ class GenerationAndLoadValues(BaseModel):
 
 
 class GenerationAndLoad(BaseModel):
-    pv_curtailment: bool = Field(..., alias='pv_curtailment')
+    #pv_curtailment: bool = Field(..., alias='pv_curtailment')
+    pv_curtailment: Optional[float] = Field(None, alias="bulk")
     values: List[GenerationAndLoadValues] = Field(..., alias="values")
     
 
