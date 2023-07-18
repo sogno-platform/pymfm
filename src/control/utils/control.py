@@ -99,24 +99,24 @@ def imp_exp_binary(model, t):
 
 
 def pos_tot_imp_exp(model, t):
-    if model.P_tie[t] >= 0:
-        return model.P_imp[t] - model.P_exp[t] <= model.P_tie[t]
+    if model.P_net[t] >= 0:
+        return model.P_imp[t] - model.P_exp[t] <= model.P_net[t]
     else:
         return Constraint.Feasible
 
 
 def neg_tot_imp_exp1(model, t):
-    if model.P_tie[t] <= 0:
+    if model.P_net[t] <= 0:
         return (
             sum((model.P_ch_bat[n, t]) / model.ch_eff_bat[n] for n in model.N)
-            <= -model.P_tie[t]
+            <= -model.P_net[t]
         )
     else:
         return Constraint.Feasible
 
 
 def neg_tot_imp_exp2(model, t):
-    if model.P_tie[t] <= 0:
+    if model.P_net[t] <= 0:
         # Note for the future works: As we seperated P_imp and x_imp from each other, make sure we always use P_imp in all of our constraints.
         # From now on x_imp can be 1 and P_imp can be 0, therefore we MUST use P_imp in the constraints.
         return model.P_imp[t] <= 0
@@ -139,8 +139,10 @@ def hbes_avoid_diss(model, n, t):
         return Constraint.Feasible
     
 def pv_curtailment_constr(model, t):
-    return model.P_PV[t] <= model.P_PV_limit[t]
-
+    if model.pv_curtailment:
+        return model.P_PV[t] <= model.P_PV_limit[t]
+    else:
+        return model.P_PV[t] == model.P_PV_limit[t]
 
 # Objective: Minimize the power exchange with the grid (Minimum interaction with the grid)
 def obj_rule(model):
@@ -199,8 +201,7 @@ def control(data: InputData):
             sof_profiles,
             solver_status,
         ) = optimizer_logic(
-            df_forecasts.P_load_kW,
-            df_forecasts.P_gen_kW,
+            df_forecasts,
             df_battery_specs,
             data.day_end,
             data.bulk,
@@ -217,12 +218,12 @@ def control(data: InputData):
         return output_df, solver_status
 
 
-def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs, delta_T: timedelta):
+def rule_based_logic(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: timedelta):
     # initialize
     output_ds = pd.Series(
         index=[
-            "P_tie_kW",
-            "expected_P_tie_kW",
+            "P_net_kW",
+            "expected_P_net_kW",
             "P_bat_kW",
             "SoC_bat",
             "bat_energy_Ws",
@@ -238,7 +239,7 @@ def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs, delta_T: tim
     # Convert timedelta to float in terms of seconds
     delta_time_in_sec = delta_T.total_seconds()
 
-    output_ds.P_bat_kW = P_net.P_load_kW - P_net.P_gen_kW
+    output_ds.P_bat_kW = P_load_gen.P_load_kW - P_load_gen.P_gen_kW
 
     output_ds.bat_energy_Ws = battery_specs.initial_SoC * battery_specs.bat_capacity - (
         output_ds.P_bat_kW * delta_time_in_sec
@@ -291,8 +292,8 @@ def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs, delta_T: tim
             output_ds.bat_energy_Ws = battery_specs.max_SoC * battery_specs.bat_capacity
         output_ds.P_bat_kW = float(output_ds.P_bat_kW)
 
-    output_ds.P_tie_kW = P_net.P_load_kW - P_net.P_gen_kW
-    output_ds.expected_P_tie_kW = (output_ds.export_W - output_ds.import_W) / 3600
+    output_ds.P_net_kW = P_load_gen.P_load_kW - P_load_gen.P_gen_kW
+    output_ds.expected_P_net_kW = (output_ds.export_W - output_ds.import_W) / 3600
 
     output_ds.SoC_bat = (output_ds.bat_energy_Ws / battery_specs.bat_capacity) * 100
 
@@ -300,8 +301,7 @@ def rule_based_logic(P_net: pd.Series, battery_specs: BatterySpecs, delta_T: tim
 
 
 def optimizer_logic(
-    load: pd.Series,
-    generation: pd.Series,
+    P_load_gen: pd.Series,
     df_battery: pd.DataFrame,
     day_end,
     bulk_data: Bulk,
@@ -314,6 +314,8 @@ def optimizer_logic(
     optimization_solver = SolverFactory("gurobi")
     # optimization_solver = SolverFactory("ipopt")
     # optimization_solver = SolverFactory("scip")
+    load = P_load_gen.P_load_kW
+    generation = P_load_gen.P_gen_kW
     start_time = load.index[0]
     end_time = load.index[-1]
     delta_T = pd.to_timedelta(load.index.freq)
@@ -367,7 +369,7 @@ def optimizer_logic(
 
     # Forecast parameters
     # Total import-export forecast
-    model.P_tie = considered_load_forecast
+    model.P_net = considered_load_forecast - considered_generation_forecast
     # Load
     model.P_load = considered_load_forecast
     # Generation limits
@@ -403,10 +405,11 @@ def optimizer_logic(
     if bulk_data is not None:
         # Bulk energy of battery assets (kWsec)
         model.Bulk_Energy = pd.Series([bulk_data.bulk_energy_kwh]) * 3600
+    model.pv_curtailment = pv_curtailment
 
     # Variables
     # Power output of PV in timestamp t
-    model.P_PV = Var(model.T, within=NonNegativeReals)
+    model.P_PV = Var(model.T, within=NonNegativeReals)        
     # Power demand of the community in timestamp t
     model.P_dem = Var(model.T, within=NonNegativeReals)
     # PV power feeding the load in timestamp t
@@ -456,8 +459,7 @@ def optimizer_logic(
     model.neg_tot_imp_exp1 = Constraint(model.T, rule=neg_tot_imp_exp1)
     model.neg_tot_imp_exp2 = Constraint(model.T, rule=neg_tot_imp_exp2)
     model.hbes_avoid_diss = Constraint(model.N, model.T, rule=hbes_avoid_diss)
-    if pv_curtailment:
-        model.pv_curtailment = Constraint(model.T, rule=pv_curtailment_constr)
+    model.pv_curtailment_constr = Constraint(model.T, rule=pv_curtailment_constr)
 
     model.obj = Objective(rule=obj_rule, sense=minimize)
 
