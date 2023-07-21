@@ -1,6 +1,7 @@
 import json
 import os
 
+
 def generate_scenario(forecast_input_file, scenario_input_file, output_file):
     # Read the content of the first input JSON file
     with open(forecast_input_file, "r") as file1:
@@ -33,12 +34,10 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
     if pv_curtailment:
         generation_and_load = {
             "pv_curtailment": scenario_data["pv_curtailment"],
-            "values": generation_and_load_values
+            "values": generation_and_load_values,
         }
     else:
-        generation_and_load = {
-            "values": generation_and_load_values
-        }
+        generation_and_load = {"values": generation_and_load_values}
 
     # Create a set of timestamps from the first .json file
     generation_and_load_timestamps = {

@@ -4,6 +4,7 @@ from datetime import datetime
 from pydantic import BaseModel as PydBaseModel, Field
 from pyomo.opt import SolverStatus, TerminationCondition
 import matplotlib.pyplot as plt
+import os
 
 
 class BaseModel(PydBaseModel):
@@ -32,22 +33,27 @@ class ControlOutputWrapper(BaseModel):
 
 
 def prep_optimizer_output(
-    import_profile: pd.Series,
-    bat_profiles: pd.DataFrame,
-    sof_profiles: pd.DataFrame,
-    forecasts: pd.Series,
-    df_battery_specs: pd.DataFrame,
+    import_export_profile: pd.Series,
+    pv_profile: pd.Series,
+    bat_p_supply_profiles: pd.DataFrame,
+    bat_soc_supply_profiles: pd.DataFrame,
+    df_forecasts: pd.DataFrame,
+    imp_exp_upperb,
+    imp_exp_lowerb,
 ):
-    result_overview = pd.DataFrame(
-        index=forecasts.index,
-        columns=["P_tie_kW", "expected_P_tie_kW"],
+    result_overview = pd.DataFrame(index=df_forecasts.index)
+    result_overview["P_net_forecast"] = (
+        df_forecasts["P_load_kW"] - df_forecasts["P_gen_kW"]
     )
-    result_overview["P_tie_kW"] = forecasts["P_load_kW"]
-
-    result_overview["expected_P_tie_kW"] = import_profile
-    for col in bat_profiles.columns:
-        result_overview[f"P_{col}_kW"] = bat_profiles[col]
-        result_overview[f"SoC_{col}_%"] = sof_profiles[col] * 100
+    result_overview["P_net_controlled"] = df_forecasts["P_load_kW"] - pv_profile
+    result_overview["P_PV_forecast"] = df_forecasts["P_gen_kW"]
+    result_overview["P_PV_controlled"] = pv_profile
+    result_overview["import_export"] = import_export_profile
+    result_overview["upperb"] = imp_exp_upperb
+    result_overview["lowerb"] = imp_exp_lowerb
+    for col in bat_p_supply_profiles.columns:
+        result_overview[f"P_{col}_kW"] = bat_p_supply_profiles[col]
+        result_overview[f"SoC_{col}_%"] = bat_soc_supply_profiles[col] * 100
 
     return result_overview
 
@@ -58,7 +64,7 @@ def values_mapper(col_name: str):
     return col_name
 
 
-def df_to_output(
+def battery_data_output(
     output: pd.DataFrame, status: tuple[SolverStatus, TerminationCondition]
 ) -> ControlOutputWrapper:
     # Remove "kW" from column names
@@ -80,6 +86,118 @@ def df_to_output(
     return wrapped_output
 
 
-def output_visualization(output_df: pd.DataFrame):
-    output_df.plot()
-    plt.savefig("results/output_offline.png")
+def produce_json_output(dataframe):
+    """
+    Produces a JSON output from a pandas DataFrame with two different time series.
+
+    Parameters:
+        dataframe (pandas.DataFrame): The DataFrame containing the data to output.
+
+    Returns:
+        None
+    """
+
+    # Set output file
+    output_file = "results/output.json"
+
+    # Convert the 'timestamp' column to string format
+    dataframe['timestamp'] = dataframe.index.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+
+    # Create a dictionary to hold the data for each time series
+    json_data = {
+        'import_export_upperb_lowerb': {
+            'timestamp': dataframe['timestamp'].tolist(),
+            'import_export': dataframe['import_export'].tolist(),
+            'upperb': dataframe['upperb'].tolist(),
+            'lowerb': dataframe['lowerb'].tolist()
+        },
+        'other_columns': {
+            'timestamp': dataframe['timestamp'].tolist(),
+        }
+    }
+
+    # Add other columns to the 'other_columns' time series in the dictionary
+    other_columns = dataframe.columns.difference(['import_export', 'upperb', 'lowerb'])
+    for column in other_columns:
+        json_data['other_columns'][column] = dataframe[column].tolist()
+
+    # Save the dictionary as JSON to the specified output file
+    with open(output_file, 'w') as json_file:
+        import json
+        json.dump(json_data, json_file)
+
+
+
+def produce_excel_output(dataframe):
+    """
+    Produces an Excel output from a pandas DataFrame with two different time series
+    in two separate sheets.
+
+    Parameters:
+        dataframe (pandas.DataFrame): The DataFrame containing the data to output.
+
+    Returns:
+        None
+    """
+    # Convert 'timestamp' to timezone-unaware datetime
+    dataframe.index = dataframe.index.tz_localize(None)
+
+    # Set output file
+    output_file = "results/output.xlsx"
+
+    # Create a Pandas ExcelWriter object
+    with pd.ExcelWriter(output_file, engine='xlsxwriter') as writer:
+
+        # Write everything other than import-export data time series to the 'output' sheet
+        other_columns = dataframe.columns.difference(['import_export', 'upperb', 'lowerb', 'timestamp'])
+        other_columns_df = dataframe[other_columns]
+        other_columns_df.to_excel(writer, sheet_name='output')
+
+        # Write the 'import_export_upperb_lowerb' time series to the second sheet
+        import_export_upperb_lowerb_df = dataframe[['import_export', 'upperb', 'lowerb']]
+        import_export_upperb_lowerb_df.to_excel(writer, sheet_name='import_export_upperb_lowerb')
+
+
+def visualize_and_save_plots(dataframe: pd.DataFrame):
+    """
+    Visualizes and saves multiple plots from a pandas DataFrame.
+
+    Parameters:
+        dataframe (pandas.DataFrame): The DataFrame containing the data to plot.
+
+    Returns:
+        None
+    """
+    output_directory = "results/"
+
+    # First subplot for 'import_export', 'upperb', and 'lowerb'
+    plt.figure(figsize=(12, 8))
+    plt.plot(dataframe.index, dataframe['import_export'], label='Total Import and Export')
+    plt.plot(dataframe.index, dataframe['upperb'], label='Upperbound')
+    plt.plot(dataframe.index, dataframe['lowerb'], label='Lowerbound')
+    plt.title("Plot of Total Import and Export and its Boundries")
+    plt.xlabel("Timestamp")
+    plt.ylabel("Value")
+    plt.grid(True)
+    plt.legend()
+    
+    # Save the first plot to a file in the specified output directory
+    output_file1 = os.path.join(output_directory, "import_export_upperb_lowerb_plot.png")
+    plt.savefig(output_file1)
+    
+    # Second subplot for other columns
+    plt.figure(figsize=(12, 8))
+    other_columns = dataframe.columns.difference(['import_export', 'upperb', 'lowerb'])
+    for column in other_columns:
+        plt.plot(dataframe.index, dataframe[column], label=column)
+    plt.title("Output Plot")
+    plt.xlabel("Timestamp")
+    plt.ylabel("Value")
+    plt.grid(True)
+    plt.legend()
+    
+    # Save the second plot to a file in the specified output directory
+    output_file2 = os.path.join(output_directory, "output_plot.png")
+    plt.savefig(output_file2)
+
+    plt.close()  # Close the current figure to free up resources

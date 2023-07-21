@@ -27,8 +27,8 @@ class Bulk(BaseModel):
 
 class ImportExportLimitation(BaseModel):
     timestamp: datetime = Field(..., alias="timestamp")
-    import_limit: Optional[float] = Field(None, alias="import_limit")
-    export_limit: Optional[float] = Field(None, alias="export_limit")
+    upper_bound: Optional[float] = Field(None, alias="upper_bound")
+    lower_bound: Optional[float] = Field(None, alias="lower_bound")
 
 
 class GenerationAndLoadValues(BaseModel):
@@ -38,10 +38,9 @@ class GenerationAndLoadValues(BaseModel):
 
 
 class GenerationAndLoad(BaseModel):
-    #pv_curtailment: bool = Field(..., alias='pv_curtailment')
     pv_curtailment: Optional[float] = Field(None, alias="bulk")
     values: List[GenerationAndLoadValues] = Field(..., alias="values")
-    
+
 
 # TODO add constraints
 # - initial_SoC and final_SoC should always be in the acceptable range, i.e., between min_SoC and max_SoC
@@ -98,10 +97,10 @@ class InputData(BaseModel):
     uc_start: datetime = Field(..., alias="uc_start")
     uc_end: datetime = Field(..., alias="uc_end")
     day_end: datetime = Field(..., alias="day_end")
-    bulk: Optional[Bulk] = Field(
-            None, alias="bulk")
+    bulk: Optional[Bulk] = Field(None, alias="bulk")
     import_export_limitation: Optional[List[ImportExportLimitation]] = Field(
-        None, alias="import_export_limitation")
+        None, alias="import_export_limitation"
+    )
     generation_and_load: GenerationAndLoad = Field(..., alias="generation_and_load")
     battery_specs: BatterySpecs | list[BatterySpecs]
 
@@ -128,6 +127,7 @@ class InputData(BaseModel):
                 f"generation_and_load have to end at or after uc_end. generation_and_load end at {meas.values[-1].timestamp} uc_end was {uc_end}"
             )
         return meas
+
 
 def minutes_horizon(starttime: datetime, endtime: datetime) -> float:
     time_delta = endtime - starttime
@@ -186,7 +186,10 @@ def battery_to_df(battery_specs: BatterySpecs | list[BatterySpecs]) -> pd.DataFr
         df_battery.set_index("id", inplace=True)
     return df_battery
 
-def imp_exp_to_df(meas: list[ImportExportLimitation], start: datetime = None, end: datetime = None) -> pd.DataFrame:
+
+def imp_exp_to_df(
+    meas: list[ImportExportLimitation], start: datetime = None, end: datetime = None
+) -> pd.DataFrame:
     df_imp_exp = pd.json_normalize([mes.dict(by_alias=False) for mes in meas])
     df_imp_exp.set_index("timestamp", inplace=True)
     df_imp_exp.index.freq = pd.infer_freq(df_imp_exp.index)
@@ -194,51 +197,56 @@ def imp_exp_to_df(meas: list[ImportExportLimitation], start: datetime = None, en
     return df_imp_exp
 
 
-def imp_exp_lim_to_df(import_export_limits: List[ImportExportLimitation], gen_load_data: List[GenerationAndLoad]) -> pd.DataFrame:
-    # Check if import_export_limits is None
+def imp_exp_lim_to_df(
+    import_export_limits: List[ImportExportLimitation],
+    gen_load_data: List[GenerationAndLoad],
+) -> pd.DataFrame:
+    # Check if upper_bounds, lower_bounds are None
     if import_export_limits is None:
         # Create a DataFrame with default values and use timestamps from gen_load_data
         all_timestamps = set(item.timestamp for item in gen_load_data.values)
         missing_data = pd.DataFrame(
             {
-                "import_limit": [0] * len(all_timestamps),
-                "with_import_limit": [False] * len(all_timestamps),
-                "export_limit": [0] * len(all_timestamps),
-                "with_export_limit": [False] * len(all_timestamps),
+                "upper_bound": [0] * len(all_timestamps),
+                "with_upper_bound": [False] * len(all_timestamps),
+                "lower_bound": [0] * len(all_timestamps),
+                "with_lower_bound": [False] * len(all_timestamps),
             },
             index=list(all_timestamps),  # Convert set to list
         )
         missing_data.index.name = "timestamp"  # Set the index name
         return missing_data
-    
+
     # Convert the list of ImportExportLimitation objects to a DataFrame
     df = pd.DataFrame([item.dict() for item in import_export_limits])
     df.set_index("timestamp", inplace=True)
-    
+
     # Adding new columns and filling default values
-    df["with_import_limit"] = df["import_limit"].notnull()
-    df["with_export_limit"] = df["export_limit"].notnull()
+    df["with_upper_bound"] = df["upper_bound"].notnull()
+    df["with_lower_bound"] = df["lower_bound"].notnull()
     df.fillna(0, inplace=True)
-    
+
     # Handle timestamps not present in ImportExportLimitation but in generation_and_load
-    all_timestamps = set(df.index).union(set(item.timestamp for item in gen_load_data.values))
+    all_timestamps = set(df.index).union(
+        set(item.timestamp for item in gen_load_data.values)
+    )
     missing_timestamps = list(set(all_timestamps).difference(df.index))
     missing_data = pd.DataFrame(
         {
-            "import_limit": [0] * len(missing_timestamps),
-            "with_import_limit": [False] * len(missing_timestamps),
-            "export_limit": [0] * len(missing_timestamps),
-            "with_export_limit": [False] * len(missing_timestamps),
+            "upper_bound": [0] * len(missing_timestamps),
+            "with_upper_bound": [False] * len(missing_timestamps),
+            "lower_bound": [0] * len(missing_timestamps),
+            "with_lower_bound": [False] * len(missing_timestamps),
         },
         index=missing_timestamps,
     )
-    
+
     # Concatenate the two DataFrames
     result_df = pd.concat([df, missing_data.astype(int)], axis=0)
     result_df.index.name = "timestamp"  # Set the index name
-    
+
     return result_df
-    
+
 
 class Solver(StrEnum):
     GUROBI = "gurobi"

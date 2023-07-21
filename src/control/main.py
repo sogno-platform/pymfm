@@ -23,13 +23,17 @@ def main(optimizer=True):
         filepath = os.path.join(fpath, "inputs/rule_based_offline.json")
     data = open_json(filepath)
     input_data = InputData(**data)
-    output, status = control(input_data)
-    print(output)
-    data_output.output_visualization(output)
+    output_df, status = control(input_data)
+    print(output_df)
+    #output_df.to_json("results/output_offline_detailed.json", orient="records", indent=4)
 
-    output = data_output.df_to_output(output, status)
-    with open("results/output_offline.json", "w") as outfile:
-        outfile.write(output.json(by_alias=True, sort_keys=False, indent=4))
+    data_output.visualize_and_save_plots(output_df)
+    data_output.produce_json_output(output_df)
+    data_output.produce_excel_output(output_df)
+
+    battery_data_output = data_output.battery_data_output(output_df, status)
+    with open("results/output_offline_batteries.json", "w") as outfile:
+        outfile.write(battery_data_output.json(by_alias=True, sort_keys=False, indent=4))
 
 
 if __name__ == "__main__":

@@ -7,7 +7,6 @@ from utils.data_input import (
     InputData,
     BatterySpecs,
     Bulk,
-    ImportExportLimitation,
     ControlMethod as CM,
 )
 from pyomo.opt import SolverStatus, TerminationCondition
@@ -15,10 +14,17 @@ from utils import data_output
 import pyomo.kernel as pmo
 
 
+# Constraints
+
+
 def power_balance(model, t):
     return (
-        model.P_load[t] + sum(model.P_ch_bat[n, t] for n in model.N) + model.P_exp[t]
-        == sum(model.P_dis_bat[n, t] for n in model.N) + model.P_imp[t] + model.P_PV[t]
+        model.P_load[t]
+        + sum(model.P_ch_bat[n, t] for n in model.N)
+        + model.P_exp[t] * model.x_exp[t]
+        == sum(model.P_dis_bat[n, t] for n in model.N)
+        + model.P_imp[t] * model.x_imp[t]
+        + model.P_PV[t]
     )
 
 
@@ -50,17 +56,24 @@ def bat_max_SoC(model, n, t):
     return model.SoC_bat[n, t] <= model.max_SoC_bat[n]
 
 
-def exp_limit(model, t):
-    if model.with_export_limit[t]:
-        return model.P_exp[t] <= model.export_limit[t] * model.x_exp[t]
+def import_export_lower_bound(model, t):
+    if model.with_imp_exp_lower_b[t]:
+        return (
+            model.imp_exp_lower_b[t]
+            <= model.P_imp[t] * model.x_imp[t] - model.P_exp[t] * model.x_exp[t]
+        )
     else:
-        return model.P_exp[t] <= 100000000000 * model.x_exp[t]
+        return Constraint.Feasible
 
-def imp_limit(model, t):
-    if model.with_import_limit[t]:
-        return model.P_imp[t] <= model.import_limit[t] * model.x_imp[t]
+
+def import_export_upper_bound(model, t):
+    if model.with_imp_exp_upper_b[t]:
+        return (
+            model.P_imp[t] * model.x_imp[t] - model.P_exp[t] * model.x_exp[t]
+            <= model.imp_exp_upper_b[t]
+        )
     else:
-        return model.P_imp[t] <= 100000000000 * model.x_imp[t]
+        return Constraint.Feasible
 
 
 def bat_final_SoC(model, n):
@@ -98,14 +111,21 @@ def imp_exp_binary(model, t):
     return model.x_imp[t] + model.x_exp[t] <= 1
 
 
-def pos_tot_imp_exp(model, t):
+def deficit_case_1(model, t):
     if model.P_net[t] >= 0:
-        return model.P_imp[t] - model.P_exp[t] <= model.P_net[t]
+        return model.P_imp[t] * model.x_imp[t] <= model.P_net[t]
     else:
         return Constraint.Feasible
 
 
-def neg_tot_imp_exp1(model, t):
+def deficit_case_2(model, n, t):
+    if model.P_net[t] >= 0:
+        return model.P_ch_bat[n, t] <= 0
+    else:
+        return Constraint.Feasible
+
+
+def surplus_case_1(model, t):
     if model.P_net[t] <= 0:
         return (
             sum((model.P_ch_bat[n, t]) / model.ch_eff_bat[n] for n in model.N)
@@ -115,21 +135,21 @@ def neg_tot_imp_exp1(model, t):
         return Constraint.Feasible
 
 
-def neg_tot_imp_exp2(model, t):
+def surplus_case_2(model, t):
     if model.P_net[t] <= 0:
         # Note for the future works: As we seperated P_imp and x_imp from each other, make sure we always use P_imp in all of our constraints.
         # From now on x_imp can be 1 and P_imp can be 0, therefore we MUST use P_imp in the constraints.
-        return model.P_imp[t] <= 0
+        return model.P_imp[t] * model.x_imp[t] <= 0
     else:
         return Constraint.Feasible
 
 
 def penalty_for_imp(model, t):
-    return model.P_imp[t] <= model.alpha_imp
+    return model.P_imp[t] * model.x_imp[t] <= model.alpha_imp
 
 
 def penalty_for_exp(model, t):
-    return model.P_exp[t] <= model.alpha_exp
+    return model.P_exp[t] * model.x_exp[t] <= model.alpha_exp
 
 
 def hbes_avoid_diss(model, n, t):
@@ -137,17 +157,22 @@ def hbes_avoid_diss(model, n, t):
         return model.P_dis_bat[n, t] <= 0
     else:
         return Constraint.Feasible
-    
+
+
 def pv_curtailment_constr(model, t):
     if model.pv_curtailment:
         return model.P_PV[t] <= model.P_PV_limit[t]
     else:
         return model.P_PV[t] == model.P_PV_limit[t]
 
+
 # Objective: Minimize the power exchange with the grid (Minimum interaction with the grid)
 def obj_rule(model):
     return (
-        sum(model.P_exp[t] + model.P_imp[t] for t in model.T)
+        sum(
+            model.P_exp[t] * model.x_exp[t] + model.P_imp[t] * model.x_imp[t]
+            for t in model.T
+        )
         + model.alpha_exp
         + model.alpha_imp
     )
@@ -159,7 +184,9 @@ def control(data: InputData):
         data.generation_and_load, start=data.uc_start, end=data.uc_end
     )
 
-    imp_exp_limits = data_input.imp_exp_lim_to_df(data.import_export_limitation, data.generation_and_load)
+    imp_exp_limits = data_input.imp_exp_lim_to_df(
+        data.import_export_limitation, data.generation_and_load
+    )
     if data.uc_name == CM.RULE_BASED:
         if isinstance(battery_specs, list):
             if len(battery_specs) == 1:
@@ -195,10 +222,12 @@ def control(data: InputData):
     if data.uc_name == CM.OPTIMIZER:
         df_battery_specs = data_input.battery_to_df(battery_specs)
         (
-            import_profile,
+            import_export_profile,
             pv_profile,
-            bat_profiles,
-            sof_profiles,
+            bat_p_supply_profiles,
+            bat_soc_supply_profiles,
+            imp_exp_upperb,
+            imp_exp_lowerb,
             solver_status,
         ) = optimizer_logic(
             df_forecasts,
@@ -209,16 +238,20 @@ def control(data: InputData):
             data.generation_and_load.pv_curtailment,
         )
         output_df = data_output.prep_optimizer_output(
-            import_profile,
-            bat_profiles,
-            sof_profiles,
+            import_export_profile,
+            pv_profile,
+            bat_p_supply_profiles,
+            bat_soc_supply_profiles,
             df_forecasts,
-            df_battery_specs,
+            imp_exp_upperb,
+            imp_exp_lowerb,
         )
         return output_df, solver_status
 
 
-def rule_based_logic(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: timedelta):
+def rule_based_logic(
+    P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: timedelta
+):
     # initialize
     output_ds = pd.Series(
         index=[
@@ -307,7 +340,6 @@ def optimizer_logic(
     bulk_data: Bulk,
     imp_exp_limits: pd.DataFrame,
     pv_curtailment: Boolean,
-
 ) -> tuple[pd.Series, pd.Series, pd.DataFrame, pd.DataFrame, SolverStatus]:
     # Selected optimization solver
     # optimization_solver = SolverFactory("bonmin")
@@ -362,10 +394,10 @@ def optimizer_logic(
     model.end_time = end_time
     model.day_end = day_end
     # Import-export limits for every each timestamp enabling the microgrid to go full islanding (if both are zero)
-    model.import_limit = imp_exp_limits.import_limit
-    model.export_limit = imp_exp_limits.export_limit
-    model.with_import_limit = imp_exp_limits.with_import_limit
-    model.with_export_limit = imp_exp_limits.with_export_limit
+    model.imp_exp_upper_b = imp_exp_limits.upper_bound
+    model.imp_exp_lower_b = imp_exp_limits.lower_bound
+    model.with_imp_exp_upper_b = imp_exp_limits.with_upper_bound
+    model.with_imp_exp_lower_b = imp_exp_limits.with_lower_bound
 
     # Forecast parameters
     # Total import-export forecast
@@ -412,7 +444,7 @@ def optimizer_logic(
 
     # Variables
     # Power output of PV in timestamp t
-    model.P_PV = Var(model.T, within=NonNegativeReals)        
+    model.P_PV = Var(model.T, within=NonNegativeReals)
     # Power demand of the community in timestamp t
     model.P_dem = Var(model.T, within=NonNegativeReals)
     # PV power feeding the load in timestamp t
@@ -452,15 +484,20 @@ def optimizer_logic(
     model.bat_max_dis_power = Constraint(model.N, model.T, rule=bat_max_dis_power)
     model.bat_min_SoC = Constraint(model.N, model.T_SoC_bat, rule=bat_min_SoC)
     model.bat_max_SoC = Constraint(model.N, model.T_SoC_bat, rule=bat_max_SoC)
-    model.exp_limit = Constraint(model.T, rule=exp_limit)
-    model.imp_limit = Constraint(model.T, rule=imp_limit)
+    model.import_export_upper_bound = Constraint(
+        model.T, rule=import_export_upper_bound
+    )
+    model.import_export_lower_bound = Constraint(
+        model.T, rule=import_export_lower_bound
+    )
     model.ch_dis_binary = Constraint(model.N, model.T, rule=ch_dis_binary)
     model.imp_exp_binary = Constraint(model.T, rule=imp_exp_binary)
     model.penalty_for_imp = Constraint(model.T, rule=penalty_for_imp)
     model.penalty_for_exp = Constraint(model.T, rule=penalty_for_exp)
-    model.pos_tot_imp_exp = Constraint(model.T, rule=pos_tot_imp_exp)
-    model.neg_tot_imp_exp1 = Constraint(model.T, rule=neg_tot_imp_exp1)
-    model.neg_tot_imp_exp2 = Constraint(model.T, rule=neg_tot_imp_exp2)
+    model.deficit_case_1 = Constraint(model.T, rule=deficit_case_1)
+    model.deficit_case_2 = Constraint(model.N, model.T, rule=deficit_case_2)
+    model.surplus_case_1 = Constraint(model.T, rule=surplus_case_1)
+    model.surplus_case_2 = Constraint(model.T, rule=surplus_case_2)
     model.hbes_avoid_diss = Constraint(model.N, model.T, rule=hbes_avoid_diss)
     model.pv_curtailment_constr = Constraint(model.T, rule=pv_curtailment_constr)
 
@@ -469,40 +506,44 @@ def optimizer_logic(
     #####################################################################################################
     ##################################       OPTIMIZATION MODEL          ################################
     solver = optimization_solver.solve(model).solver
-    #model.pprint()
     #####################################################################################################
     ##################################       POST PROCESSING             ################################
-    bat_supply = pd.DataFrame(index=model.T, columns=df_battery.index)
-    tie_supply = pd.DataFrame(index=model.T, columns=[""])
+    bat_p_supply_profiles = pd.DataFrame(index=model.T, columns=df_battery.index)
+    import_export_profile = pd.DataFrame(index=model.T, columns=[""])
+    import_limits = pd.DataFrame(index=model.T, columns=[""])
+    export_limits = pd.DataFrame(index=model.T, columns=[""])
     bat_ch = pd.DataFrame(index=model.T, columns=df_battery.index)
     bat_dis = pd.DataFrame(index=model.T, columns=df_battery.index)
-    soc_supply = pd.DataFrame(index=model.T_SoC_bat, columns=df_battery.index)
-    x_ch = pd.DataFrame(index=model.T, columns=df_battery.index)
-    x_dis = pd.DataFrame(index=model.T, columns=df_battery.index)
+    bat_soc_supply_profiles = pd.DataFrame(
+        index=model.T_SoC_bat, columns=df_battery.index
+    )
 
     for n in model.N:
         for t in model.T:
-            bat_supply.loc[t, n] = value(
+            bat_p_supply_profiles.loc[t, n] = value(
                 model.x_dis[n, t] * model.P_dis_bat[n, t] / model.dis_eff_bat[n]
                 - model.x_ch[n, t] * model.P_ch_bat[n, t] * model.ch_eff_bat[n]
             )
 
     for t in model.T:
-        tie_supply.loc[t] = value(
+        import_export_profile.loc[t] = value(
             model.x_imp[t] * model.P_imp[t] - model.x_exp[t] * model.P_exp[t]
         )
+        #import_export_profile.loc[t] = model.imp_exp_upper_b[t]
 
     for col in df_battery.index:
         bat_ch[col] = model.P_ch_bat[col, :]()
         bat_dis[col] = model.P_dis_bat[col, :]()
-        soc_supply[col] = model.SoC_bat[col, :]()
+        bat_soc_supply_profiles[col] = model.SoC_bat[col, :]()
 
-    pv_supply = pd.Series(model.P_PV[:](), index=model.T)
+    pv_profile = pd.Series(model.P_PV[:](), index=model.T)
 
     return (
-        tie_supply,
-        pv_supply,
-        bat_supply,
-        soc_supply,
+        import_export_profile,
+        pv_profile,
+        bat_p_supply_profiles,
+        bat_soc_supply_profiles,
+        model.imp_exp_upper_b,
+        model.imp_exp_lower_b,
         (solver.status, solver.termination_condition),
     )

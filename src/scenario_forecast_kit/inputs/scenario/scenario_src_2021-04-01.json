@@ -12,27 +12,27 @@
     "import_export_limitation": [
         {
             "timestamp": "2021-04-01T00:00:00.000000Z",
-            "import_limit": 10
+            "upper_bound": 10
         },
         {
             "timestamp": "2021-04-01T01:00:00.000000Z",
-            "import_limit": 10,
-            "export_limit": 10
+            "upper_bound": 10,
+            "lower_bound": 10
         },
         {
             "timestamp": "2021-04-01T10:30:00.000000Z",
-            "import_limit": 10,
-            "export_limit": 10
+            "upper_bound": 10,
+            "lower_bound": 10
         },
         {
             "timestamp": "2021-04-01T10:45:00.000000Z",
-            "import_limit": 10,
-            "export_limit": 10
+            "upper_bound": 10,
+            "lower_bound": 10
         },
         {
             "timestamp": "2021-04-01T11:00:00.000000Z",
-            "import_limit": 10,
-            "export_limit": 10
+            "upper_bound": 10,
+            "lower_bound": 10
         }
     ],
     "battery_specs": [

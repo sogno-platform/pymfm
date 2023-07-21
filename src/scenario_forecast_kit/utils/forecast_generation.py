@@ -44,8 +44,6 @@ def generate_forecast(input_folder_path, output_folder_path, time_resolution):
 
             # Extract relevant data from the input JSON
             application = data["application"]
-            # TO-DO: Update uc name
-            uc_name = "balancer"
             start_forecast = datetime.strptime(
                 data["start_forecast"], "%Y-%m-%dT%H:%M:%SZ"
             )
@@ -137,7 +135,9 @@ def generate_forecast(input_folder_path, output_folder_path, time_resolution):
             # Get the absolute file path of the generated .json file
             absolute_output_file_path = os.path.abspath(output_file_path)
 
-            print(f"Forecast file generated and saved under: {absolute_output_file_path}")
+            print(
+                f"Forecast file generated and saved under: {absolute_output_file_path}"
+            )
 
     print("All files processed.")
 
