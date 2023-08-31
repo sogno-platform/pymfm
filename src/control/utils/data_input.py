@@ -1,8 +1,10 @@
 from typing import Optional, List
 import pandas as pd
 from pydantic import BaseModel as PydBaseModel, Field, ValidationError, validator
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from enum import Enum
+from astral.sun import sun
+from astral.location import LocationInfo
 
 
 class BaseModel(PydBaseModel):
@@ -15,8 +17,9 @@ class StrEnum(str, Enum):
 
 
 class ControlMethod(StrEnum):
-    RULE_BASED = "rule_based"
+    RULE_BASED = "rule_based_scheduling"
     OPTIMIZER = "optimizer"
+    REAL_TIME = "near-real-time"
 
 
 class Bulk(BaseModel):
@@ -44,17 +47,12 @@ class GenerationAndLoad(BaseModel):
 
 # TODO add constraints
 # - initial_SoC and final_SoC should always be in the acceptable range, i.e., between min_SoC and max_SoC
-# - final_SoC is mandatory but irrelevant when with_final_SoC=false
 class BatterySpecs(BaseModel):
     id: Optional[str]
     bat_type: str = Field(
         ...,
         alias="bat_type",
         description="The type of the battery. cbes: comunity battery energy storage, hbes: household battery energy storage",
-    )
-    with_final_SoC: bool = Field(
-        ...,
-        description="Activate optimization including the constraint for the final state of charge of the battery",
     )
     initial_SoC: float = Field(
         ...,
@@ -96,12 +94,13 @@ class InputData(BaseModel):
     uc_name: ControlMethod = Field(..., alias="uc_name")
     uc_start: datetime = Field(..., alias="uc_start")
     uc_end: datetime = Field(..., alias="uc_end")
-    day_end: datetime = Field(..., alias="day_end")
+    generation_and_load: GenerationAndLoad = Field(..., alias="generation_and_load")
+    #day_end: datetime = Field(..., alias="day_end")
+    day_end: Optional[datetime] = Field(None, alias="day_end")
     bulk: Optional[Bulk] = Field(None, alias="bulk")
     import_export_limitation: Optional[List[ImportExportLimitation]] = Field(
         None, alias="import_export_limitation"
     )
-    generation_and_load: GenerationAndLoad = Field(..., alias="generation_and_load")
     battery_specs: BatterySpecs | list[BatterySpecs]
 
     @validator("uc_name", pre=True)
@@ -128,6 +127,20 @@ class InputData(BaseModel):
             )
         return meas
 
+    @validator("day_end", always=True)
+    def set_day_end(cls, v, values):
+        generation_and_load = values.get("generation_and_load")
+        if v is None:
+            # Calculate the sunset time for uc_start date and location (Berlin)
+            berlin_location = LocationInfo("Berlin", "Germany", "Europe/Berlin", 52.52, 13.40)
+            s = sun(berlin_location.observer, date=values["uc_start"].date())
+            # Set day_end to the sunset time
+            sunset_time = s["sunset"].astimezone(timezone.utc)
+            if generation_and_load and isinstance(generation_and_load, GenerationAndLoad):
+                timestamps = [data_point.timestamp for data_point in generation_and_load.values]
+                nearest_timestamp = min(timestamps, key=lambda t: abs(t - sunset_time))
+                return nearest_timestamp
+            return v
 
 def minutes_horizon(starttime: datetime, endtime: datetime) -> float:
     time_delta = endtime - starttime
@@ -146,9 +159,7 @@ def input_prep(battery_specs: BatterySpecs | list[BatterySpecs]):
             battery.initial_SoC /= 100
             battery.final_SoC /= 100
             battery.bat_capacity *= 3600
-            # Make sure that, household battery energy systems do not have final SoC
-            if battery.bat_type == "hbes":
-                battery.with_final_SoC = False
+
     else:
         # Transform battery percent to abs
         battery_specs.min_SoC /= 100
@@ -156,9 +167,7 @@ def input_prep(battery_specs: BatterySpecs | list[BatterySpecs]):
         battery_specs.initial_SoC /= 100
         battery_specs.final_SoC /= 100
         battery_specs.bat_capacity *= 3600
-        # Make sure that, household battery energy systems do not have final SoC
-        if battery_specs.bat_type == "hbes":
-            battery_specs.with_final_SoC = False
+        
     return battery_specs
 
 

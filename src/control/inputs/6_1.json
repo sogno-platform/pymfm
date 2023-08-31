@@ -1,10 +1,16 @@
-{
+﻿{
     "application": "pymfm",
     "uc_name": "optimiser",
     "uc_start": "2021-04-01T00:00:00.000000Z",
     "uc_end": "2021-04-01T23:45:00.000000Z",
+    "day_end": "2021-04-01T11:00:00.000000Z",
+    "bulk": {
+        "bulk_start": "2021-04-01T13:00:00.000Z",
+        "bulk_end": "2021-04-01T17:00:00.000Z",
+        "bulk_energy_kWh": 100
+    },
     "generation_and_load": {
-        "pv_curtailment": true,
+        "pv_curtailment": false,
         "values": [
             {
                 "timestamp": "2021-04-01T00:00:00.000000Z",
@@ -493,7 +499,7 @@
             "id": "bat_1",
             "bat_type": "cbes",
             "initial_SoC": 60,
-            "final_SoC": 87,
+            "final_SoC": 85,
             "P_dis_max_kW": 300,
             "P_ch_max_kW": 300,
             "min_SoC": 8.75,
@@ -501,61 +507,6 @@
             "bat_capacity": 800,
             "ch_efficiency": 1,
             "dis_efficiency": 1
-        },
-        {
-            "id": "bat_2",
-            "bat_type": "hbes",
-            "initial_SoC": 40,
-            "final_SoC": 61.4,
-            "P_dis_max_kW": 30,
-            "P_ch_max_kW": 30,
-            "min_SoC": 8.75,
-            "max_SoC": 87.5,
-            "bat_capacity": 80,
-            "ch_efficiency": 1,
-            "dis_efficiency": 1
-        }
-    ],
-    "import_export_limitation": [
-        {
-            "timestamp": "2021-04-01T13:00:00.000000Z",
-            "upper_bound": -20,
-            "lower_bound": -20
-        },
-        {
-            "timestamp": "2021-04-01T14:00:00.000000Z",
-            "upper_bound": 100,
-            "lower_bound": -100
-        },
-        {
-            "timestamp": "2021-04-01T14:15:00.000000Z",
-            "upper_bound": 100,
-            "lower_bound": -100
-        },
-        {
-            "timestamp": "2021-04-01T14:30:00.000000Z",
-            "upper_bound": 100,
-            "lower_bound": -100
-        },
-        {
-            "timestamp": "2021-04-01T14:45:00.000000Z",
-            "upper_bound": 100,
-            "lower_bound": -100
-        },
-        {
-            "timestamp": "2021-04-01T21:00:00.000000Z",
-            "upper_bound": 45,
-            "lower_bound": -45
-        },
-        {
-            "timestamp": "2021-04-01T21:15:00.000000Z",
-            "upper_bound": 45,
-            "lower_bound": -45
-        },
-        {
-            "timestamp": "2021-04-01T21:30:00.000000Z",
-            "upper_bound": 45,
-            "lower_bound": -45
         }
     ]
 }

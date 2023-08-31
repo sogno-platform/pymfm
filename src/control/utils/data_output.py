@@ -73,7 +73,7 @@ def battery_data_output(
         output.columns.map(lambda col: col == "time" or col.startswith("P_bat"))
     ]
     output = output[value_cols].to_dict(orient="index")
-    output = [{"time": time, "values": d} for time, d in output.items()]
+    output = [{"timestamp": time, "values": d} for time, d in output.items()]
     out = ControlOutput(
         version=version("pymfm"),
         units={"time": "ISO8601", "P": "kW"},

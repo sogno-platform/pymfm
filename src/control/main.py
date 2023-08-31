@@ -25,7 +25,6 @@ def main(optimizer=True):
     input_data = InputData(**data)
     output_df, status = control(input_data)
     print(output_df)
-    #output_df.to_json("results/output_offline_detailed.json", orient="records", indent=4)
 
     data_output.visualize_and_save_plots(output_df)
     data_output.produce_json_output(output_df)

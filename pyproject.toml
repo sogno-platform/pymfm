@@ -19,5 +19,6 @@ dependencies = ["pandas==1.5.3",
                 "matplotlib==3.7.1",
                 "scipy==1.11.0",
                 "xlsxwriter==3.1.2",
-                "pydantic==1.10.9",]
+                "pydantic==1.10.9",
+                "astral==3.2",]
 version = "0.0.2"

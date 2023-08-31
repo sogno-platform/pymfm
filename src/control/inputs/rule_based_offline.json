@@ -1,9 +1,8 @@
 {
     "application": "Platone",
-    "uc_name": "rule_based",
+    "uc_name": "rule_based_scheduling",
     "uc_start": "2021-04-01T00:00:00.000Z",
     "uc_end": "2021-04-01T23:45:00.000Z",
-    "day_end": "2021-04-01T11:00:00.000Z",
     "id": "03098e97-9b15-466e-9d57-e87645f84207",
     "bulk": {
         "bulk_start": "2021-04-01T13:00:00.000Z",
@@ -1173,7 +1172,6 @@
         {
             "id": "bat_1",
             "bat_type": "cbes",
-            "with_final_SoC": false,
             "initial_SoC": 60,
             "final_SoC": 87,
             "P_dis_max_kW": 300,

@@ -1,8 +1,14 @@
-{
+﻿{
     "application": "pymfm",
     "uc_name": "optimiser",
     "uc_start": "2021-04-01T00:00:00.000000Z",
     "uc_end": "2021-04-01T23:45:00.000000Z",
+    "day_end": "2021-04-01T11:00:00.000000Z",
+    "bulk": {
+        "bulk_start": "2021-04-01T13:00:00.000Z",
+        "bulk_end": "2021-04-01T17:00:00.000Z",
+        "bulk_energy_kWh": 100
+    },
     "generation_and_load": {
         "pv_curtailment": true,
         "values": [
@@ -506,7 +512,6 @@
             "id": "bat_2",
             "bat_type": "hbes",
             "initial_SoC": 40,
-            "final_SoC": 61.4,
             "P_dis_max_kW": 30,
             "P_ch_max_kW": 30,
             "min_SoC": 8.75,
@@ -519,6 +524,16 @@
     "import_export_limitation": [
         {
             "timestamp": "2021-04-01T13:00:00.000000Z",
+            "upper_bound": -20,
+            "lower_bound": -20
+        },
+         {
+            "timestamp": "2021-04-01T13:15:00.000000Z",
+            "upper_bound": -20,
+            "lower_bound": -20
+        },
+                 {
+            "timestamp": "2021-04-01T13:30:00.000000Z",
             "upper_bound": -20,
             "lower_bound": -20
         },

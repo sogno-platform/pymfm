@@ -39,7 +39,6 @@
         {
             "id": "bat_1",
             "bat_type": "cbes",
-            "with_final_SoC": false,
             "initial_SoC": 60,
             "final_SoC": 87,
             "P_dis_max_kW": 300,
@@ -53,7 +52,6 @@
         {
             "id": "bat_2",
             "bat_type": "hbes",
-            "with_final_SoC": false,
             "initial_SoC": 40,
             "final_SoC": 61.4,
             "P_dis_max_kW": 30,

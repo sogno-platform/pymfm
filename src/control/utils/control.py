@@ -77,11 +77,12 @@ def import_export_upper_bound(model, t):
 
 
 def bat_final_SoC(model, n):
-    if model.with_final_SoC[n]:
-        return model.SoC_bat[n, model.end_time] == model.final_SoC_bat[n]
-    # Household battery should reach its maximum SoC at the end of the day
-    elif model.bat_type[n] == "hbes":
-        return model.SoC_bat[n, model.day_end] == model.max_SoC_bat[n]
+    if model.final_SoC_bat[n] is not None:
+        # Household battery should reach its maximum SoC at the end of the day
+        if model.bat_type[n] == "hbes":
+            return model.SoC_bat[n, model.day_end] == model.max_SoC_bat[n]
+        else:
+            return model.SoC_bat[n, model.end_time] == model.final_SoC_bat[n]
     else:
         return Constraint.Feasible
 
@@ -416,13 +417,8 @@ def optimizer_logic(
     model.max_SoC_bat = df_battery.max_SoC
     # State of charge value of battery n at the beginning of the optimization horizon
     model.ini_SoC_bat = df_battery.initial_SoC
-    # Boolean
-    # True: There is a final state of charge to be reached for the battery n at the end of the optimization horizon
-    # False: There is no final state of charge to be reached for the battery n at the end of the optimization horizon
-    model.with_final_SoC = df_battery.with_final_SoC
-    if model.with_final_SoC.any():
-        # The value of the final state of charge to be reached for the battery n at the end of the optimization horizon
-        model.final_SoC_bat = df_battery.final_SoC
+    # The value of the final state of charge (if given) to be reached for the battery n at the end of the optimization horizon
+    model.final_SoC_bat = df_battery.final_SoC
     # Capacity of the battery n (kWsec)
     model.cap_bat = df_battery.bat_capacity
     # Maximum charging power of the battery n (KW)
