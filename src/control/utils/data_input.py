@@ -19,7 +19,7 @@ class StrEnum(str, Enum):
 class ControlMethod(StrEnum):
     RULE_BASED = "rule_based_scheduling"
     OPTIMIZER = "optimizer"
-    REAL_TIME = "near-real-time"
+    REAL_TIME = "near_real_time"
 
 
 class Bulk(BaseModel):
@@ -43,6 +43,13 @@ class GenerationAndLoadValues(BaseModel):
 class GenerationAndLoad(BaseModel):
     pv_curtailment: Optional[float] = Field(None, alias="bulk")
     values: List[GenerationAndLoadValues] = Field(..., alias="values")
+
+class MeasurementsRequest(BaseModel):
+    timestamp: datetime = Field(..., alias="timestamp")
+    Preq_kW: Optional[float] = Field(..., alias="Preq_kW")
+    delta_T: float = Field(..., alias="delta_T")
+    Pnet_meas_kW: float = Field(..., alias="Pnet_meas_kW")
+    Pbat_init_kW: float = Field(..., alias="Pbat_init_kW")
 
 
 # TODO add constraints
@@ -94,21 +101,21 @@ class InputData(BaseModel):
     uc_name: ControlMethod = Field(..., alias="uc_name")
     uc_start: datetime = Field(..., alias="uc_start")
     uc_end: datetime = Field(..., alias="uc_end")
-    generation_and_load: GenerationAndLoad = Field(..., alias="generation_and_load")
-    #day_end: datetime = Field(..., alias="day_end")
+    generation_and_load: Optional[GenerationAndLoad] = Field(None, alias="generation_and_load")
     day_end: Optional[datetime] = Field(None, alias="day_end")
     bulk: Optional[Bulk] = Field(None, alias="bulk")
     import_export_limitation: Optional[List[ImportExportLimitation]] = Field(
         None, alias="import_export_limitation"
     )
+    measurements_request: Optional[MeasurementsRequest] = Field(None, alias="measurements_request")
     battery_specs: BatterySpecs | list[BatterySpecs]
-
+    
     @validator("uc_name", pre=True)
     def uc_name_to_enum(cls, value: str) -> str:
         if value.lower() == "optimiser":
             return "optimizer"
         return value
-
+    
     @validator("generation_and_load")
     def generation_and_load_start_before_timewindow(cls, meas, values):
         uc_start = values["uc_start"]
@@ -196,15 +203,31 @@ def battery_to_df(battery_specs: BatterySpecs | list[BatterySpecs]) -> pd.DataFr
     return df_battery
 
 
-def imp_exp_to_df(
-    meas: list[ImportExportLimitation], start: datetime = None, end: datetime = None
-) -> pd.DataFrame:
-    df_imp_exp = pd.json_normalize([mes.dict(by_alias=False) for mes in meas])
-    df_imp_exp.set_index("timestamp", inplace=True)
-    df_imp_exp.index.freq = pd.infer_freq(df_imp_exp.index)
-    df_imp_exp = df_imp_exp.loc[start:end]
-    return df_imp_exp
+def battery_to_dict(battery_specs: BatterySpecs):
+    battery_dict = {
+        "id": battery_specs[0].id,
+        "bat_type": battery_specs[0].bat_type,
+        "initial_Energy_kWh": battery_specs[0].initial_SoC * (battery_specs[0].bat_capacity / 3600),
+        "final_SoC": battery_specs[0].final_SoC,
+        "P_dis_max_kW": battery_specs[0].P_dis_max_kW,
+        "P_ch_max_kW": battery_specs[0].P_ch_max_kW,
+        "min_Energy_kWh": battery_specs[0].min_SoC * (battery_specs[0].bat_capacity / 3600),
+        "max_Energy_kWh": battery_specs[0].max_SoC * (battery_specs[0].bat_capacity / 3600),
+        "bat_capacity": battery_specs[0].bat_capacity,
+        "ch_efficiency": battery_specs[0].ch_efficiency,
+        "dis_efficiency": battery_specs[0].dis_efficiency,
+    }
+    return battery_dict
 
+def measurements_request_to_dict(measurements_request: MeasurementsRequest):
+    measurements_request_dict = {
+        'timestamp': measurements_request.timestamp,
+        'Preq_kW': measurements_request.Preq_kW,
+        'delta_T': measurements_request.delta_T,
+        'Pnet_meas_kW': measurements_request.Pnet_meas_kW,
+        'Pbat_init_kW': measurements_request.Pbat_init_kW
+    }
+    return measurements_request_dict
 
 def imp_exp_lim_to_df(
     import_export_limits: List[ImportExportLimitation],
@@ -255,7 +278,6 @@ def imp_exp_lim_to_df(
     result_df.index.name = "timestamp"  # Set the index name
 
     return result_df
-
 
 class Solver(StrEnum):
     GUROBI = "gurobi"

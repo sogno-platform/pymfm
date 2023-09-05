@@ -180,21 +180,23 @@ def obj_rule(model):
 
 
 def control(data: InputData):
-    battery_specs = data_input.input_prep(data.battery_specs)
-    df_forecasts = data_input.generation_and_load_to_df(
-        data.generation_and_load, start=data.uc_start, end=data.uc_end
-    )
 
-    imp_exp_limits = data_input.imp_exp_lim_to_df(
-        data.import_export_limitation, data.generation_and_load
-    )
+    battery_specs = data_input.input_prep(data.battery_specs)
+    
     if data.uc_name == CM.RULE_BASED:
+        df_forecasts = data_input.generation_and_load_to_df(
+            data.generation_and_load, start=data.uc_start, end=data.uc_end
+        )
+
+        imp_exp_limits = data_input.imp_exp_lim_to_df(
+            data.import_export_limitation, data.generation_and_load
+        )
         if isinstance(battery_specs, list):
             if len(battery_specs) == 1:
                 battery_specs = battery_specs[0]
             else:
                 raise RuntimeError(
-                    "Rulebased control can not deal with multiple flex nodes"
+                    "Rule based control can not deal with multiple flex nodes."
                 )
         output_df = None
         delta_T = pd.to_timedelta(df_forecasts.P_load_kW.index.freq)
@@ -219,8 +221,30 @@ def control(data: InputData):
         output_df = output_df.drop(["bat_energy_Ws", "import_W", "export_W"], axis=1)
 
         return output_df, (SolverStatus.ok, TerminationCondition.optimal)
+    
+    if data.uc_name == CM.REAL_TIME:
+        if isinstance(battery_specs, list):
+            if len(battery_specs) == 1:
+                #battery_specs = battery_specs[0]
+                battery_specs_dict = data_input.battery_to_dict(battery_specs)
+            else:
+                raise RuntimeError(
+                    "Near real time control can not deal with multiple flex nodes."
+                )
+        measurements_request_dict = data_input.measurements_request_to_dict(data.measurements_request)
+        output_df = near_real_time_logic(measurements_request_dict, battery_specs_dict)
+
+        return output_df, (SolverStatus.ok, TerminationCondition.optimal)
+
 
     if data.uc_name == CM.OPTIMIZER:
+        df_forecasts = data_input.generation_and_load_to_df(
+            data.generation_and_load, start=data.uc_start, end=data.uc_end
+        )
+
+        imp_exp_limits = data_input.imp_exp_lim_to_df(
+            data.import_export_limitation, data.generation_and_load
+        )
         df_battery_specs = data_input.battery_to_df(battery_specs)
         (
             import_export_profile,
@@ -248,7 +272,96 @@ def control(data: InputData):
             imp_exp_lowerb,
         )
         return output_df, solver_status
+    
+def near_real_time_logic(measurements_request_dict: dict, battery_specs_dict: dict):
+    output = dict.fromkeys(
+        [
+            "timestamp",
+            "Pbat_kW",
+            "bat_Energy_kWh",
+            "import",
+            "export",
+            "Ptei_kW",
+            "Expected_Ptei",
+        ]
+        )
+        
+    output["timestamp"] = measurements_request_dict["timestamp"]
+    # initialize
+    output["import"] = 0
+    output["export"] = 0
+    output["bat_Energy_kWh"] = 0
 
+    output["Pbat_kW"] = -measurements_request_dict["Preq_kW"] + measurements_request_dict["Pnet_meas_kW"]
+    output["bat_Energy_kWh"] = battery_specs_dict["initial_Energy_kWh"] - (
+        output["Pbat_kW"] * measurements_request_dict["delta_T"]
+    )
+
+    # discharging
+    if output["Pbat_kW"] > 0:
+        act_ptcb = output["Pbat_kW"]
+        if abs(output["Pbat_kW"]) < battery_specs_dict["P_dis_max_kW"]:
+            pass
+
+        else:
+            output["import"] = output["Pbat_kW"] - battery_specs_dict["P_dis_max_kW"]
+            output["Pbat_kW"] = battery_specs_dict["P_dis_max_kW"]
+            output["bat_Energy_kWh"] = battery_specs_dict["initial_Energy_kWh"] - (
+                battery_specs_dict["P_dis_max_kW"] * measurements_request_dict["delta_T"]
+            )
+
+        if output["bat_Energy_kWh"] >= battery_specs_dict["min_Energy_kWh"]:
+            pass
+
+        else:
+            output["import"] = output["import"] + (
+                ((battery_specs_dict["min_Energy_kWh"] - output["bat_Energy_kWh"]) / measurements_request_dict["delta_T"])
+            )
+            output["Pbat_kW"] = act_ptcb - output["import"]
+            output["bat_Energy_kWh"] = battery_specs_dict["min_Energy_kWh"]
+
+        output["Pbat_kW"] = float(output["Pbat_kW"])
+
+    # charging
+    if output["Pbat_kW"] < 0:
+        act_ptcb = output["Pbat_kW"]
+        if abs(output["Pbat_kW"]) <= battery_specs_dict["P_ch_max_kW"]:
+            output["export"] = 0
+            pass
+        else:
+            output["export"] = abs(output["Pbat_kW"]) - battery_specs_dict["P_ch_max_kW"]
+            output["Pbat_kW"] = -battery_specs_dict["P_ch_max_kW"]
+            output["bat_Energy_kWh"] = battery_specs_dict["initial_Energy_kWh"] + (
+                battery_specs_dict["P_ch_max_kW"] * measurements_request_dict["delta_T"]
+            )
+        if output["bat_Energy_kWh"] <= battery_specs_dict["max_Energy_kWh"]:
+            pass
+        else:
+            output["export"] = output["export"] + (
+                (output["bat_Energy_kWh"] - battery_specs_dict["max_Energy_kWh"]) / measurements_request_dict["delta_T"]
+            )
+            output["Pbat_kW"] = -(abs(act_ptcb) - (output["export"]))
+            output["bat_Energy_kWh"] = battery_specs_dict["max_Energy_kWh"]
+        output["Pbat_kW"] = float(output["Pbat_kW"])
+
+    output["Ptei_kW"] = -measurements_request_dict["Pnet_meas_kW"]
+    output["Expected_Ptei_kW"] = output["export"] - output["import"]
+
+    # Considering current Pbat_kW
+    output["Pbat_kW"] = output["Pbat_kW"] + measurements_request_dict["Pbat_init_kW"]
+    if output["Pbat_kW"] < 0:
+        if abs(output["Pbat_kW"]) <= battery_specs_dict["P_ch_max_kW"]:
+            pass
+        else:
+            output["Pbat_kW"] = -battery_specs_dict["P_ch_max_kW"]
+
+    else:
+        if output["Pbat_kW"] <= battery_specs_dict["P_dis_max_kW"]:
+            pass
+        else:
+            output["Pbat_kW"] = battery_specs_dict["P_dis_max_kW"]
+
+    return output
 
 def rule_based_logic(
     P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: timedelta
