@@ -379,3 +379,30 @@ def scheduling(
         model.lower_bound_kW,
         (solver.status, solver.termination_condition),
     )
+
+def prep_output_df(
+    P_net_after_kW: pd.Series,
+    pv_profile: pd.Series,
+    bat_p_supply_profiles: pd.DataFrame,
+    bat_soc_supply_profiles: pd.DataFrame,
+    df_forecasts: pd.DataFrame,
+    imp_exp_upperb,
+    imp_exp_lowerb,
+):
+    output_df = pd.DataFrame(index=df_forecasts.index)
+    output_df["P_net_before_kW"] = (
+        df_forecasts["P_load_kW"] - df_forecasts["P_gen_kW"]
+    )
+    output_df["P_net_before_controlled_PV_kW"] = (
+        df_forecasts["P_load_kW"] - pv_profile
+    )
+    output_df["P_PV_forecast_kW"] = df_forecasts["P_gen_kW"]
+    output_df["P_PV_controlled_kW"] = pv_profile
+    output_df["P_net_after_kW"] = P_net_after_kW
+    output_df["upperb"] = imp_exp_upperb
+    output_df["lowerb"] = imp_exp_lowerb
+    for col in bat_p_supply_profiles.columns:
+        output_df[f"P_{col}_kW"] = bat_p_supply_profiles[col]
+        output_df[f"SoC_{col}_%"] = bat_soc_supply_profiles[col] * 100
+
+    return output_df

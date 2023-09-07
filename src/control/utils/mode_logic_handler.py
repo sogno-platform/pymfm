@@ -8,7 +8,6 @@ from utils.data_input import (
 )
 from utils import optimization_based as OptB
 from utils import rule_based as RB
-from utils import data_output
 
 
 def mode_logic_handler(data: InputData):
@@ -55,8 +54,9 @@ def mode_logic_handler(data: InputData):
             output_df = output_df.drop(
                 ["bat_energy_kWs", "import_kW", "export_kW"], axis=1
             )
+            mode_logic = {"CL":data.control_logic, "OM": data.operation_mode}
 
-            return output_df, (SolverStatus.ok, TerminationCondition.optimal)
+            return mode_logic, output_df, (SolverStatus.ok, TerminationCondition.optimal)
 
         if data.operation_mode == OM.NEAR_REAL_TIME:
             if isinstance(battery_specs, list):
@@ -70,8 +70,9 @@ def mode_logic_handler(data: InputData):
                 data.measurements_request
             )
             output_df = RB.near_real_time(measurements_request_dict, battery_specs)
+            mode_logic = {"CL":data.control_logic, "OM": data.operation_mode}
 
-            return output_df, (SolverStatus.ok, TerminationCondition.optimal)
+            return mode_logic, output_df, (SolverStatus.ok, TerminationCondition.optimal)
 
     if data.control_logic == CL.OPTIMIZATION_BASED:
         df_forecasts = data_input.generation_and_load_to_df(
@@ -98,7 +99,7 @@ def mode_logic_handler(data: InputData):
             imp_exp_limits,
             data.generation_and_load.pv_curtailment,
         )
-        output_df = data_output.prep_optimizer_output(
+        output_df = OptB.prep_output_df(
             P_net_after_kW,
             PV_profile,
             bat_P_supply_profiles,
@@ -107,4 +108,6 @@ def mode_logic_handler(data: InputData):
             upper_bound_kW,
             lower_bound_kW,
         )
-        return output_df, solver_status
+        mode_logic = {"CL":data.control_logic, "OM": data.operation_mode}
+
+        return mode_logic, output_df, solver_status
