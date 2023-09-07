@@ -16,16 +16,20 @@ class StrEnum(str, Enum):
     pass
 
 
-class ControlMethod(StrEnum):
-    RULE_BASED = "rule_based_scheduling"
-    OPTIMIZER = "optimizer"
-    REAL_TIME = "near_real_time"
+class ControlLogic(StrEnum):
+    RULE_BASED = "rule_based"
+    OPTIMIZATION_BASED = "optimization_based"
+
+
+class OperationMode(StrEnum):
+    NEAR_REAL_TIME = "near_real_time"
+    SCHEDULING = "scheduling"
 
 
 class Bulk(BaseModel):
     bulk_start: datetime = Field(..., alias="bulk_start")
     bulk_end: datetime = Field(..., alias="bulk_end")
-    bulk_energy_kwh: float = Field(..., alias="bulk_energy_kWh")
+    bulk_energy_kWh: float = Field(..., alias="bulk_energy_kWh")
 
 
 class ImportExportLimitation(BaseModel):
@@ -44,12 +48,13 @@ class GenerationAndLoad(BaseModel):
     pv_curtailment: Optional[float] = Field(None, alias="bulk")
     values: List[GenerationAndLoadValues] = Field(..., alias="values")
 
+
 class MeasurementsRequest(BaseModel):
     timestamp: datetime = Field(..., alias="timestamp")
-    Preq_kW: Optional[float] = Field(..., alias="Preq_kW")
-    delta_T: float = Field(..., alias="delta_T")
-    Pnet_meas_kW: float = Field(..., alias="Pnet_meas_kW")
-    Pbat_init_kW: float = Field(..., alias="Pbat_init_kW")
+    P_req_kW: Optional[float] = Field(..., alias="P_req_kW")
+    delta_T_h: float = Field(..., alias="delta_T_h")
+    P_net_meas_kW: float = Field(..., alias="P_net_meas_kW")
+    P_bat_init_kW: float = Field(..., alias="P_bat_init_kW")
 
 
 # TODO add constraints
@@ -87,35 +92,35 @@ class BatterySpecs(BaseModel):
         alias="max_SoC",
         description="Maximum state of charge of the battery in percentage",
     )
-    bat_capacity: float = Field(
+    bat_capacity_kWh: float = Field(
         ...,
-        alias="bat_capacity",
+        alias="bat_capacity_kWh",
         description="Full capacity of battery assets (100% SoC) in kWh",
     )
     ch_efficiency: float = Field(default=1.0, alias="ch_efficiency")
     dis_efficiency: float = Field(default=1.0, alias="dis_efficiency")
+    bat_capacity_kWs: float = 0.0
 
 
 class InputData(BaseModel):
     application: str
-    uc_name: ControlMethod = Field(..., alias="uc_name")
+    control_logic: ControlLogic = Field(..., alias="control_logic")
+    operation_mode: OperationMode = Field(..., alias="operation_mode")
     uc_start: datetime = Field(..., alias="uc_start")
     uc_end: datetime = Field(..., alias="uc_end")
-    generation_and_load: Optional[GenerationAndLoad] = Field(None, alias="generation_and_load")
+    generation_and_load: Optional[GenerationAndLoad] = Field(
+        None, alias="generation_and_load"
+    )
     day_end: Optional[datetime] = Field(None, alias="day_end")
     bulk: Optional[Bulk] = Field(None, alias="bulk")
     import_export_limitation: Optional[List[ImportExportLimitation]] = Field(
         None, alias="import_export_limitation"
     )
-    measurements_request: Optional[MeasurementsRequest] = Field(None, alias="measurements_request")
+    measurements_request: Optional[MeasurementsRequest] = Field(
+        None, alias="measurements_request"
+    )
     battery_specs: BatterySpecs | list[BatterySpecs]
-    
-    @validator("uc_name", pre=True)
-    def uc_name_to_enum(cls, value: str) -> str:
-        if value.lower() == "optimiser":
-            return "optimizer"
-        return value
-    
+
     @validator("generation_and_load")
     def generation_and_load_start_before_timewindow(cls, meas, values):
         uc_start = values["uc_start"]
@@ -139,15 +144,22 @@ class InputData(BaseModel):
         generation_and_load = values.get("generation_and_load")
         if v is None:
             # Calculate the sunset time for uc_start date and location (Berlin)
-            berlin_location = LocationInfo("Berlin", "Germany", "Europe/Berlin", 52.52, 13.40)
+            berlin_location = LocationInfo(
+                "Berlin", "Germany", "Europe/Berlin", 52.52, 13.40
+            )
             s = sun(berlin_location.observer, date=values["uc_start"].date())
             # Set day_end to the sunset time
             sunset_time = s["sunset"].astimezone(timezone.utc)
-            if generation_and_load and isinstance(generation_and_load, GenerationAndLoad):
-                timestamps = [data_point.timestamp for data_point in generation_and_load.values]
+            if generation_and_load and isinstance(
+                generation_and_load, GenerationAndLoad
+            ):
+                timestamps = [
+                    data_point.timestamp for data_point in generation_and_load.values
+                ]
                 nearest_timestamp = min(timestamps, key=lambda t: abs(t - sunset_time))
                 return nearest_timestamp
             return v
+
 
 def minutes_horizon(starttime: datetime, endtime: datetime) -> float:
     time_delta = endtime - starttime
@@ -165,7 +177,7 @@ def input_prep(battery_specs: BatterySpecs | list[BatterySpecs]):
             battery.max_SoC /= 100
             battery.initial_SoC /= 100
             battery.final_SoC /= 100
-            battery.bat_capacity *= 3600
+            battery.bat_capacity_kWs = battery.bat_capacity_kWh * 3600
 
     else:
         # Transform battery percent to abs
@@ -173,8 +185,8 @@ def input_prep(battery_specs: BatterySpecs | list[BatterySpecs]):
         battery_specs.max_SoC /= 100
         battery_specs.initial_SoC /= 100
         battery_specs.final_SoC /= 100
-        battery_specs.bat_capacity *= 3600
-        
+        battery_specs.bat_capacity_kWs = battery_specs.bat_capacity_kWh * 3600
+
     return battery_specs
 
 
@@ -203,31 +215,16 @@ def battery_to_df(battery_specs: BatterySpecs | list[BatterySpecs]) -> pd.DataFr
     return df_battery
 
 
-def battery_to_dict(battery_specs: BatterySpecs):
-    battery_dict = {
-        "id": battery_specs[0].id,
-        "bat_type": battery_specs[0].bat_type,
-        "initial_Energy_kWh": battery_specs[0].initial_SoC * (battery_specs[0].bat_capacity / 3600),
-        "final_SoC": battery_specs[0].final_SoC,
-        "P_dis_max_kW": battery_specs[0].P_dis_max_kW,
-        "P_ch_max_kW": battery_specs[0].P_ch_max_kW,
-        "min_Energy_kWh": battery_specs[0].min_SoC * (battery_specs[0].bat_capacity / 3600),
-        "max_Energy_kWh": battery_specs[0].max_SoC * (battery_specs[0].bat_capacity / 3600),
-        "bat_capacity": battery_specs[0].bat_capacity,
-        "ch_efficiency": battery_specs[0].ch_efficiency,
-        "dis_efficiency": battery_specs[0].dis_efficiency,
-    }
-    return battery_dict
-
 def measurements_request_to_dict(measurements_request: MeasurementsRequest):
     measurements_request_dict = {
-        'timestamp': measurements_request.timestamp,
-        'Preq_kW': measurements_request.Preq_kW,
-        'delta_T': measurements_request.delta_T,
-        'Pnet_meas_kW': measurements_request.Pnet_meas_kW,
-        'Pbat_init_kW': measurements_request.Pbat_init_kW
+        "timestamp": measurements_request.timestamp,
+        "P_req_kW": measurements_request.P_req_kW,
+        "delta_T_h": measurements_request.delta_T_h,
+        "P_net_meas_kW": measurements_request.P_net_meas_kW,
+        "P_bat_init_kW": measurements_request.P_bat_init_kW,
     }
     return measurements_request_dict
+
 
 def imp_exp_lim_to_df(
     import_export_limits: List[ImportExportLimitation],
@@ -278,6 +275,7 @@ def imp_exp_lim_to_df(
     result_df.index.name = "timestamp"  # Set the index name
 
     return result_df
+
 
 class Solver(StrEnum):
     GUROBI = "gurobi"

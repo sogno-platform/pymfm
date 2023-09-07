@@ -13,7 +13,8 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
 
     # Extract the required information from each dictionary
     app_data = forecast_data["application"]
-    uc_name = scenario_data["uc_name"]
+    control_logic = scenario_data["control_logic"]
+    operation_mode = scenario_data["operation_mode"]
     uc_start = scenario_data["uc_start"]
     uc_end = scenario_data["uc_end"]
     day_end = scenario_data["day_end"]
@@ -61,7 +62,8 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
     # Merge the extracted information into a new dictionary
     new_data = {
         "application": app_data,
-        "uc_name": uc_name,
+        "control_logic": control_logic,
+        "operation_mode": operation_mode,
         "uc_start": uc_start,
         "uc_end": uc_end,
         "day_end": day_end,

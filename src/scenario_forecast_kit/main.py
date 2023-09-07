@@ -16,3 +16,5 @@ scenario_input_file = "inputs/scenario/scenario_src_2021-04-01.json"
 scenario_output_file = "outputs/scenario/test.json"
 
 generate_scenario(forecast_input_file, scenario_input_file, scenario_output_file)
+
+# Add operation mode and control logic instead of uc_name in scenario inputs

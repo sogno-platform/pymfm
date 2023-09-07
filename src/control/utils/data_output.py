@@ -33,7 +33,7 @@ class ControlOutputWrapper(BaseModel):
 
 
 def prep_optimizer_output(
-    import_export_profile: pd.Series,
+    P_net_after_kW: pd.Series,
     pv_profile: pd.Series,
     bat_p_supply_profiles: pd.DataFrame,
     bat_soc_supply_profiles: pd.DataFrame,
@@ -42,13 +42,15 @@ def prep_optimizer_output(
     imp_exp_lowerb,
 ):
     result_overview = pd.DataFrame(index=df_forecasts.index)
-    result_overview["P_net_forecast"] = (
+    result_overview["P_net_before_kW"] = (
         df_forecasts["P_load_kW"] - df_forecasts["P_gen_kW"]
     )
-    result_overview["P_net_controlled"] = df_forecasts["P_load_kW"] - pv_profile
-    result_overview["P_PV_forecast"] = df_forecasts["P_gen_kW"]
-    result_overview["P_PV_controlled"] = pv_profile
-    result_overview["import_export"] = import_export_profile
+    result_overview["P_net_before_controlled_PV_kW"] = (
+        df_forecasts["P_load_kW"] - pv_profile
+    )
+    result_overview["P_PV_forecast_kW"] = df_forecasts["P_gen_kW"]
+    result_overview["P_PV_controlled_kW"] = pv_profile
+    result_overview["P_net_after_kW"] = P_net_after_kW
     result_overview["upperb"] = imp_exp_upperb
     result_overview["lowerb"] = imp_exp_lowerb
     for col in bat_p_supply_profiles.columns:
@@ -86,7 +88,7 @@ def battery_data_output(
     return wrapped_output
 
 
-def produce_json_output(dataframe):
+def produce_json_output(dataframe: pd.DataFrame, output_path: str):
     """
     Produces a JSON output from a pandas DataFrame with two different time series.
 
@@ -97,38 +99,35 @@ def produce_json_output(dataframe):
         None
     """
 
-    # Set output file
-    output_file = "results/output.json"
-
     # Convert the 'timestamp' column to string format
-    dataframe['timestamp'] = dataframe.index.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+    dataframe["timestamp"] = dataframe.index.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
     # Create a dictionary to hold the data for each time series
     json_data = {
-        'import_export_upperb_lowerb': {
-            'timestamp': dataframe['timestamp'].tolist(),
-            'import_export': dataframe['import_export'].tolist(),
-            'upperb': dataframe['upperb'].tolist(),
-            'lowerb': dataframe['lowerb'].tolist()
+        "import_export_upperb_lowerb": {
+            "timestamp": dataframe["timestamp"].tolist(),
+            "P_net_after_kW": dataframe["P_net_after_kW"].tolist(),
+            "upperb": dataframe["upperb"].tolist(),
+            "lowerb": dataframe["lowerb"].tolist(),
         },
-        'other_columns': {
-            'timestamp': dataframe['timestamp'].tolist(),
-        }
+        "other_columns": {
+            "timestamp": dataframe["timestamp"].tolist(),
+        },
     }
 
     # Add other columns to the 'other_columns' time series in the dictionary
-    other_columns = dataframe.columns.difference(['import_export', 'upperb', 'lowerb'])
+    other_columns = dataframe.columns.difference(["P_net_after_kW", "upperb", "lowerb"])
     for column in other_columns:
-        json_data['other_columns'][column] = dataframe[column].tolist()
+        json_data["other_columns"][column] = dataframe[column].tolist()
 
     # Save the dictionary as JSON to the specified output file
-    with open(output_file, 'w') as json_file:
+    with open(output_path, "w") as json_file:
         import json
+
         json.dump(json_data, json_file)
 
 
-
-def produce_excel_output(dataframe):
+def produce_excel_output(dataframe: pd.DataFrame, output_path: str):
     """
     Produces an Excel output from a pandas DataFrame with two different time series
     in two separate sheets.
@@ -142,23 +141,25 @@ def produce_excel_output(dataframe):
     # Convert 'timestamp' to timezone-unaware datetime
     dataframe.index = dataframe.index.tz_localize(None)
 
-    # Set output file
-    output_file = "results/output.xlsx"
-
     # Create a Pandas ExcelWriter object
-    with pd.ExcelWriter(output_file, engine='xlsxwriter') as writer:
-
+    with pd.ExcelWriter(output_path, engine="xlsxwriter") as writer:
         # Write everything other than import-export data time series to the 'output' sheet
-        other_columns = dataframe.columns.difference(['import_export', 'upperb', 'lowerb', 'timestamp'])
+        other_columns = dataframe.columns.difference(
+            ["P_net_after_kW", "upperb", "lowerb", "timestamp"]
+        )
         other_columns_df = dataframe[other_columns]
-        other_columns_df.to_excel(writer, sheet_name='output')
+        other_columns_df.to_excel(writer, sheet_name="output")
 
         # Write the 'import_export_upperb_lowerb' time series to the second sheet
-        import_export_upperb_lowerb_df = dataframe[['import_export', 'upperb', 'lowerb']]
-        import_export_upperb_lowerb_df.to_excel(writer, sheet_name='import_export_upperb_lowerb')
+        import_export_upperb_lowerb_df = dataframe[
+            ["P_net_after_kW", "upperb", "lowerb"]
+        ]
+        import_export_upperb_lowerb_df.to_excel(
+            writer, sheet_name="import_export_upperb_lowerb"
+        )
 
 
-def visualize_and_save_plots(dataframe: pd.DataFrame):
+def visualize_and_save_plots(dataframe: pd.DataFrame, output_directory: str):
     """
     Visualizes and saves multiple plots from a pandas DataFrame.
 
@@ -168,26 +169,29 @@ def visualize_and_save_plots(dataframe: pd.DataFrame):
     Returns:
         None
     """
-    output_directory = "results/"
 
-    # First subplot for 'import_export', 'upperb', and 'lowerb'
+    # First subplot for 'P_net_after_kW', 'upperb', and 'lowerb'
     plt.figure(figsize=(12, 8))
-    plt.plot(dataframe.index, dataframe['import_export'], label='Total Import and Export')
-    plt.plot(dataframe.index, dataframe['upperb'], label='Upperbound')
-    plt.plot(dataframe.index, dataframe['lowerb'], label='Lowerbound')
-    plt.title("Plot of Total Import and Export and its Boundries")
+    plt.plot(
+        dataframe.index, dataframe["P_net_after_kW"], label="Total Import and Export"
+    )
+    plt.plot(dataframe.index, dataframe["upperb"], label="Upperbound")
+    plt.plot(dataframe.index, dataframe["lowerb"], label="Lowerbound")
+    plt.title("Plot of Total Import and Export (=P_net_after_kW) and its Boundries")
     plt.xlabel("Timestamp")
     plt.ylabel("Value")
     plt.grid(True)
     plt.legend()
-    
+
     # Save the first plot to a file in the specified output directory
-    output_file1 = os.path.join(output_directory, "import_export_upperb_lowerb_plot.png")
+    output_file1 = os.path.join(
+        output_directory, "import_export_upperb_lowerb_plot.png"
+    )
     plt.savefig(output_file1)
-    
+
     # Second subplot for other columns
     plt.figure(figsize=(12, 8))
-    other_columns = dataframe.columns.difference(['import_export', 'upperb', 'lowerb'])
+    other_columns = dataframe.columns.difference(["upperb", "lowerb"])
     for column in other_columns:
         plt.plot(dataframe.index, dataframe[column], label=column)
     plt.title("Output Plot")
@@ -195,7 +199,7 @@ def visualize_and_save_plots(dataframe: pd.DataFrame):
     plt.ylabel("Value")
     plt.grid(True)
     plt.legend()
-    
+
     # Save the second plot to a file in the specified output directory
     output_file2 = os.path.join(output_directory, "output_plot.png")
     plt.savefig(output_file2)

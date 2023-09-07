@@ -1,6 +1,7 @@
 {
     "application": "Platone",
-    "uc_name": "rule_based_scheduling",
+    "control_logic": "rule_based",
+    "operation_mode": "scheduling",
     "uc_start": "2021-04-01T00:00:00.000Z",
     "uc_end": "2021-04-01T23:45:00.000Z",
     "id": "03098e97-9b15-466e-9d57-e87645f84207",
@@ -1178,7 +1179,7 @@
             "P_ch_max_kW": 300,
             "min_SoC": 8.75,
             "max_SoC": 87.5,
-            "bat_capacity": 800,
+            "bat_capacity_kWh": 800,
             "ch_efficiency": 1,
             "dis_efficiency": 1
         }
