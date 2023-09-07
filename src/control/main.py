@@ -1,7 +1,7 @@
 import json
 import os
 from utils.data_input import InputData
-from utils.control import control
+from utils.mode_logic_handler import mode_logic_handler
 from utils import data_output
 
 
@@ -26,7 +26,7 @@ def main(control_method: str):
         print("You have entered an invalid controlling method.")
     data = open_json(filepath)
     input_data = InputData(**data)
-    output_df, status = control(input_data)
+    output_df, status = mode_logic_handler(input_data)
     print(output_df)
 
     # data_output.visualize_and_save_plots(output_df, output_directory = "results/")

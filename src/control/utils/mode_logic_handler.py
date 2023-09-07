@@ -11,7 +11,7 @@ from utils import rule_based as RB
 from utils import data_output
 
 
-def control(data: InputData):
+def mode_logic_handler(data: InputData):
     battery_specs = data_input.input_prep(data.battery_specs)
 
     if data.control_logic == CL.RULE_BASED:
