@@ -43,7 +43,7 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
             import_kW = output["P_bat_kW"] - battery_specs.P_dis_max_kW
             output["P_bat_kW"] = battery_specs.P_dis_max_kW
             bat_Energy_kWh = bat_initial_Energy_kWh - (
-                battery_specs.P_dis_max_kW * measurements_request_dict["delta_T_h"]
+                battery_specs.dis_efficiency * battery_specs.P_dis_max_kW * measurements_request_dict["delta_T_h"]
             )
 
         if bat_Energy_kWh >= bat_min_Energy_kWh:
@@ -71,7 +71,7 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
             export_kW = abs(output["P_bat_kW"]) - battery_specs.P_ch_max_kW
             output["P_bat_kW"] = -battery_specs.P_ch_max_kW
             bat_Energy_kWh = bat_initial_Energy_kWh + (
-                battery_specs.P_ch_max_kW * measurements_request_dict["delta_T_h"]
+                battery_specs.ch_efficiency * battery_specs.P_ch_max_kW * measurements_request_dict["delta_T_h"]
             )
         if bat_Energy_kWh <= bat_max_Energy_kWh:
             pass

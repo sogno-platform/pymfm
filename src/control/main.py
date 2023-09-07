@@ -33,4 +33,4 @@ def main(control_method: str):
 
 
 if __name__ == "__main__":
-    main(control_method="optimization_based_scheduling")
+    main(control_method="rule_based_near_real_time")
