@@ -59,7 +59,9 @@ def visualize_and_save_plots(
         plt.legend()
 
         # Save the second plot to a file in the specified output directory
-        output_file2 = os.path.join(output_directory, f"{mode_logic['ID']}_output_plot.png")
+        output_file2 = os.path.join(
+            output_directory, f"{mode_logic['ID']}_output_plot.png"
+        )
         plt.savefig(output_file2)
 
         plt.close()  # Close the current figure to free up resources
@@ -85,7 +87,9 @@ def visualize_and_save_plots(
             plt.legend()
 
             # Save the plot as an image under the given directory
-            output_file = os.path.join(output_directory, f"{mode_logic['ID']}_output_plot.png")
+            output_file = os.path.join(
+                output_directory, f"{mode_logic['ID']}_output_plot.png"
+            )
             plt.savefig(output_file)
             plt.close()  # Close the current figure to free up resources
 
@@ -109,7 +113,9 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
             json_string = json.dumps(formatted_data, indent=4)
 
             # Write the JSON string to a file
-            output_file = os.path.join(output_directory, f"{mode_logic['ID']}_output.json")
+            output_file = os.path.join(
+                output_directory, f"{mode_logic['ID']}_output.json"
+            )
             with open(output_file, "w") as json_file:
                 json_file.write(json_string)
                 # Save the dictionary as JSON to the specified output file
@@ -135,7 +141,9 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
             json_string = json.dumps(result, indent=4)
 
             # Write the JSON string to a file
-            output_file = os.path.join(output_directory, f"{mode_logic['ID']}_output.json")
+            output_file = os.path.join(
+                output_directory, f"{mode_logic['ID']}_output.json"
+            )
             with open(output_file, "w") as json_file:
                 json_file.write(json_string)
 

@@ -13,15 +13,15 @@ def open_json(filename):
 
 def main(control_method: str):
     fpath = os.path.dirname(os.path.abspath(__file__))
-    if control_method == "optimization_based_scheduling":
+    if control_method == "scheduling_optimization_based":
         # Optimizer based control
-        filepath = os.path.join(fpath, "inputs/optimization_based_scheduling.json")
-    elif control_method == "rule_based_scheduling":
+        filepath = os.path.join(fpath, "inputs/scheduling_optimization_based.json")
+    elif control_method == "scheduling_rule_based":
         # Rule based control
-        filepath = os.path.join(fpath, "inputs/rule_based_scheduling.json")
-    elif control_method == "rule_based_near_real_time":
+        filepath = os.path.join(fpath, "inputs/scheduling_rule_based.json")
+    elif control_method == "near_real_time_rule_based":
         # Optimizer based control
-        filepath = os.path.join(fpath, "inputs/rule_based_near_real_time.json")
+        filepath = os.path.join(fpath, "inputs/near_real_time_rule_based.json")
     else:
         print("You have entered an invalid controlling method.")
     data = open_json(filepath)
@@ -36,4 +36,4 @@ def main(control_method: str):
 
 
 if __name__ == "__main__":
-    main(control_method="optimization_based_scheduling")
+    main(control_method="scheduling_optimization_based")
