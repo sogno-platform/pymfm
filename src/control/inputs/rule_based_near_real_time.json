@@ -1,4 +1,5 @@
 {
+  "id": "near_real_time_rule_based_1",
   "application": "pymfm",
   "control_logic": "rule_based",
   "operation_mode": "near_real_time",

@@ -1,4 +1,5 @@
 {
+    "id": "scheduling_optimization_based_1",
     "application": "pymfm",
     "control_logic": "optimization_based",
     "operation_mode": "scheduling",

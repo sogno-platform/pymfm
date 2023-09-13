@@ -12,6 +12,7 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
         scenario_data = json.load(file2)
 
     # Extract the required information from each dictionary
+    id_data = scenario_data["id"]
     app_data = forecast_data["application"]
     control_logic = scenario_data["control_logic"]
     operation_mode = scenario_data["operation_mode"]
@@ -61,6 +62,7 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
 
     # Merge the extracted information into a new dictionary
     new_data = {
+        "id": id_data,
         "application": app_data,
         "control_logic": control_logic,
         "operation_mode": operation_mode,

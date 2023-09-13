@@ -1,10 +1,10 @@
 {
+    "id": "scheduling_rule_based_1",
     "application": "Platone",
     "control_logic": "rule_based",
     "operation_mode": "scheduling",
     "uc_start": "2021-04-01T00:00:00.000Z",
     "uc_end": "2021-04-01T23:45:00.000Z",
-    "id": "03098e97-9b15-466e-9d57-e87645f84207",
     "bulk": {
         "bulk_start": "2021-04-01T13:00:00.000Z",
         "bulk_end": "2021-04-01T17:00:00.000Z",

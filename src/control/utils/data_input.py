@@ -103,6 +103,7 @@ class BatterySpecs(BaseModel):
 
 
 class InputData(BaseModel):
+    id: str
     application: str
     control_logic: ControlLogic = Field(..., alias="control_logic")
     operation_mode: OperationMode = Field(..., alias="operation_mode")

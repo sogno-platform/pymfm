@@ -94,6 +94,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_path: str):
     if mode_logic["CL"] == CL.RULE_BASED:
         if mode_logic["OM"] == OM.NEAR_REAL_TIME:
             formatted_data = {
+                "id": mode_logic["ID"],
                 "application": "pymfm",
                 "control_logic": "rule_based",
                 "operation_mode": "near_real_time",
@@ -120,6 +121,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_path: str):
 
             # Create the JSON structure
             result = {
+                "id": mode_logic["ID"],
                 "application": "pymfm",
                 "control_logic": "rule_based",
                 "operation_mode": "scheduling",
@@ -141,6 +143,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_path: str):
 
         # Create the JSON structure
         result = {
+            "id": mode_logic["ID"],
             "application": "pymfm",
             "control_logic": "optimization_based",
             "operation_mode": "scheduling",

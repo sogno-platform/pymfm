@@ -54,7 +54,7 @@ def mode_logic_handler(data: InputData):
             output_df = output_df.drop(
                 ["bat_energy_kWs", "import_kW", "export_kW"], axis=1
             )
-            mode_logic = {"CL": data.control_logic, "OM": data.operation_mode}
+            mode_logic = {"ID": data.id, "CL": data.control_logic, "OM": data.operation_mode}
 
             return (
                 mode_logic,
@@ -74,7 +74,7 @@ def mode_logic_handler(data: InputData):
                 data.measurements_request
             )
             output_df = RB.near_real_time(measurements_request_dict, battery_specs)
-            mode_logic = {"CL": data.control_logic, "OM": data.operation_mode}
+            mode_logic = {"ID": data.id, "CL": data.control_logic, "OM": data.operation_mode}
 
             return (
                 mode_logic,
@@ -116,6 +116,6 @@ def mode_logic_handler(data: InputData):
             upper_bound_kW,
             lower_bound_kW,
         )
-        mode_logic = {"CL": data.control_logic, "OM": data.operation_mode}
+        mode_logic = {"ID": data.id, "CL": data.control_logic, "OM": data.operation_mode}
 
         return mode_logic, output_df, solver_status
