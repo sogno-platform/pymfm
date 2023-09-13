@@ -344,6 +344,10 @@ def scheduling(
     #####################################################################################################
     ##################################       POST PROCESSING             ################################
     bat_P_supply_profiles = pd.DataFrame(index=model.T, columns=df_battery.index)
+    total_battery_supply_kW = pd.Series(
+        index=model.T, dtype=float
+    )  # discharging: positiv, charging: negativ
+    total_import_export = pd.Series(index=model.T, dtype=float)
     P_net_after_kW = pd.DataFrame(index=model.T, columns=[""])
     bat_ch = pd.DataFrame(index=model.T, columns=df_battery.index)
     bat_dis = pd.DataFrame(index=model.T, columns=df_battery.index)
@@ -351,16 +355,26 @@ def scheduling(
         index=model.T_SoC_bat, columns=df_battery.index
     )
 
-    for n in model.N:
-        for t in model.T:
+    for t in model.T:
+        total_import_export[t] =  value(model.x_imp[t] * model.P_imp_kW[t] - model.x_exp[t] * model.P_exp_kW[t])
+        total_supply=0
+        for n in model.N:
+            total_supply += value(
+                model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]
+            ) - value(model.x_ch[n, t] * model.P_ch_bat_kW[n, t] * model.ch_eff_bat[n])
+
             bat_P_supply_profiles.loc[t, n] = value(
                 model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]
                 - model.x_ch[n, t] * model.P_ch_bat_kW[n, t] * model.ch_eff_bat[n]
             )
 
-    for t in model.T:
+        total_battery_supply_kW[t] = total_supply
+
         P_net_after_kW.loc[t] = value(
-            model.x_imp[t] * model.P_imp_kW[t] - model.x_exp[t] * model.P_exp_kW[t]
+            model.P_net_before_kW[t]
+            + model.x_imp[t] * model.P_imp_kW[t]
+            - model.x_exp[t] * model.P_exp_kW[t]
+            - total_battery_supply_kW[t]
         )
 
     for col in df_battery.index:
@@ -375,6 +389,7 @@ def scheduling(
         PV_profile,
         bat_P_supply_profiles,
         bat_SoC_supply_profiles,
+        total_import_export,
         model.upper_bound_kW,
         model.lower_bound_kW,
         (solver.status, solver.termination_condition),
@@ -386,6 +401,7 @@ def prep_output_df(
     pv_profile: pd.Series,
     bat_p_supply_profiles: pd.DataFrame,
     bat_soc_supply_profiles: pd.DataFrame,
+    total_import_export: pd.Series,
     df_forecasts: pd.DataFrame,
     imp_exp_upperb,
     imp_exp_lowerb,
@@ -395,6 +411,7 @@ def prep_output_df(
     output_df["P_net_before_controlled_PV_kW"] = df_forecasts["P_load_kW"] - pv_profile
     output_df["P_PV_forecast_kW"] = df_forecasts["P_gen_kW"]
     output_df["P_PV_controlled_kW"] = pv_profile
+    output_df["total_import_export_kW"] = total_import_export
     output_df["P_net_after_kW"] = P_net_after_kW
     output_df["upperb"] = imp_exp_upperb
     output_df["lowerb"] = imp_exp_lowerb

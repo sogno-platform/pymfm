@@ -206,7 +206,12 @@ def scheduling(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: time
             )
         output_ds.P_bat_kW = float(output_ds.P_bat_kW)
     output_ds.P_net_before_kW = P_load_gen.P_load_kW - P_load_gen.P_gen_kW
-    output_ds.P_net_after_kW = output_ds.export_kW - output_ds.import_kW + output_ds.P_net_before_kW - output_ds.P_bat_kW
+    output_ds.P_net_after_kW = (
+        output_ds.export_kW
+        - output_ds.import_kW
+        + output_ds.P_net_before_kW
+        - output_ds.P_bat_kW
+    )
     output_ds.SoC_bat = (
         output_ds.bat_energy_kWs / battery_specs.bat_capacity_kWs
     ) * 100

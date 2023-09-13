@@ -516,6 +516,19 @@
             "bat_capacity_kWh": 80,
             "ch_efficiency": 1,
             "dis_efficiency": 1
+        },
+        {
+            "id": "bat_3",
+            "bat_type": "hbes",
+            "initial_SoC": 10,
+            "final_SoC": 90,
+            "P_dis_max_kW": 30,
+            "P_ch_max_kW": 30,
+            "min_SoC": 8.75,
+            "max_SoC": 87.5,
+            "bat_capacity_kWh": 80,
+            "ch_efficiency": 1,
+            "dis_efficiency": 1
         }
     ],
     "import_export_limitation": [
