@@ -29,8 +29,10 @@ def main(control_method: str):
     mode_logic, output_df, status = mode_logic_handler(input_data)
     data_output.prepare_json(mode_logic, output_df, output_path="results/output.json")
 
-    data_output.visualize_and_save_plots(mode_logic, output_df, output_directory = "results/")
+    data_output.visualize_and_save_plots(
+        mode_logic, output_df, output_directory="results/"
+    )
 
 
 if __name__ == "__main__":
-    main(control_method="rule_based_near_real_time")
+    main(control_method="optimization_based_scheduling")

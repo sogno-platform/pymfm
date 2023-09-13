@@ -16,7 +16,6 @@
       "id": "bat_1",
       "bat_type": "cbes",
       "initial_SoC": 60,
-      "final_SoC": 87,
       "P_dis_max_kW": 300,
       "P_ch_max_kW": 300,
       "min_SoC": 8.75,

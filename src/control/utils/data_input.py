@@ -71,8 +71,8 @@ class BatterySpecs(BaseModel):
         alias="initial_SoC",
         description="initial state of charge of the battery (SoC) in percentage at uc_start",
     )
-    final_SoC: float = Field(
-        ...,
+    final_SoC: Optional[float] = Field(
+        None,
         alias="final_SoC",
         description="Final state of charge of the battery (SoC) in percentage at UC_en",
     )
@@ -176,7 +176,8 @@ def input_prep(battery_specs: BatterySpecs | list[BatterySpecs]):
             battery.min_SoC /= 100
             battery.max_SoC /= 100
             battery.initial_SoC /= 100
-            battery.final_SoC /= 100
+            if battery.final_SoC is not None:
+                battery.final_SoC /= 100
             battery.bat_capacity_kWs = battery.bat_capacity_kWh * 3600
 
     else:

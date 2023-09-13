@@ -54,9 +54,13 @@ def mode_logic_handler(data: InputData):
             output_df = output_df.drop(
                 ["bat_energy_kWs", "import_kW", "export_kW"], axis=1
             )
-            mode_logic = {"CL":data.control_logic, "OM": data.operation_mode}
+            mode_logic = {"CL": data.control_logic, "OM": data.operation_mode}
 
-            return mode_logic, output_df, (SolverStatus.ok, TerminationCondition.optimal)
+            return (
+                mode_logic,
+                output_df,
+                (SolverStatus.ok, TerminationCondition.optimal),
+            )
 
         if data.operation_mode == OM.NEAR_REAL_TIME:
             if isinstance(battery_specs, list):
@@ -70,9 +74,13 @@ def mode_logic_handler(data: InputData):
                 data.measurements_request
             )
             output_df = RB.near_real_time(measurements_request_dict, battery_specs)
-            mode_logic = {"CL":data.control_logic, "OM": data.operation_mode}
+            mode_logic = {"CL": data.control_logic, "OM": data.operation_mode}
 
-            return mode_logic, output_df, (SolverStatus.ok, TerminationCondition.optimal)
+            return (
+                mode_logic,
+                output_df,
+                (SolverStatus.ok, TerminationCondition.optimal),
+            )
 
     if data.control_logic == CL.OPTIMIZATION_BASED:
         df_forecasts = data_input.generation_and_load_to_df(
@@ -108,6 +116,6 @@ def mode_logic_handler(data: InputData):
             upper_bound_kW,
             lower_bound_kW,
         )
-        mode_logic = {"CL":data.control_logic, "OM": data.operation_mode}
+        mode_logic = {"CL": data.control_logic, "OM": data.operation_mode}
 
         return mode_logic, output_df, solver_status

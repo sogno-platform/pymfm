@@ -380,6 +380,7 @@ def scheduling(
         (solver.status, solver.termination_condition),
     )
 
+
 def prep_output_df(
     P_net_after_kW: pd.Series,
     pv_profile: pd.Series,
@@ -390,12 +391,8 @@ def prep_output_df(
     imp_exp_lowerb,
 ):
     output_df = pd.DataFrame(index=df_forecasts.index)
-    output_df["P_net_before_kW"] = (
-        df_forecasts["P_load_kW"] - df_forecasts["P_gen_kW"]
-    )
-    output_df["P_net_before_controlled_PV_kW"] = (
-        df_forecasts["P_load_kW"] - pv_profile
-    )
+    output_df["P_net_before_kW"] = df_forecasts["P_load_kW"] - df_forecasts["P_gen_kW"]
+    output_df["P_net_before_controlled_PV_kW"] = df_forecasts["P_load_kW"] - pv_profile
     output_df["P_PV_forecast_kW"] = df_forecasts["P_gen_kW"]
     output_df["P_PV_controlled_kW"] = pv_profile
     output_df["P_net_after_kW"] = P_net_after_kW

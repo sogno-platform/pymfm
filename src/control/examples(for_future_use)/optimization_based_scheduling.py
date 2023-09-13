@@ -5,9 +5,6 @@ from pymfm.utils.mode_logic_handler import mode_logic_handler
 from pymfm.utils import data_output
 
 
-
-
-
 def open_json(filename):
     with open(filename) as data_file:
         data = json.load(data_file)
@@ -21,15 +18,9 @@ def main():
     output_df, status = mode_logic_handler(input_data)
     print(output_df)
 
-    data_output.visualize_and_save_plots(
-        output_df, output_directory="results/"
-    )
-    data_output.produce_json_output(
-        output_df, output_path="results/output.json"
-    )
-    data_output.produce_excel_output(
-        output_df, output_path="results/output.xlsx"
-    )
+    data_output.visualize_and_save_plots(output_df, output_directory="results/")
+    data_output.produce_json_output(output_df, output_path="results/output.json")
+    data_output.produce_excel_output(output_df, output_path="results/output.xlsx")
 
 
 if __name__ == "__main__":
