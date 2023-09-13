@@ -91,7 +91,9 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
         output["P_bat_kW"] = float(output["P_bat_kW"])
     output["SoC_bat_%"] = bat_Energy_kWh / battery_specs.bat_capacity_kWh * 100
     output["P_net_meas_kW"] = measurements_request_dict["P_net_meas_kW"]
-    output["P_net_after_kW"] = output["P_net_meas_kW"] - export_kW - import_kW - output["P_bat_kW"]
+    output["P_net_after_kW"] = (
+        output["P_net_meas_kW"] - export_kW - import_kW - output["P_bat_kW"]
+    )
     # Considering current Pbat_kW
     bat_initial_P_kW = bat_initial_Energy_kWh / measurements_request_dict["delta_T_h"]
     output["P_bat_kW"] = output["P_bat_kW"] + bat_initial_P_kW
@@ -204,9 +206,7 @@ def scheduling(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: time
             )
         output_ds.P_bat_kW = float(output_ds.P_bat_kW)
     output_ds.P_net_before_kW = P_load_gen.P_load_kW - P_load_gen.P_gen_kW
-    output_ds.P_net_after_kW = (
-        output_ds.export_kW - output_ds.import_kW
-    ) / 3600  # kWs to kWh
+    output_ds.P_net_after_kW = output_ds.export_kW - output_ds.import_kW + output_ds.P_net_before_kW - output_ds.P_bat_kW
     output_ds.SoC_bat = (
         output_ds.bat_energy_kWs / battery_specs.bat_capacity_kWs
     ) * 100
