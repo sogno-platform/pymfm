@@ -21,7 +21,7 @@ def visualize_and_save_plots(
         )
         plt.plot(dataframe.index, dataframe["upperb"], label="Upperbound")
         plt.plot(dataframe.index, dataframe["lowerb"], label="Lowerbound")
-        plt.title("Plot of Total Import and Export (=P_net_after_kW) and its Boundries")
+        plt.title("Plot of Total Import and Export and its Boundries")
         plt.xlabel("Timestamp")
         plt.ylabel("Value")
         plt.grid(True)
@@ -29,7 +29,7 @@ def visualize_and_save_plots(
 
         # Save the first plot to a file in the specified output directory
         output_file1 = os.path.join(
-            output_directory, "import_export_upperb_lowerb_plot.png"
+            output_directory, f"{mode_logic['ID']}_import_export_upperb_lowerb_plot.png"
         )
         plt.savefig(output_file1)
 
@@ -59,7 +59,7 @@ def visualize_and_save_plots(
         plt.legend()
 
         # Save the second plot to a file in the specified output directory
-        output_file2 = os.path.join(output_directory, "output_plot.png")
+        output_file2 = os.path.join(output_directory, f"{mode_logic['ID']}_output_plot.png")
         plt.savefig(output_file2)
 
         plt.close()  # Close the current figure to free up resources
@@ -85,12 +85,12 @@ def visualize_and_save_plots(
             plt.legend()
 
             # Save the plot as an image under the given directory
-            output_file = os.path.join(output_directory, "output_plot.png")
+            output_file = os.path.join(output_directory, f"{mode_logic['ID']}_output_plot.png")
             plt.savefig(output_file)
             plt.close()  # Close the current figure to free up resources
 
 
-def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_path: str):
+def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: str):
     if mode_logic["CL"] == CL.RULE_BASED:
         if mode_logic["OM"] == OM.NEAR_REAL_TIME:
             formatted_data = {
@@ -109,7 +109,8 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_path: str):
             json_string = json.dumps(formatted_data, indent=4)
 
             # Write the JSON string to a file
-            with open(output_path, "w") as json_file:
+            output_file = os.path.join(output_directory, f"{mode_logic['ID']}_output.json")
+            with open(output_file, "w") as json_file:
                 json_file.write(json_string)
                 # Save the dictionary as JSON to the specified output file
             # with open(output_path, "w") as json_file:
@@ -134,7 +135,8 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_path: str):
             json_string = json.dumps(result, indent=4)
 
             # Write the JSON string to a file
-            with open(output_path, "w") as json_file:
+            output_file = os.path.join(output_directory, f"{mode_logic['ID']}_output.json")
+            with open(output_file, "w") as json_file:
                 json_file.write(json_string)
 
     if mode_logic["CL"] == CL.OPTIMIZATION_BASED:
@@ -156,5 +158,6 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_path: str):
         json_string = json.dumps(result, indent=4)
 
         # Write the JSON string to a file
-        with open(output_path, "w") as json_file:
+        output_file = os.path.join(output_directory, f"{mode_logic['ID']}_output.json")
+        with open(output_file, "w") as json_file:
             json_file.write(json_string)
