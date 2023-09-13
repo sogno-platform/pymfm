@@ -1,6 +1,6 @@
 {
     "id": "scheduling_rule_based",
-    "application": "Platone",
+    "application": "pymfm",
     "control_logic": "rule_based",
     "operation_mode": "scheduling",
     "uc_start": "2021-04-01T00:00:00.000Z",

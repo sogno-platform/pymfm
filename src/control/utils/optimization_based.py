@@ -356,8 +356,10 @@ def scheduling(
     )
 
     for t in model.T:
-        total_import_export[t] =  value(model.x_imp[t] * model.P_imp_kW[t] - model.x_exp[t] * model.P_exp_kW[t])
-        total_supply=0
+        total_import_export[t] = value(
+            model.x_imp[t] * model.P_imp_kW[t] - model.x_exp[t] * model.P_exp_kW[t]
+        )
+        total_supply = 0
         for n in model.N:
             total_supply += value(
                 model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]

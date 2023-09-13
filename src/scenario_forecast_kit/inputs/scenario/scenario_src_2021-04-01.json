@@ -3,7 +3,7 @@
     "control_logic": "optimization_based",
     "operation_mode": "scheduling",
     "uc_start": "2021-04-01T00:00:00.000000Z",
-    "uc_end": "2021-04-01T23:45:00.000000Z",
+    "uc_end": "2021-04-01T23:00:00.000000Z",
     "day_end": "2021-04-01T11:00:00.000000Z",
     "bulk": {
         "bulk_start": "2021-04-01T13:00:00.000Z",
@@ -22,12 +22,12 @@
             "lower_bound": 10
         },
         {
-            "timestamp": "2021-04-01T10:30:00.000000Z",
+            "timestamp": "2021-04-01T10:00:00.000000Z",
             "upper_bound": 10,
             "lower_bound": 10
         },
         {
-            "timestamp": "2021-04-01T10:45:00.000000Z",
+            "timestamp": "2021-04-01T10:10:00.000000Z",
             "upper_bound": 10,
             "lower_bound": 10
         },

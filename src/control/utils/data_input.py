@@ -160,6 +160,8 @@ class InputData(BaseModel):
                 nearest_timestamp = min(timestamps, key=lambda t: abs(t - sunset_time))
                 return nearest_timestamp
             return v
+        else:
+            return v
 
 
 def minutes_horizon(starttime: datetime, endtime: datetime) -> float:

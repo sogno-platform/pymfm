@@ -60,7 +60,6 @@ def visualize_and_save_plots(
         cols_to_plot.remove("P_PV_controlled_kW")
         cols_to_plot.remove("total_import_export_kW")
 
-
         # Generate a list of distinct colors
         color_cycle = itertools.cycle(plt.cm.tab20.colors)
 

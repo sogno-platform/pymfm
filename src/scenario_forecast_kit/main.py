@@ -5,7 +5,7 @@ from utils.scenario_generation import generate_scenario
 
 forecast_input_folder = "inputs/forecast"
 forecast_output_folder = "outputs/forecast"
-time_resolution = 15  # in minutes
+time_resolution = 10  # in minutes
 
 forecast_data = generate_forecast(
     forecast_input_folder, forecast_output_folder, time_resolution
