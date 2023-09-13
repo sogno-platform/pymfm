@@ -8,7 +8,7 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
         [
             "timestamp",
             "P_bat_kW",
-            "SoC_bat",
+            "SoC_bat_%",
             "P_net_meas_kW",
             "P_net_after_kW",
         ]
@@ -89,11 +89,12 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
             output["P_bat_kW"] = -(abs(act_ptcb) - export_kW)
             bat_Energy_kWh = bat_max_Energy_kWh
         output["P_bat_kW"] = float(output["P_bat_kW"])
-    output["SoC_bat"] = bat_Energy_kWh / battery_specs.bat_capacity_kWh
-    output["P_net_meas_kW"] = -measurements_request_dict["P_net_meas_kW"]
-    output["P_net_after_kW"] = export_kW - import_kW
+    output["SoC_bat_%"] = bat_Energy_kWh / battery_specs.bat_capacity_kWh * 100
+    output["P_net_meas_kW"] = measurements_request_dict["P_net_meas_kW"]
+    output["P_net_after_kW"] = output["P_net_meas_kW"] - export_kW - import_kW - output["P_bat_kW"]
     # Considering current Pbat_kW
-    output["P_bat_kW"] = output["P_bat_kW"] + measurements_request_dict["P_bat_init_kW"]
+    bat_initial_P_kW = bat_initial_Energy_kWh / measurements_request_dict["delta_T_h"]
+    output["P_bat_kW"] = output["P_bat_kW"] + bat_initial_P_kW
     if output["P_bat_kW"] < 0:
         if abs(output["P_bat_kW"]) <= battery_specs.P_ch_max_kW:
             pass
