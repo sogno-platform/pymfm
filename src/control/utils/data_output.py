@@ -137,7 +137,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
                 "operation_mode": "near_real_time",
                 "timestamp": output_df["timestamp"].isoformat(),
                 "P_bat_kW": output_df["P_bat_kW"],
-                "SoC_bat_%": output_df["SoC_bat"],
+                "SoC_bat_%": output_df["SoC_bat_%"],
                 "P_net_meas_kW": output_df["P_net_meas_kW"],
                 "P_net_after_kW": output_df["P_net_after_kW"],
             }
