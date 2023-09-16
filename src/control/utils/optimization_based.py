@@ -343,55 +343,56 @@ def scheduling(
     solver = optimization_solver.solve(model).solver
     #####################################################################################################
     ##################################       POST PROCESSING             ################################
-    bat_P_supply_profiles = pd.DataFrame(index=model.T, columns=df_battery.index)
-    total_battery_supply_kW = pd.Series(
+    P_bat_kW_df = pd.DataFrame(index=model.T, columns=df_battery.index)
+    P_bat_total_kW = pd.Series(
         index=model.T, dtype=float
-    )  # discharging: positiv, charging: negativ
-    total_import_export = pd.Series(index=model.T, dtype=float)
+    )  # discharging: negativ, charging: positiv
+    P_import_export_kW = pd.Series(index=model.T, dtype=float)
     P_net_after_kW = pd.DataFrame(index=model.T, columns=[""])
     bat_ch = pd.DataFrame(index=model.T, columns=df_battery.index)
     bat_dis = pd.DataFrame(index=model.T, columns=df_battery.index)
-    bat_SoC_supply_profiles = pd.DataFrame(
+    SoC_bat_df = pd.DataFrame(
         index=model.T_SoC_bat, columns=df_battery.index
     )
 
     for t in model.T:
-        total_import_export[t] = value(
+        P_import_export_kW[t] = value(
             model.x_imp[t] * model.P_imp_kW[t] - model.x_exp[t] * model.P_exp_kW[t]
         )
         total_supply = 0
         for n in model.N:
             total_supply += value(
-                model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]
-            ) - value(model.x_ch[n, t] * model.P_ch_bat_kW[n, t] * model.ch_eff_bat[n])
+               - model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]
+            ) + value(model.x_ch[n, t] * model.P_ch_bat_kW[n, t] * model.ch_eff_bat[n])
 
-            bat_P_supply_profiles.loc[t, n] = value(
-                model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]
-                - model.x_ch[n, t] * model.P_ch_bat_kW[n, t] * model.ch_eff_bat[n]
+            P_bat_kW_df.loc[t, n] = value(
+                - model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]
+                + model.x_ch[n, t] * model.P_ch_bat_kW[n, t] * model.ch_eff_bat[n]
             )
 
-        total_battery_supply_kW[t] = total_supply
+        P_bat_total_kW[t] = total_supply
 
         P_net_after_kW.loc[t] = value(
             model.P_net_before_kW[t]
-            + model.x_imp[t] * model.P_imp_kW[t]
-            - model.x_exp[t] * model.P_exp_kW[t]
-            - total_battery_supply_kW[t]
+            - model.x_imp[t] * model.P_imp_kW[t]
+            + model.x_exp[t] * model.P_exp_kW[t]
+            + P_bat_total_kW[t]
         )
 
     for col in df_battery.index:
         bat_ch[col] = model.P_ch_bat_kW[col, :]()
         bat_dis[col] = model.P_dis_bat_kW[col, :]()
-        bat_SoC_supply_profiles[col] = model.SoC_bat[col, :]()
+        SoC_bat_df[col] = model.SoC_bat[col, :]()
 
     PV_profile = pd.Series(model.P_PV_kW[:](), index=model.T)
 
     return (
         P_net_after_kW,
         PV_profile,
-        bat_P_supply_profiles,
-        bat_SoC_supply_profiles,
-        total_import_export,
+        P_bat_kW_df,
+        P_bat_total_kW,
+        SoC_bat_df,
+        P_import_export_kW,
         model.upper_bound_kW,
         model.lower_bound_kW,
         (solver.status, solver.termination_condition),
@@ -401,9 +402,10 @@ def scheduling(
 def prep_output_df(
     P_net_after_kW: pd.Series,
     pv_profile: pd.Series,
-    bat_p_supply_profiles: pd.DataFrame,
-    bat_soc_supply_profiles: pd.DataFrame,
-    total_import_export: pd.Series,
+    P_bat_kW_df: pd.DataFrame,
+    P_bat_total_kW: pd.Series,
+    SoC_bat_df: pd.DataFrame,
+    P_import_export_kW: pd.Series,
     df_forecasts: pd.DataFrame,
     imp_exp_upperb,
     imp_exp_lowerb,
@@ -413,12 +415,13 @@ def prep_output_df(
     output_df["P_net_before_controlled_PV_kW"] = df_forecasts["P_load_kW"] - pv_profile
     output_df["P_PV_forecast_kW"] = df_forecasts["P_gen_kW"]
     output_df["P_PV_controlled_kW"] = pv_profile
-    output_df["total_import_export_kW"] = total_import_export
+    output_df["P_import_export_kW"] = P_import_export_kW
     output_df["P_net_after_kW"] = P_net_after_kW
     output_df["upperb"] = imp_exp_upperb
     output_df["lowerb"] = imp_exp_lowerb
-    for col in bat_p_supply_profiles.columns:
-        output_df[f"P_{col}_kW"] = bat_p_supply_profiles[col]
-        output_df[f"SoC_{col}_%"] = bat_soc_supply_profiles[col] * 100
+    for col in P_bat_kW_df.columns:
+        output_df[f"P_{col}_kW"] = P_bat_kW_df[col]
+        output_df[f"SoC_{col}_%"] = SoC_bat_df[col] * 100
+    output_df["P_bat_total_kW"] = P_bat_total_kW
 
     return output_df

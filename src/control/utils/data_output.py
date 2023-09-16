@@ -11,13 +11,15 @@ from utils.data_input import (
 
 def visualize_and_save_plots(
     mode_logic: dict, dataframe: pd.DataFrame, output_directory: str
-):
+): 
+    print(mode_logic)
+    print(dataframe.columns)
     if mode_logic["CL"] == CL.OPTIMIZATION_BASED:
         # First subplot for 'P_net_after_kW', 'upperb', and 'lowerb'
         plt.figure(figsize=(12, 8))
         plt.plot(
             dataframe.index,
-            dataframe["total_import_export_kW"],
+            dataframe["P_import_export_kW"],
             label="Total Import and Export",
             c="blue",
             lw=2,
@@ -44,30 +46,29 @@ def visualize_and_save_plots(
 
         # Save the first plot to an SVG file in the specified output directory
         output_file1 = os.path.join(
-            output_directory, f"{mode_logic['ID']}_import_export_upperb_lowerb_plot.svg"
+            output_directory, f"{mode_logic['ID']}_import_export_limits_plot.svg"
         )
         plt.savefig(output_file1, format="svg")
 
-        # Second subplot for other columns
+        # Second subplot for power output ('P_net_before_kW', 'P_net_after_kW', and battery power)
         plt.figure(figsize=(12, 8))
 
-        # Get a list of all columns to plot except timestamp index
-        cols_to_plot = [col for col in dataframe.columns if col != "timestamp"]
-        cols_to_plot.remove("upperb")
-        cols_to_plot.remove("lowerb")
-        cols_to_plot.remove("P_PV_forecast_kW")
-        cols_to_plot.remove("P_net_before_controlled_PV_kW")
-        cols_to_plot.remove("P_PV_controlled_kW")
-        cols_to_plot.remove("total_import_export_kW")
+        # Columns to plot for power output
+        power_output_columns = [
+            "P_net_before_kW",
+            "P_net_after_kW",
+            "P_import_export_kW",
+            "P_bat_total_kW"
+        ]
 
-        # Generate a list of distinct colors
-        color_cycle = itertools.cycle(plt.cm.tab20.colors)
+        # If user wants to plot every single battery's power.
+        # Columns to plot for battery power (detect dynamically)
+        #battery_power_columns = [col for col in dataframe.columns if "P_bat" in col]
 
-        for col in cols_to_plot:
-            color = next(color_cycle)
-            plt.plot(dataframe.index, dataframe[col], label=col, c=color, lw=2)
+        for col in power_output_columns:
+            plt.plot(dataframe.index, dataframe[col], label=col, lw=2)
 
-        plt.title("Output Plot")
+        plt.title("Power Output")
         plt.xlabel("Timestamp")
         plt.grid(True)
         plt.legend()
@@ -77,14 +78,36 @@ def visualize_and_save_plots(
         for line in lines[1:]:
             line.set_alpha(alpha)
 
-        # Remove y-axis labels
-        plt.yticks([])
-
         # Save the second plot to an SVG file in the specified output directory
         output_file2 = os.path.join(
-            output_directory, f"{mode_logic['ID']}_output_plot.svg"
+            output_directory, f"{mode_logic['ID']}_power_output_plot.svg"
         )
         plt.savefig(output_file2, format="svg")
+
+        # Third subplot for battery state of charge ('SoC_bat_n_%')
+        plt.figure(figsize=(12, 8))
+
+        # Columns to plot for battery state of charge (detect dynamically)
+        battery_soc_columns = [col for col in dataframe.columns if "SoC_bat" in col]
+
+        for col in battery_soc_columns:
+            plt.plot(dataframe.index, dataframe[col], label=col, lw=2)
+
+        plt.title("State of Charges of the Batteries")
+        plt.xlabel("Timestamp")
+        plt.grid(True)
+        plt.legend()
+
+        # Apply alpha to the lines to simulate overlapping
+        lines = plt.gca().lines
+        for line in lines[1:]:
+            line.set_alpha(alpha)
+
+        # Save the third plot to an SVG file in the specified output directory
+        output_file3 = os.path.join(
+            output_directory, f"{mode_logic['ID']}_battery_soc_plot.svg"
+        )
+        plt.savefig(output_file3, format="svg")
 
         plt.close()  # Close the current figure to free up resources
 
@@ -116,9 +139,6 @@ def visualize_and_save_plots(
             for line in lines[1:]:
                 line.set_alpha(alpha)
 
-            # Remove y-axis labels
-            plt.yticks([])
-
             # Save the plot as an SVG image under the given directory
             output_file = os.path.join(
                 output_directory, f"{mode_logic['ID']}_output_plot.svg"
@@ -130,14 +150,16 @@ def visualize_and_save_plots(
 def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: str):
     if mode_logic["CL"] == CL.RULE_BASED:
         if mode_logic["OM"] == OM.NEAR_REAL_TIME:
+            print(output_df)
             formatted_data = {
                 "id": mode_logic["ID"],
                 "application": "pymfm",
                 "control_logic": "rule_based",
                 "operation_mode": "near_real_time",
                 "timestamp": output_df["timestamp"].isoformat(),
-                "P_bat_kW": output_df["P_bat_kW"],
+                "initial_SoC_bat_%": output_df["initial_SoC_bat_%"] * 100,
                 "SoC_bat_%": output_df["SoC_bat_%"],
+                "P_bat_kW": output_df["P_bat_kW"],
                 "P_net_meas_kW": output_df["P_net_meas_kW"],
                 "P_net_after_kW": output_df["P_net_after_kW"],
             }

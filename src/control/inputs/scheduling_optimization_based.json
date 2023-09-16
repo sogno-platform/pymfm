@@ -7,7 +7,7 @@
     "uc_end": "2021-04-01T23:45:00.000000Z",    
     "day_end": "2021-04-01T18:00:00.000000Z",
     "generation_and_load": {
-        "pv_curtailment": true,
+        "pv_curtailment": false,
         "values": [
             {
                 "timestamp": "2021-04-01T00:00:00.000000Z",
@@ -513,7 +513,7 @@
             "P_dis_max_kW": 30,
             "P_ch_max_kW": 30,
             "min_SoC": 8.75,
-            "max_SoC": 87.5,
+            "max_SoC": 65,
             "bat_capacity_kWh": 80,
             "ch_efficiency": 1,
             "dis_efficiency": 1
@@ -573,10 +573,5 @@
             "upper_bound": 45,
             "lower_bound": -45
         }
-    ],
-    "bulk": {
-        "bulk_start": "2021-04-01T13:00:00.000Z",
-        "bulk_end": "2021-04-01T17:00:00.000Z",
-        "bulk_energy_kWh": 100
-    }
+    ]
 }

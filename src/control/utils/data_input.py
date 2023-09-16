@@ -54,7 +54,6 @@ class MeasurementsRequest(BaseModel):
     P_req_kW: Optional[float] = Field(..., alias="P_req_kW")
     delta_T_h: float = Field(..., alias="delta_T_h")
     P_net_meas_kW: float = Field(..., alias="P_net_meas_kW")
-    P_bat_init_kW: float = Field(..., alias="P_bat_init_kW")
 
 
 # TODO add constraints
@@ -225,7 +224,6 @@ def measurements_request_to_dict(measurements_request: MeasurementsRequest):
         "P_req_kW": measurements_request.P_req_kW,
         "delta_T_h": measurements_request.delta_T_h,
         "P_net_meas_kW": measurements_request.P_net_meas_kW,
-        "P_bat_init_kW": measurements_request.P_bat_init_kW,
     }
     return measurements_request_dict
 
