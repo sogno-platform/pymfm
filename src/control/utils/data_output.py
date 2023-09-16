@@ -68,7 +68,7 @@ def visualize_and_save_plots(
         for col in power_output_columns:
             plt.plot(dataframe.index, dataframe[col], label=col, lw=2)
 
-        plt.title("Power Output")
+        plt.title("The Power Balance")
         plt.xlabel("Timestamp")
         plt.grid(True)
         plt.legend()
@@ -80,7 +80,7 @@ def visualize_and_save_plots(
 
         # Save the second plot to an SVG file in the specified output directory
         output_file2 = os.path.join(
-            output_directory, f"{mode_logic['ID']}_power_output_plot.svg"
+            output_directory, f"{mode_logic['ID']}_power_balance_plot.svg"
         )
         plt.savefig(output_file2, format="svg")
 
@@ -118,6 +118,7 @@ def visualize_and_save_plots(
 
             # Get a list of all columns to plot except timestamp index
             cols_to_plot = [col for col in dataframe.columns if col != "timestamp"]
+            cols_to_plot.remove("SoC_bat_1_%")
 
             # Generate a list of distinct colors
             color_cycle = itertools.cycle(plt.cm.tab20.colors)
