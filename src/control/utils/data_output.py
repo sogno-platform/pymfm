@@ -12,8 +12,6 @@ from utils.data_input import (
 def visualize_and_save_plots(
     mode_logic: dict, dataframe: pd.DataFrame, output_directory: str
 ): 
-    print(mode_logic)
-    print(dataframe.columns)
     if mode_logic["CL"] == CL.OPTIMIZATION_BASED:
         # First subplot for 'P_net_after_kW', 'upperb', and 'lowerb'
         plt.figure(figsize=(12, 8))

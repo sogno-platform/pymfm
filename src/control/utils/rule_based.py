@@ -95,8 +95,10 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
     output["SoC_bat_%"] = bat_Energy_kWh / battery_specs.bat_capacity_kWh * 100
     output["P_net_meas_kW"] = measurements_request_dict["P_net_meas_kW"]
     output["P_net_after_kW"] = (
-        - export_kW + import_kW - output["P_bat_kW"]
+         output["P_net_meas_kW"] - export_kW + import_kW - output["P_bat_kW"]
     )
+    print(export_kW)
+    print(import_kW)
     # Considering current Pbat_kW
     output["P_bat_kW"] = output["P_bat_kW"]
     if output["P_bat_kW"] < 0:
@@ -109,6 +111,7 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
             pass
         else:
             output["P_bat_kW"] = battery_specs.P_dis_max_kW
+    output["P_bat_kW"] = output["P_bat_kW"]  * -1 # charging: positiv, discharging: negativ
     return output
 
 
@@ -212,4 +215,6 @@ def scheduling(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: time
     output_ds.SoC_bat = (
         output_ds.bat_energy_kWs / battery_specs.bat_capacity_kWs
     ) * 100
+    output_ds.P_bat_kW = output_ds.P_bat_kW * -1 # charging: positiv, discharging: negativ
+
     return output_ds
