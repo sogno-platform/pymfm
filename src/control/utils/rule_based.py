@@ -97,8 +97,6 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
     output["P_net_after_kW"] = (
          output["P_net_meas_kW"] - export_kW + import_kW - output["P_bat_kW"]
     )
-    print(export_kW)
-    print(import_kW)
     # Considering current Pbat_kW
     output["P_bat_kW"] = output["P_bat_kW"]
     if output["P_bat_kW"] < 0:
