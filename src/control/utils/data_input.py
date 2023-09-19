@@ -56,8 +56,6 @@ class MeasurementsRequest(BaseModel):
     P_net_meas_kW: float = Field(..., alias="P_net_meas_kW")
 
 
-# TODO add constraints
-# - initial_SoC and final_SoC should always be in the acceptable range, i.e., between min_SoC and max_SoC
 class BatterySpecs(BaseModel):
     id: Optional[str]
     bat_type: str = Field(
@@ -123,6 +121,12 @@ class InputData(BaseModel):
 
     @validator("generation_and_load")
     def generation_and_load_start_before_timewindow(cls, meas, values):
+        """
+
+        :param meas:
+        :param values:
+        :return:
+        """
         uc_start = values["uc_start"]
         if uc_start < meas.values[0].timestamp:
             raise ValueError(
@@ -132,6 +136,12 @@ class InputData(BaseModel):
 
     @validator("generation_and_load")
     def generation_and_load_end_after_timewindow(cls, meas, values):
+        """
+
+        :param meas:
+        :param values:
+        :return:
+        """
         uc_end = values["uc_end"]
         if uc_end > meas.values[-1].timestamp:
             raise ValueError(
@@ -141,6 +151,12 @@ class InputData(BaseModel):
 
     @validator("day_end", always=True)
     def set_day_end(cls, v, values):
+        """
+
+        :param v:
+        :param values:
+        :return:
+        """
         generation_and_load = values.get("generation_and_load")
         if v is None:
             # Calculate the sunset time for uc_start date and location (Berlin)
@@ -164,6 +180,12 @@ class InputData(BaseModel):
 
 
 def minutes_horizon(starttime: datetime, endtime: datetime) -> float:
+    """
+
+    :param starttime:
+    :param endtime:
+    :return:
+    """
     time_delta = endtime - starttime
     total_seconds = time_delta.total_seconds()
     minutes = total_seconds / 60
@@ -171,6 +193,11 @@ def minutes_horizon(starttime: datetime, endtime: datetime) -> float:
 
 
 def input_prep(battery_specs: BatterySpecs | list[BatterySpecs]):
+    """
+
+    :param battery_specs:
+    :return:
+    """
     # Transform battery percent to abs
     if isinstance(battery_specs, list):
         for battery in battery_specs:
@@ -196,6 +223,13 @@ def input_prep(battery_specs: BatterySpecs | list[BatterySpecs]):
 def generation_and_load_to_df(
     meas: dict[GenerationAndLoad], start: datetime = None, end: datetime = None
 ) -> pd.DataFrame:
+    """
+
+    :param meas:
+    :param start:
+    :param end:
+    :return:
+    """
     df_forecasts = pd.json_normalize([mes.dict(by_alias=False) for mes in meas.values])
     df_forecasts.set_index("timestamp", inplace=True)
     df_forecasts.index.freq = pd.infer_freq(df_forecasts.index)
@@ -204,6 +238,11 @@ def generation_and_load_to_df(
 
 
 def battery_to_df(battery_specs: BatterySpecs | list[BatterySpecs]) -> pd.DataFrame:
+    """
+
+    :param battery_specs:
+    :return:
+    """
     if isinstance(battery_specs, list):
         df_battery = pd.json_normalize(
             [battery.dict(by_alias=False) for battery in battery_specs]
@@ -219,6 +258,11 @@ def battery_to_df(battery_specs: BatterySpecs | list[BatterySpecs]) -> pd.DataFr
 
 
 def measurements_request_to_dict(measurements_request: MeasurementsRequest):
+    """
+
+    :param measurements_request:
+    :return:
+    """
     measurements_request_dict = {
         "timestamp": measurements_request.timestamp,
         "P_req_kW": measurements_request.P_req_kW,
@@ -232,6 +276,12 @@ def P_net_after_kW_lim_to_df(
     P_net_after_kW_limits: List[P_net_after_kWLimitation],
     gen_load_data: List[GenerationAndLoad],
 ) -> pd.DataFrame:
+    """
+
+    :param P_net_after_kW_limits:
+    :param gen_load_data:
+    :return:
+    """
     # Check if upper_bounds, lower_bounds are None
     if P_net_after_kW_limits is None:
         # Create a DataFrame with default values and use timestamps from gen_load_data

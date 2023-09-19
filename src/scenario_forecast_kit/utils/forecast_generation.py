@@ -5,11 +5,22 @@ from scipy import interpolate
 
 
 def calc_load_scaling_factor(households, avg_consumption):
+    """
+
+    :param households:
+    :param avg_consumption:
+    :return:
+    """
     load_scaling_factor = (households * avg_consumption) / 1000
     return load_scaling_factor
 
 
 def calc_dynamic_factor(day_of_year):
+    """
+
+    :param day_of_year:
+    :return:
+    """
     dynamic_factor = (
         -0.000000000392 * day_of_year**4
         + 0.00000032 * day_of_year**3
@@ -21,11 +32,25 @@ def calc_dynamic_factor(day_of_year):
 
 
 def calc_total_load(slp_value, dynamic_factor, load_scaling_factor):
+    """
+
+    :param slp_value:
+    :param dynamic_factor:
+    :param load_scaling_factor:
+    :return:
+    """
     dynamic_load = (slp_value * dynamic_factor * load_scaling_factor) / 1000
     return dynamic_load
 
 
 def generate_forecast(input_folder_path, output_folder_path, time_resolution):
+    """
+
+    :param input_folder_path:
+    :param output_folder_path:
+    :param time_resolution:
+    :return:
+    """
     # Create the output folder if it doesn't exist
     if not os.path.exists(output_folder_path):
         os.makedirs(output_folder_path)

@@ -181,6 +181,16 @@ def scheduling(
     P_net_after_kW_limits: pd.DataFrame,
     pv_curtailment: Boolean,
 ) -> tuple[pd.Series, pd.Series, pd.DataFrame, pd.DataFrame, SolverStatus]:
+    """
+
+    :param P_load_gen:
+    :param df_battery:
+    :param day_end:
+    :param bulk_data:
+    :param P_net_after_kW_limits:
+    :param pv_curtailment:
+    :return:
+    """
     # Selected optimization solver
     # optimization_solver = SolverFactory("bonmin")
     optimization_solver = SolverFactory("gurobi")
@@ -350,12 +360,9 @@ def scheduling(
     P_net_after_kW = pd.Series(index=model.T, dtype=float)
     bat_ch = pd.DataFrame(index=model.T, columns=df_battery.index)
     bat_dis = pd.DataFrame(index=model.T, columns=df_battery.index)
-    SoC_bat_df = pd.DataFrame(
-        index=model.T_SoC_bat, columns=df_battery.index
-    )
+    SoC_bat_df = pd.DataFrame(index=model.T_SoC_bat, columns=df_battery.index)
     lower_bound = pd.Series(index=model.T, dtype=float)
     upper_bound = pd.Series(index=model.T, dtype=float)
-
 
     for t in model.T:
         P_net_after_kW[t] = value(
@@ -364,11 +371,11 @@ def scheduling(
         total_supply = 0
         for n in model.N:
             total_supply += value(
-               - model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]
+                -model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]
             ) + value(model.x_ch[n, t] * model.P_ch_bat_kW[n, t] * model.ch_eff_bat[n])
 
             P_bat_kW_df.loc[t, n] = value(
-                - model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]
+                -model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]
                 + model.x_ch[n, t] * model.P_ch_bat_kW[n, t] * model.ch_eff_bat[n]
             )
 
@@ -408,6 +415,18 @@ def prep_output_df(
     P_net_after_kW_upperb: pd.Series,
     P_net_after_kW_lowerb: pd.Series,
 ):
+    """
+
+    :param pv_profile:
+    :param P_bat_kW_df:
+    :param P_bat_total_kW:
+    :param SoC_bat_df:
+    :param P_net_after_kW:
+    :param df_forecasts:
+    :param P_net_after_kW_upperb:
+    :param P_net_after_kW_lowerb:
+    :return:
+    """
     output_df = pd.DataFrame(index=df_forecasts.index)
     output_df["P_net_before_kW"] = df_forecasts["P_load_kW"] - df_forecasts["P_gen_kW"]
     output_df["P_net_before_controlled_PV_kW"] = df_forecasts["P_load_kW"] - pv_profile

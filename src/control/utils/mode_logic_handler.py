@@ -11,6 +11,11 @@ from utils import rule_based as RB
 
 
 def mode_logic_handler(data: InputData):
+    """
+
+    :param data:
+    :return:
+    """
     battery_specs = data_input.input_prep(data.battery_specs)
 
     if data.control_logic == CL.RULE_BASED:
@@ -29,9 +34,11 @@ def mode_logic_handler(data: InputData):
             output_df = None
             delta_T = pd.to_timedelta(df_forecasts.P_load_kW.index.freq)
             for time, P_net_before_kW in df_forecasts.iterrows():
-                print('Input data has been read succesfully. Running scheduling rule based control.')
+                print(
+                    "Input data has been read succesfully. Running scheduling rule based control."
+                )
                 output = RB.scheduling(P_net_before_kW, battery_specs, delta_T)
-                print('Scheduling rule based control finished.')
+                print("Scheduling rule based control finished.")
                 if output_df is None:
                     output_df = pd.DataFrame(
                         columns=output.index, index=df_forecasts.index
@@ -76,14 +83,16 @@ def mode_logic_handler(data: InputData):
             measurements_request_dict = data_input.measurements_request_to_dict(
                 data.measurements_request
             )
-            print('Input data has been read succesfully. Running near real time rule based control.')
+            print(
+                "Input data has been read succesfully. Running near real time rule based control."
+            )
             output_df = RB.near_real_time(measurements_request_dict, battery_specs)
             mode_logic = {
                 "ID": data.id,
                 "CL": data.control_logic,
                 "OM": data.operation_mode,
             }
-            print('Near real time rule based control finished.')
+            print("Near real time rule based control finished.")
             return (
                 mode_logic,
                 output_df,
@@ -99,7 +108,9 @@ def mode_logic_handler(data: InputData):
             data.P_net_after_kW_limitation, data.generation_and_load
         )
         df_battery_specs = data_input.battery_to_df(battery_specs)
-        print('Input data has been read succesfully. Running scheduling optimization based control.')
+        print(
+            "Input data has been read succesfully. Running scheduling optimization based control."
+        )
         (
             P_net_after_kW,
             PV_profile,
@@ -117,7 +128,7 @@ def mode_logic_handler(data: InputData):
             P_net_after_kW_limits,
             data.generation_and_load.pv_curtailment,
         )
-        print('Scheduling optimization based control finished.')
+        print("Scheduling optimization based control finished.")
         output_df = OptB.prep_output_df(
             P_net_after_kW,
             PV_profile,

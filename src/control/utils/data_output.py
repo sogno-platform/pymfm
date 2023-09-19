@@ -11,14 +11,21 @@ from utils.data_input import (
 
 def visualize_and_save_plots(
     mode_logic: dict, dataframe: pd.DataFrame, output_directory: str
-): 
+):
+    """
+
+    :param mode_logic:
+    :param dataframe:
+    :param output_directory:
+    :return:
+    """
     if mode_logic["CL"] == CL.OPTIMIZATION_BASED:
         # First subplot for 'P_net_after_kW', 'upperb', and 'lowerb'
         plt.figure(figsize=(12, 8))
         plt.plot(
             dataframe.index,
             dataframe["P_net_after_kW"],
-            linestyle='--',
+            linestyle="--",
             label="P_net_after_kW",
             c="olivedrab",
             lw=2,
@@ -44,10 +51,28 @@ def visualize_and_save_plots(
         # Second subplot for power output ('P_net_before_kW', 'P_net_after_kW', and battery power)
         plt.figure(figsize=(12, 8))
 
-        plt.plot(dataframe.index, dataframe["P_net_before_kW"], label="P_net_before_kW", c="hotpink", lw=2)
-        plt.plot(dataframe.index, dataframe["P_net_after_kW"], linestyle='--', label="P_net_after_kW", c="olivedrab", lw=2)
-        plt.plot(dataframe.index, dataframe["P_bat_total_kW"], label="P_bat_total_kW", c="turquoise", lw=2)
-
+        plt.plot(
+            dataframe.index,
+            dataframe["P_net_before_kW"],
+            label="P_net_before_kW",
+            c="hotpink",
+            lw=2,
+        )
+        plt.plot(
+            dataframe.index,
+            dataframe["P_net_after_kW"],
+            linestyle="--",
+            label="P_net_after_kW",
+            c="olivedrab",
+            lw=2,
+        )
+        plt.plot(
+            dataframe.index,
+            dataframe["P_bat_total_kW"],
+            label="P_bat_total_kW",
+            c="turquoise",
+            lw=2,
+        )
 
         plt.title("The Power Balance")
         plt.xlabel("Timestamp")
@@ -89,10 +114,29 @@ def visualize_and_save_plots(
         if mode_logic["OM"] == OM.SCHEDULING:
             # Plotting the DataFrame
             plt.figure(figsize=(12, 8))
-            
-            plt.plot(dataframe.index, dataframe["P_net_before_kW"], label="P_net_before_kW", c="hotpink", lw=2)
-            plt.plot(dataframe.index, dataframe["P_net_after_kW"], linestyle='--', label="P_net_after_kW", c="olivedrab", lw=2)
-            plt.plot(dataframe.index, dataframe["P_bat_1_kW"], label="P_bat_1_kW", c="turquoise", lw=2)
+
+            plt.plot(
+                dataframe.index,
+                dataframe["P_net_before_kW"],
+                label="P_net_before_kW",
+                c="hotpink",
+                lw=2,
+            )
+            plt.plot(
+                dataframe.index,
+                dataframe["P_net_after_kW"],
+                linestyle="--",
+                label="P_net_after_kW",
+                c="olivedrab",
+                lw=2,
+            )
+            plt.plot(
+                dataframe.index,
+                dataframe["P_bat_1_kW"],
+                label="P_bat_1_kW",
+                c="turquoise",
+                lw=2,
+            )
 
             # Customize the plot (labels, titles, legends, etc.) as needed
             plt.xlabel("Timestamp")
@@ -107,10 +151,19 @@ def visualize_and_save_plots(
             plt.close()  # Close the current figure to free up resources
     # Get the absolute file path of the generated .json file
     absolute_output_directory_path = os.path.abspath(output_directory)
-    print(f"Output .svg plots generated and saved under: {absolute_output_directory_path}")
+    print(
+        f"Output .svg plots generated and saved under: {absolute_output_directory_path}"
+    )
 
 
 def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: str):
+    """
+
+    :param mode_logic:
+    :param output_df:
+    :param output_directory:
+    :return:
+    """
     if mode_logic["CL"] == CL.RULE_BASED:
         if mode_logic["OM"] == OM.NEAR_REAL_TIME:
             formatted_data = {
@@ -186,7 +239,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
         output_file = os.path.join(output_directory, f"{mode_logic['ID']}_output.json")
         with open(output_file, "w") as json_file:
             json_file.write(json_string)
-    
+
     # Get the absolute file path of the generated .json file
     absolute_output_file_path = os.path.abspath(output_file)
     print(f"Output .json file generated and saved under: {absolute_output_file_path}")

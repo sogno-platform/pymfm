@@ -3,6 +3,13 @@ import os
 
 
 def generate_scenario(forecast_input_file, scenario_input_file, output_file):
+    """
+
+    :param forecast_input_file:
+    :param scenario_input_file:
+    :param output_file:
+    :return:
+    """
     # Read the content of the first input JSON file
     with open(forecast_input_file, "r") as file1:
         forecast_data = json.load(file1)
