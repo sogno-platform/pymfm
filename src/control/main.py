@@ -36,4 +36,4 @@ def main(control_method: str):
 
 
 if __name__ == "__main__":
-    main(control_method="scheduling_rule_based")
+    main(control_method="scheduling_optimization_based")

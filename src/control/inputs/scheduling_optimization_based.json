@@ -532,7 +532,7 @@
             "dis_efficiency": 1
         }
     ],
-    "import_export_limitation": [
+    "P_net_after_kW_limitation": [
         {
             "timestamp": "2021-04-01T13:00:00.000000Z",
             "upper_bound": -20,

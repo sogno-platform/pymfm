@@ -11,7 +11,7 @@
         "bulk_energy_kWh": 100
     },
     "pv_curtailment": true,
-    "import_export_limitation": [
+    "P_net_after_kW_limitation": [
         {
             "timestamp": "2021-04-01T00:00:00.000000Z",
             "upper_bound": 10

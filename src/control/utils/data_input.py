@@ -32,7 +32,7 @@ class Bulk(BaseModel):
     bulk_energy_kWh: float = Field(..., alias="bulk_energy_kWh")
 
 
-class ImportExportLimitation(BaseModel):
+class P_net_after_kWLimitation(BaseModel):
     timestamp: datetime = Field(..., alias="timestamp")
     upper_bound: Optional[float] = Field(None, alias="upper_bound")
     lower_bound: Optional[float] = Field(None, alias="lower_bound")
@@ -113,8 +113,8 @@ class InputData(BaseModel):
     )
     day_end: Optional[datetime] = Field(None, alias="day_end")
     bulk: Optional[Bulk] = Field(None, alias="bulk")
-    import_export_limitation: Optional[List[ImportExportLimitation]] = Field(
-        None, alias="import_export_limitation"
+    P_net_after_kW_limitation: Optional[List[P_net_after_kWLimitation]] = Field(
+        None, alias="P_net_after_kW_limitation"
     )
     measurements_request: Optional[MeasurementsRequest] = Field(
         None, alias="measurements_request"
@@ -228,12 +228,12 @@ def measurements_request_to_dict(measurements_request: MeasurementsRequest):
     return measurements_request_dict
 
 
-def imp_exp_lim_to_df(
-    import_export_limits: List[ImportExportLimitation],
+def P_net_after_kW_lim_to_df(
+    P_net_after_kW_limits: List[P_net_after_kWLimitation],
     gen_load_data: List[GenerationAndLoad],
 ) -> pd.DataFrame:
     # Check if upper_bounds, lower_bounds are None
-    if import_export_limits is None:
+    if P_net_after_kW_limits is None:
         # Create a DataFrame with default values and use timestamps from gen_load_data
         all_timestamps = set(item.timestamp for item in gen_load_data.values)
         missing_data = pd.DataFrame(
@@ -248,8 +248,8 @@ def imp_exp_lim_to_df(
         missing_data.index.name = "timestamp"  # Set the index name
         return missing_data
 
-    # Convert the list of ImportExportLimitation objects to a DataFrame
-    df = pd.DataFrame([item.dict() for item in import_export_limits])
+    # Convert the list of P_net_after_kWLimitation objects to a DataFrame
+    df = pd.DataFrame([item.dict() for item in P_net_after_kW_limits])
     df.set_index("timestamp", inplace=True)
 
     # Adding new columns and filling default values
@@ -257,7 +257,7 @@ def imp_exp_lim_to_df(
     df["with_lower_bound"] = df["lower_bound"].notnull()
     df.fillna(0, inplace=True)
 
-    # Handle timestamps not present in ImportExportLimitation but in generation_and_load
+    # Handle timestamps not present in P_net_after_kWLimitation but in generation_and_load
     all_timestamps = set(df.index).union(
         set(item.timestamp for item in gen_load_data.values)
     )

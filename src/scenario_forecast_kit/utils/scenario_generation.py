@@ -25,8 +25,8 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
     pv_curtailment = scenario_data.get("pv_curtailment", None)
     # Check if "bulk" data is present in scenario_data
     bulk_data = scenario_data.get("bulk", None)
-    # Check if "import_export_limitation" data is present in scenario_data
-    import_export_data = scenario_data.get("import_export_limitation", None)
+    # Check if "P_net_after_kW_limitation" data is present in scenario_data
+    P_net_after_kW_data = scenario_data.get("P_net_after_kW_limitation", None)
 
     # Extract the values from the "generation_and_load" data
     generation_and_load_values = forecast_data["generation_and_load"]
@@ -77,9 +77,9 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
     if bulk_data:
         new_data["bulk"] = bulk_data
 
-    # Add "import_export_limitation" data to the new dictionary if it exists in scenario_data
-    if import_export_data:
-        new_data["import_export_limitation"] = import_export_data
+    # Add "P_net_after_kW_limitation" data to the new dictionary if it exists in scenario_data
+    if P_net_after_kW_data:
+        new_data["P_net_after_kW_limitation"] = P_net_after_kW_data
 
     # Convert the new dictionary to a JSON string
     new_json_string = json.dumps(new_data, indent=4)

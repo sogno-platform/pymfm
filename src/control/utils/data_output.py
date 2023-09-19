@@ -17,64 +17,42 @@ def visualize_and_save_plots(
         plt.figure(figsize=(12, 8))
         plt.plot(
             dataframe.index,
-            dataframe["P_import_export_kW"],
-            label="Total Import and Export",
-            c="blue",
+            dataframe["P_net_after_kW"],
+            linestyle='--',
+            label="P_net_after_kW",
+            c="olivedrab",
             lw=2,
         )
         plt.plot(
-            dataframe.index, dataframe["upperb"], label="Upperbound", c="orange", lw=2
+            dataframe.index, dataframe["upperb"], label="Upperbound", c="red", lw=2
         )
         plt.plot(
-            dataframe.index, dataframe["lowerb"], label="Lowerbound", c="green", lw=2
+            dataframe.index, dataframe["lowerb"], label="Lowerbound", c="red", lw=2
         )
-        plt.title("Plot of Total Import and Export and its Boundaries")
+        plt.title("Net power after and its Boundaries")
         plt.xlabel("Timestamp")
         plt.ylabel("Value")
         plt.grid(True)
         plt.legend()
 
-        # Set alpha (opacity) for overlapping lines
-        alpha = 0.6
-
-        # Apply alpha to the lines to simulate overlapping
-        lines = plt.gca().lines
-        for line in lines[1:]:
-            line.set_alpha(alpha)
-
         # Save the first plot to an SVG file in the specified output directory
         output_file1 = os.path.join(
-            output_directory, f"{mode_logic['ID']}_import_export_limits_plot.svg"
+            output_directory, f"{mode_logic['ID']}_p_net_after_and_boundries_plot.svg"
         )
         plt.savefig(output_file1, format="svg")
 
         # Second subplot for power output ('P_net_before_kW', 'P_net_after_kW', and battery power)
         plt.figure(figsize=(12, 8))
 
-        # Columns to plot for power output
-        power_output_columns = [
-            "P_net_before_kW",
-            "P_net_after_kW",
-            "P_import_export_kW",
-            "P_bat_total_kW"
-        ]
+        plt.plot(dataframe.index, dataframe["P_net_before_kW"], label="P_net_before_kW", c="hotpink", lw=2)
+        plt.plot(dataframe.index, dataframe["P_net_after_kW"], linestyle='--', label="P_net_after_kW", c="olivedrab", lw=2)
+        plt.plot(dataframe.index, dataframe["P_bat_total_kW"], label="P_bat_total_kW", c="turquoise", lw=2)
 
-        # If user wants to plot every single battery's power.
-        # Columns to plot for battery power (detect dynamically)
-        #battery_power_columns = [col for col in dataframe.columns if "P_bat" in col]
-
-        for col in power_output_columns:
-            plt.plot(dataframe.index, dataframe[col], label=col, lw=2)
 
         plt.title("The Power Balance")
         plt.xlabel("Timestamp")
         plt.grid(True)
         plt.legend()
-
-        # Apply alpha to the lines to simulate overlapping
-        lines = plt.gca().lines
-        for line in lines[1:]:
-            line.set_alpha(alpha)
 
         # Save the second plot to an SVG file in the specified output directory
         output_file2 = os.path.join(
@@ -87,19 +65,17 @@ def visualize_and_save_plots(
 
         # Columns to plot for battery state of charge (detect dynamically)
         battery_soc_columns = [col for col in dataframe.columns if "SoC_bat" in col]
+        # Generate a list of distinct colors
+        color_cycle = itertools.cycle(plt.cm.tab20.colors)
 
         for col in battery_soc_columns:
-            plt.plot(dataframe.index, dataframe[col], label=col, lw=2)
+            color = next(color_cycle)
+            plt.plot(dataframe.index, dataframe[col], label=col, c=color, lw=2)
 
         plt.title("State of Charges of the Batteries")
         plt.xlabel("Timestamp")
         plt.grid(True)
         plt.legend()
-
-        # Apply alpha to the lines to simulate overlapping
-        lines = plt.gca().lines
-        for line in lines[1:]:
-            line.set_alpha(alpha)
 
         # Save the third plot to an SVG file in the specified output directory
         output_file3 = os.path.join(
@@ -113,30 +89,15 @@ def visualize_and_save_plots(
         if mode_logic["OM"] == OM.SCHEDULING:
             # Plotting the DataFrame
             plt.figure(figsize=(12, 8))
-
-            # Get a list of all columns to plot except timestamp index
-            cols_to_plot = [col for col in dataframe.columns if col != "timestamp"]
-            cols_to_plot.remove("SoC_bat_1_%")
-
-            # Generate a list of distinct colors
-            color_cycle = itertools.cycle(plt.cm.tab20.colors)
-
-            for col in cols_to_plot:
-                color = next(color_cycle)
-                plt.plot(dataframe.index, dataframe[col], label=col, c=color, lw=2)
+            
+            plt.plot(dataframe.index, dataframe["P_net_before_kW"], label="P_net_before_kW", c="hotpink", lw=2)
+            plt.plot(dataframe.index, dataframe["P_net_after_kW"], linestyle='--', label="P_net_after_kW", c="olivedrab", lw=2)
+            plt.plot(dataframe.index, dataframe["P_bat_1_kW"], label="P_bat_1_kW", c="turquoise", lw=2)
 
             # Customize the plot (labels, titles, legends, etc.) as needed
             plt.xlabel("Timestamp")
             plt.grid(True)
             plt.legend()
-
-            # Set alpha (opacity) for overlapping lines
-            alpha = 0.6
-
-            # Apply alpha to the lines to simulate overlapping
-            lines = plt.gca().lines
-            for line in lines[1:]:
-                line.set_alpha(alpha)
 
             # Save the plot as an SVG image under the given directory
             output_file = os.path.join(
@@ -144,12 +105,14 @@ def visualize_and_save_plots(
             )
             plt.savefig(output_file, format="svg")
             plt.close()  # Close the current figure to free up resources
+    # Get the absolute file path of the generated .json file
+    absolute_output_directory_path = os.path.abspath(output_directory)
+    print(f"Output .svg plots generated and saved under: {absolute_output_directory_path}")
 
 
 def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: str):
     if mode_logic["CL"] == CL.RULE_BASED:
         if mode_logic["OM"] == OM.NEAR_REAL_TIME:
-            print(output_df)
             formatted_data = {
                 "id": mode_logic["ID"],
                 "application": "pymfm",
@@ -223,3 +186,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
         output_file = os.path.join(output_directory, f"{mode_logic['ID']}_output.json")
         with open(output_file, "w") as json_file:
             json_file.write(json_string)
+    
+    # Get the absolute file path of the generated .json file
+    absolute_output_file_path = os.path.abspath(output_file)
+    print(f"Output .json file generated and saved under: {absolute_output_file_path}")

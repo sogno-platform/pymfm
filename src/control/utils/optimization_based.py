@@ -50,7 +50,7 @@ def bat_max_SoC(model, n, t):
     return model.SoC_bat[n, t] <= model.max_SoC_bat[n]
 
 
-def import_export_lower_bound(model, t):
+def P_net_after_kW_lower_bound(model, t):
     if model.with_lower_bound[t]:
         return (
             model.lower_bound_kW[t]
@@ -60,7 +60,7 @@ def import_export_lower_bound(model, t):
         return Constraint.Feasible
 
 
-def import_export_upper_bound(model, t):
+def P_net_after_kW_upper_bound(model, t):
     if model.with_upper_bound[t]:
         return (
             model.P_imp_kW[t] * model.x_imp[t] - model.P_exp_kW[t] * model.x_exp[t]
@@ -178,7 +178,7 @@ def scheduling(
     df_battery: pd.DataFrame,
     day_end,
     bulk_data: Bulk,
-    imp_exp_limits: pd.DataFrame,
+    P_net_after_kW_limits: pd.DataFrame,
     pv_curtailment: Boolean,
 ) -> tuple[pd.Series, pd.Series, pd.DataFrame, pd.DataFrame, SolverStatus]:
     # Selected optimization solver
@@ -233,11 +233,11 @@ def scheduling(
     model.start_time = start_time
     model.end_time = end_time
     model.day_end = day_end
-    # Import-export limits for every each timestamp enabling the microgrid to go full islanding (if both are zero)
-    model.upper_bound_kW = imp_exp_limits.upper_bound
-    model.lower_bound_kW = imp_exp_limits.lower_bound
-    model.with_upper_bound = imp_exp_limits.with_upper_bound
-    model.with_lower_bound = imp_exp_limits.with_lower_bound
+    # P_net_after_kW (import-export) limits for every each timestamp enabling the microgrid to go full islanding (if both are zero)
+    model.upper_bound_kW = P_net_after_kW_limits.upper_bound
+    model.lower_bound_kW = P_net_after_kW_limits.lower_bound
+    model.with_upper_bound = P_net_after_kW_limits.with_upper_bound
+    model.with_lower_bound = P_net_after_kW_limits.with_lower_bound
 
     # Forecast parameters
     # Total load and generation forecast
@@ -319,11 +319,11 @@ def scheduling(
     model.bat_max_dis_power = Constraint(model.N, model.T, rule=bat_max_dis_power)
     model.bat_min_SoC = Constraint(model.N, model.T_SoC_bat, rule=bat_min_SoC)
     model.bat_max_SoC = Constraint(model.N, model.T_SoC_bat, rule=bat_max_SoC)
-    model.import_export_upper_bound = Constraint(
-        model.T, rule=import_export_upper_bound
+    model.P_net_after_kW_upper_bound = Constraint(
+        model.T, rule=P_net_after_kW_upper_bound
     )
-    model.import_export_lower_bound = Constraint(
-        model.T, rule=import_export_lower_bound
+    model.P_net_after_kW_lower_bound = Constraint(
+        model.T, rule=P_net_after_kW_lower_bound
     )
     model.ch_dis_binary = Constraint(model.N, model.T, rule=ch_dis_binary)
     model.imp_exp_binary = Constraint(model.T, rule=imp_exp_binary)
@@ -347,16 +347,18 @@ def scheduling(
     P_bat_total_kW = pd.Series(
         index=model.T, dtype=float
     )  # discharging: negativ, charging: positiv
-    P_import_export_kW = pd.Series(index=model.T, dtype=float)
-    P_net_after_kW = pd.DataFrame(index=model.T, columns=[""])
+    P_net_after_kW = pd.Series(index=model.T, dtype=float)
     bat_ch = pd.DataFrame(index=model.T, columns=df_battery.index)
     bat_dis = pd.DataFrame(index=model.T, columns=df_battery.index)
     SoC_bat_df = pd.DataFrame(
         index=model.T_SoC_bat, columns=df_battery.index
     )
+    lower_bound = pd.Series(index=model.T, dtype=float)
+    upper_bound = pd.Series(index=model.T, dtype=float)
+
 
     for t in model.T:
-        P_import_export_kW[t] = value(
+        P_net_after_kW[t] = value(
             model.x_imp[t] * model.P_imp_kW[t] - model.x_exp[t] * model.P_exp_kW[t]
         )
         total_supply = 0
@@ -372,12 +374,10 @@ def scheduling(
 
         P_bat_total_kW[t] = total_supply
 
-        P_net_after_kW.loc[t] = value(
-            model.P_net_before_kW[t]
-            - model.x_imp[t] * model.P_imp_kW[t]
-            + model.x_exp[t] * model.P_exp_kW[t]
-            + P_bat_total_kW[t]
-        )
+        if model.with_lower_bound[t]:
+            lower_bound[t] = model.lower_bound_kW[t]
+        if model.with_upper_bound[t]:
+            upper_bound[t] = model.upper_bound_kW[t]
 
     for col in df_battery.index:
         bat_ch[col] = model.P_ch_bat_kW[col, :]()
@@ -387,38 +387,35 @@ def scheduling(
     PV_profile = pd.Series(model.P_PV_kW[:](), index=model.T)
 
     return (
-        P_net_after_kW,
         PV_profile,
         P_bat_kW_df,
         P_bat_total_kW,
         SoC_bat_df,
-        P_import_export_kW,
-        model.upper_bound_kW,
-        model.lower_bound_kW,
+        P_net_after_kW,
+        upper_bound,
+        lower_bound,
         (solver.status, solver.termination_condition),
     )
 
 
 def prep_output_df(
-    P_net_after_kW: pd.Series,
     pv_profile: pd.Series,
     P_bat_kW_df: pd.DataFrame,
     P_bat_total_kW: pd.Series,
     SoC_bat_df: pd.DataFrame,
-    P_import_export_kW: pd.Series,
+    P_net_after_kW: pd.Series,
     df_forecasts: pd.DataFrame,
-    imp_exp_upperb,
-    imp_exp_lowerb,
+    P_net_after_kW_upperb: pd.Series,
+    P_net_after_kW_lowerb: pd.Series,
 ):
     output_df = pd.DataFrame(index=df_forecasts.index)
     output_df["P_net_before_kW"] = df_forecasts["P_load_kW"] - df_forecasts["P_gen_kW"]
     output_df["P_net_before_controlled_PV_kW"] = df_forecasts["P_load_kW"] - pv_profile
     output_df["P_PV_forecast_kW"] = df_forecasts["P_gen_kW"]
     output_df["P_PV_controlled_kW"] = pv_profile
-    output_df["P_import_export_kW"] = P_import_export_kW
     output_df["P_net_after_kW"] = P_net_after_kW
-    output_df["upperb"] = imp_exp_upperb
-    output_df["lowerb"] = imp_exp_lowerb
+    output_df["upperb"] = P_net_after_kW_upperb
+    output_df["lowerb"] = P_net_after_kW_lowerb
     for col in P_bat_kW_df.columns:
         output_df[f"P_{col}_kW"] = P_bat_kW_df[col]
         output_df[f"SoC_{col}_%"] = SoC_bat_df[col] * 100
