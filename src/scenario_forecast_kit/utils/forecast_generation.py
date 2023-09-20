@@ -6,10 +6,11 @@ from scipy import interpolate
 
 def calc_load_scaling_factor(households, avg_consumption):
     """
+    Calculate the load scaling factor for a given number of households and average consumption.
 
-    :param households:
-    :param avg_consumption:
-    :return:
+    :param households: The number of households.
+    :param avg_consumption: The average consumption in kWh per household.
+    :return: The load scaling factor.
     """
     load_scaling_factor = (households * avg_consumption) / 1000
     return load_scaling_factor
@@ -17,9 +18,10 @@ def calc_load_scaling_factor(households, avg_consumption):
 
 def calc_dynamic_factor(day_of_year):
     """
+    Calculate the dynamic factor for a given day of the year.
 
-    :param day_of_year:
-    :return:
+    :param day_of_year: The day of the year (1-365).
+    :return: The dynamic factor.
     """
     dynamic_factor = (
         -0.000000000392 * day_of_year**4
@@ -33,11 +35,12 @@ def calc_dynamic_factor(day_of_year):
 
 def calc_total_load(slp_value, dynamic_factor, load_scaling_factor):
     """
+    Calculate the total load for a given SLP (Smart Load Profile) value, dynamic factor, and load scaling factor.
 
-    :param slp_value:
-    :param dynamic_factor:
-    :param load_scaling_factor:
-    :return:
+    :param slp_value: The SLP value for a specific timestamp.
+    :param dynamic_factor: The dynamic factor for the day.
+    :param load_scaling_factor: The load scaling factor.
+    :return: The total dynamic load in kW.
     """
     dynamic_load = (slp_value * dynamic_factor * load_scaling_factor) / 1000
     return dynamic_load
@@ -45,11 +48,12 @@ def calc_total_load(slp_value, dynamic_factor, load_scaling_factor):
 
 def generate_forecast(input_folder_path, output_folder_path, time_resolution):
     """
+    Generate a forecast based on input JSON files and save the results in the output folder.
 
-    :param input_folder_path:
-    :param output_folder_path:
-    :param time_resolution:
-    :return:
+    :param input_folder_path: Path to the folder containing input JSON files.
+    :param output_folder_path: Path to the folder where output JSON files will be saved.
+    :param time_resolution: Time resolution in minutes for the forecast.
+    :return: A list of forecast data for each input file.
     """
     # Create the output folder if it doesn't exist
     if not os.path.exists(output_folder_path):
@@ -73,8 +77,6 @@ def generate_forecast(input_folder_path, output_folder_path, time_resolution):
                 data["start_forecast"], "%Y-%m-%dT%H:%M:%SZ"
             )
             end_forecast = datetime.strptime(data["end_forecast"], "%Y-%m-%dT%H:%M:%SZ")
-            # TO-DO: Update day end
-            day_end = datetime.strptime(data["end_forecast"], "%Y-%m-%dT%H:%M:%SZ")
             avg_consumption = data["household_sta"]["metadata"]["avgconsumption"]
             households = data["household_sta"]["metadata"]["households"]
             slp_values = data["household_sta"]["slp_values"]

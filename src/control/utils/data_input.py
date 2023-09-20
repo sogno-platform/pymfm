@@ -122,10 +122,11 @@ class InputData(BaseModel):
     @validator("generation_and_load")
     def generation_and_load_start_before_timewindow(cls, meas, values):
         """
+        Validator to ensure generation_and_load starts before or at uc_start.
 
-        :param meas:
-        :param values:
-        :return:
+        :param meas: The value of generation_and_load.
+        :param values: The values dictionary.
+        :return: The validated value.
         """
         uc_start = values["uc_start"]
         if uc_start < meas.values[0].timestamp:
@@ -137,10 +138,11 @@ class InputData(BaseModel):
     @validator("generation_and_load")
     def generation_and_load_end_after_timewindow(cls, meas, values):
         """
+        Validator to ensure generation_and_load ends after or at uc_end.
 
-        :param meas:
-        :param values:
-        :return:
+        :param meas: The value of generation_and_load.
+        :param values: The values dictionary.
+        :return: The validated value.
         """
         uc_end = values["uc_end"]
         if uc_end > meas.values[-1].timestamp:
@@ -152,10 +154,11 @@ class InputData(BaseModel):
     @validator("day_end", always=True)
     def set_day_end(cls, v, values):
         """
+        Validator to set day_end if not provided, based on sunset time in Berlin.
 
-        :param v:
-        :param values:
-        :return:
+        :param v: The value of day_end.
+        :param values: The values dictionary.
+        :return: The validated value.
         """
         generation_and_load = values.get("generation_and_load")
         if v is None:
@@ -181,10 +184,11 @@ class InputData(BaseModel):
 
 def minutes_horizon(starttime: datetime, endtime: datetime) -> float:
     """
+    Calculate the time horizon in minutes between two timestamps.
 
-    :param starttime:
-    :param endtime:
-    :return:
+    :param starttime: The start timestamp.
+    :param endtime: The end timestamp.
+    :return: The time horizon in minutes.
     """
     time_delta = endtime - starttime
     total_seconds = time_delta.total_seconds()
@@ -194,9 +198,10 @@ def minutes_horizon(starttime: datetime, endtime: datetime) -> float:
 
 def input_prep(battery_specs: BatterySpecs | list[BatterySpecs]):
     """
+    Prepare battery specifications by transforming battery percentages to absolute values and saving battery capacity also in kWs.
 
-    :param battery_specs:
-    :return:
+    :param battery_specs: Battery specifications.
+    :return: Updated battery specifications.
     """
     # Transform battery percent to abs
     if isinstance(battery_specs, list):
@@ -224,11 +229,12 @@ def generation_and_load_to_df(
     meas: dict[GenerationAndLoad], start: datetime = None, end: datetime = None
 ) -> pd.DataFrame:
     """
+    Convert generation and load data to a DataFrame within a specified time range.
 
-    :param meas:
-    :param start:
-    :param end:
-    :return:
+    :param meas: Generation and load data.
+    :param start: Start timestamp for filtering data.
+    :param end: End timestamp for filtering data.
+    :return: DataFrame containing filtered generation and load data.
     """
     df_forecasts = pd.json_normalize([mes.dict(by_alias=False) for mes in meas.values])
     df_forecasts.set_index("timestamp", inplace=True)
@@ -239,9 +245,10 @@ def generation_and_load_to_df(
 
 def battery_to_df(battery_specs: BatterySpecs | list[BatterySpecs]) -> pd.DataFrame:
     """
+    Convert battery specifications to a DataFrame.
 
-    :param battery_specs:
-    :return:
+    :param battery_specs: Battery specifications.
+    :return: DataFrame containing battery specifications.
     """
     if isinstance(battery_specs, list):
         df_battery = pd.json_normalize(
@@ -259,9 +266,10 @@ def battery_to_df(battery_specs: BatterySpecs | list[BatterySpecs]) -> pd.DataFr
 
 def measurements_request_to_dict(measurements_request: MeasurementsRequest):
     """
+    Convert measurements request to a dictionary.
 
-    :param measurements_request:
-    :return:
+    :param measurements_request: Measurements request.
+    :return: Dictionary containing measurements request data.
     """
     measurements_request_dict = {
         "timestamp": measurements_request.timestamp,
@@ -277,10 +285,11 @@ def P_net_after_kW_lim_to_df(
     gen_load_data: List[GenerationAndLoad],
 ) -> pd.DataFrame:
     """
+    Convert P_net_after_kWLimitation data to a DataFrame.
 
-    :param P_net_after_kW_limits:
-    :param gen_load_data:
-    :return:
+    :param P_net_after_kW_limits: List of P_net_after_kWLimitation objects.
+    :param gen_load_data: List of GenerationAndLoad objects.
+    :return: DataFrame containing P_net_after_kWLimitation data.
     """
     # Check if upper_bounds, lower_bounds are None
     if P_net_after_kW_limits is None:

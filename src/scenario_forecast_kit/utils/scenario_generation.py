@@ -4,11 +4,12 @@ import os
 
 def generate_scenario(forecast_input_file, scenario_input_file, output_file):
     """
+    Generate a scenario JSON file by merging information from two input JSON files.
 
-    :param forecast_input_file:
-    :param scenario_input_file:
-    :param output_file:
-    :return:
+    :param forecast_input_file: Path to the forecast input JSON file.
+    :param scenario_input_file: Path to the scenario input JSON file.
+    :param output_file: Path to the output JSON file to save the merged scenario.
+    :return: None
     """
     # Read the content of the first input JSON file
     with open(forecast_input_file, "r") as file1:

@@ -13,11 +13,11 @@ def visualize_and_save_plots(
     mode_logic: dict, dataframe: pd.DataFrame, output_directory: str
 ):
     """
+    Visualize control output data from a DataFrame and save plots as SVG files based on control logic and operation mode.
 
-    :param mode_logic:
-    :param dataframe:
-    :param output_directory:
-    :return:
+    :param mode_logic: Dictionary containing control logic and operation mode information.
+    :param dataframe: DataFrame containing data to be visualized.
+    :param output_directory: Directory where the SVG plots will be saved.
     """
     if mode_logic["CL"] == CL.OPTIMIZATION_BASED:
         # First subplot for 'P_net_after_kW', 'upperb', and 'lowerb'
@@ -158,11 +158,11 @@ def visualize_and_save_plots(
 
 def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: str):
     """
+    Prepare and save output control data as JSON files based on control logic and operation mode.
 
-    :param mode_logic:
-    :param output_df:
-    :param output_directory:
-    :return:
+    :param mode_logic: Dictionary containing control logic and operation mode information.
+    :param output_df: DataFrame containing data to be saved as JSON.
+    :param output_directory: Directory where the JSON files will be saved.
     """
     if mode_logic["CL"] == CL.RULE_BASED:
         if mode_logic["OM"] == OM.NEAR_REAL_TIME:
