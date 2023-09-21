@@ -7,10 +7,22 @@ from enum import Enum
 from astral.sun import sun
 from astral.location import LocationInfo
 
+
 def open_json(filename):
+    """
+    Open and load JSON data from a file.
+
+    :param filename: The name of the JSON file to open.
+    :return: Loaded JSON data as a Python dictionary or list.
+    """
+    # Open the JSON file in read mode
     with open(filename) as data_file:
+        # Load and parse the JSON data
         data = json.load(data_file)
+
+    # Return the loaded data as a Python dictionary or list
     return data
+
 
 class BaseModel(PydBaseModel):
     class Config:
@@ -168,7 +180,7 @@ class InputData(BaseModel):
         :return: The validated value.
         """
         generation_and_load = values.get("generation_and_load")
-        
+
         # Check if day_end is not provided
         if v is None:
             # Calculate the sunset time for uc_start date and location (Berlin)
@@ -176,11 +188,13 @@ class InputData(BaseModel):
                 "Berlin", "Germany", "Europe/Berlin", 52.52, 13.40
             )
             s = sun(berlin_location.observer, date=values["uc_start"].date())
-            
+
             # Set day_end to the sunset time
             sunset_time = s["sunset"].astimezone(timezone.utc)
-            
-            if generation_and_load and isinstance(generation_and_load, GenerationAndLoad):
+
+            if generation_and_load and isinstance(
+                generation_and_load, GenerationAndLoad
+            ):
                 timestamps = [
                     data_point.timestamp for data_point in generation_and_load.values
                 ]

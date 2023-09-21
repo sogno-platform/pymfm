@@ -1,9 +1,14 @@
 import pandas as pd
 from pyomo.opt import SolverStatus, TerminationCondition
 from pymfm.control.utils import data_input, data_output
-from pymfm.control.utils.data_input import InputData, ControlLogic as CL, OperationMode as OM
+from pymfm.control.utils.data_input import (
+    InputData,
+    ControlLogic as CL,
+    OperationMode as OM,
+)
 from pymfm.control.algorithms import optimization_based as OptB
 from pymfm.control.algorithms import rule_based as RB
+
 
 def mode_logic_handler(data: InputData):
     """
@@ -60,14 +65,10 @@ def mode_logic_handler(data: InputData):
             # Rename columns for battery-specific data
             if battery_specs.id is not None:
                 output_df.rename(
-                    {"P_bat_kW": f"P_{battery_specs.id}_kW"},
-                    inplace=True,
-                    axis=1
+                    {"P_bat_kW": f"P_{battery_specs.id}_kW"}, inplace=True, axis=1
                 )
                 output_df.rename(
-                    {"SoC_bat": f"SoC_{battery_specs.id}_%"},
-                    inplace=True,
-                    axis=1
+                    {"SoC_bat": f"SoC_{battery_specs.id}_%"}, inplace=True, axis=1
                 )
             else:
                 output_df.rename({"P_bat_kW": "P_bat_1_kW"}, inplace=True, axis=1)

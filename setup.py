@@ -15,8 +15,8 @@ setuptools.setup(
     "E.ON Energy Research Center (E.ON ERC),"
     "RWTH Aachen University",
     author_email="post_acs@eonerc.rwth-aachen.de",
-    #url="https://github.com/erdemgumrukcu/datafev",
-    #license="MIT",
+    # url="https://github.com/erdemgumrukcu/datafev",
+    # license="MIT",
     packages=setuptools.find_packages(where="src"),
     package_dir={"": "src"},
     install_requires=[
@@ -27,8 +27,6 @@ setuptools.setup(
         "xlsxwriter==3.1.2",
         "pydantic==1.10.9",
         "astral==3.2",
-        "sphinx",
-        "sphinx-rtd-theme",
     ],
     platforms="any",
     long_description=long_description,
@@ -37,7 +35,7 @@ setuptools.setup(
         "Development Status :: 5 - Production/Stable",
         "Operating System :: OS Independent",
         "Intended Audience :: Science/Research",
-        #"License :: OSI Approved :: MIT License",
+        # "License :: OSI Approved :: MIT License",
         "Topic :: Scientific/Engineering",
         "Natural Language :: English",
         "Programming Language :: Python :: 3.8",

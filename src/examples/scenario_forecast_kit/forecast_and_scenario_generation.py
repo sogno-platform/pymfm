@@ -10,7 +10,6 @@ def main():
 
     :return: None
     """
-    # Example usage
 
     forecast_input_folder = "inputs/forecast"
     forecast_output_folder = "outputs/forecast"
