@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 import json
 import itertools
-from utils.data_input import (
+from pymfm.control.utils.data_input import (
     ControlLogic as CL,
     OperationMode as OM,
 )
@@ -112,7 +112,7 @@ def visualize_and_save_plots(
 
     if mode_logic["CL"] == CL.RULE_BASED:
         if mode_logic["OM"] == OM.SCHEDULING:
-            # Plotting the DataFrame
+            # Create a plot for 'P_net_before_kW', 'P_net_after_kW', and 'P_bat_1_kW'
             plt.figure(figsize=(12, 8))
 
             plt.plot(
@@ -149,6 +149,7 @@ def visualize_and_save_plots(
             )
             plt.savefig(output_file, format="svg")
             plt.close()  # Close the current figure to free up resources
+
     # Get the absolute file path of the generated .json file
     absolute_output_directory_path = os.path.abspath(output_directory)
     print(
@@ -166,6 +167,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
     """
     if mode_logic["CL"] == CL.RULE_BASED:
         if mode_logic["OM"] == OM.NEAR_REAL_TIME:
+            # Prepare JSON data for near real-time rule-based mode
             formatted_data = {
                 "id": mode_logic["ID"],
                 "application": "pymfm",
@@ -193,6 +195,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
             #    json.dump(json_data, json_file)
 
         if mode_logic["OM"] == OM.SCHEDULING:
+            # Prepare JSON data for scheduling rule-based mode
             # Extract the timestamps as strings
             output_df["timestamp"] = output_df.index.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
@@ -218,6 +221,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
                 json_file.write(json_string)
 
     if mode_logic["CL"] == CL.OPTIMIZATION_BASED:
+        # Prepare JSON data for scheduling optimization-based mode
         # Extract the timestamps as strings and reset the index
         output_df["timestamp"] = output_df.index.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 

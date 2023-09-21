@@ -1,7 +1,7 @@
 import pandas as pd
 from pyomo.environ import SolverFactory
 from pyomo.core import *
-from utils.data_input import Bulk
+from pymfm.control.utils.data_input import Bulk
 from pyomo.opt import SolverStatus
 import pyomo.kernel as pmo
 
@@ -416,28 +416,42 @@ def prep_output_df(
     P_net_after_kW_lowerb: pd.Series,
 ):
     """
+    Prepare the output DataFrame of scheduling optimization based mode.
 
-    :param pv_profile:
-    :param P_bat_kW_df:
-    :param P_bat_total_kW:
-    :param SoC_bat_df:
-    :param P_net_after_kW:
-    :param df_forecasts:
-    :param P_net_after_kW_upperb:
-    :param P_net_after_kW_lowerb:
-    :return:
+    :param pv_profile: Series containing the PV (Photovoltaic) profile.
+    :param P_bat_kW_df: DataFrame containing battery power for different nodes.
+    :param P_bat_total_kW: Series containing the total battery power.
+    :param SoC_bat_df: DataFrame containing battery state of charge for different nodes.
+    :param P_net_after_kW: Series containing net power after control.
+    :param df_forecasts: DataFrame containing forecasted data.
+    :param P_net_after_kW_upperb: Series containing upper bounds for net power after control.
+    :param P_net_after_kW_lowerb: Series containing lower bounds for net power after control.
+    :return: DataFrame containing prepared output data.
     """
+    # Create an empty output DataFrame with the same index as df_forecasts
     output_df = pd.DataFrame(index=df_forecasts.index)
+
+    # Calculate 'P_net_before_kW' as the difference between load and generation
     output_df["P_net_before_kW"] = df_forecasts["P_load_kW"] - df_forecasts["P_gen_kW"]
+
+    # Calculate 'P_net_before_controlled_PV_kW' as the difference between load and controlled PV
     output_df["P_net_before_controlled_PV_kW"] = df_forecasts["P_load_kW"] - pv_profile
+
+    # Add columns for PV forecast and controlled PV
     output_df["P_PV_forecast_kW"] = df_forecasts["P_gen_kW"]
     output_df["P_PV_controlled_kW"] = pv_profile
+
+    # Add columns for net power after control, upper bounds, and lower bounds
     output_df["P_net_after_kW"] = P_net_after_kW
     output_df["upperb"] = P_net_after_kW_upperb
     output_df["lowerb"] = P_net_after_kW_lowerb
+
+    # Iterate through columns in P_bat_kW_df and SoC_bat_df to add battery-related data
     for col in P_bat_kW_df.columns:
         output_df[f"P_{col}_kW"] = P_bat_kW_df[col]
         output_df[f"SoC_{col}_%"] = SoC_bat_df[col] * 100
+
+    # Add the total battery power column
     output_df["P_bat_total_kW"] = P_bat_total_kW
 
     return output_df

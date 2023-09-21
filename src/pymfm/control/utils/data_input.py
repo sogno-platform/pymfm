@@ -1,4 +1,5 @@
 from typing import Optional, List
+import json
 import pandas as pd
 from pydantic import BaseModel as PydBaseModel, Field, ValidationError, validator
 from datetime import datetime, timezone, timedelta
@@ -6,6 +7,10 @@ from enum import Enum
 from astral.sun import sun
 from astral.location import LocationInfo
 
+def open_json(filename):
+    with open(filename) as data_file:
+        data = json.load(data_file)
+    return data
 
 class BaseModel(PydBaseModel):
     class Config:
@@ -129,6 +134,7 @@ class InputData(BaseModel):
         :return: The validated value.
         """
         uc_start = values["uc_start"]
+        # Check if generation_and_load starts before or at uc_start
         if uc_start < meas.values[0].timestamp:
             raise ValueError(
                 f"generation_and_load have to start at or before uc_start. generation_and_load start at {meas.values[0].timestamp} uc_start was {uc_start}"
@@ -145,6 +151,7 @@ class InputData(BaseModel):
         :return: The validated value.
         """
         uc_end = values["uc_end"]
+        # Check if generation_and_load ends after or at uc_end
         if uc_end > meas.values[-1].timestamp:
             raise ValueError(
                 f"generation_and_load have to end at or after uc_end. generation_and_load end at {meas.values[-1].timestamp} uc_end was {uc_end}"
@@ -161,20 +168,23 @@ class InputData(BaseModel):
         :return: The validated value.
         """
         generation_and_load = values.get("generation_and_load")
+        
+        # Check if day_end is not provided
         if v is None:
             # Calculate the sunset time for uc_start date and location (Berlin)
             berlin_location = LocationInfo(
                 "Berlin", "Germany", "Europe/Berlin", 52.52, 13.40
             )
             s = sun(berlin_location.observer, date=values["uc_start"].date())
+            
             # Set day_end to the sunset time
             sunset_time = s["sunset"].astimezone(timezone.utc)
-            if generation_and_load and isinstance(
-                generation_and_load, GenerationAndLoad
-            ):
+            
+            if generation_and_load and isinstance(generation_and_load, GenerationAndLoad):
                 timestamps = [
                     data_point.timestamp for data_point in generation_and_load.values
                 ]
+                # Find the nearest timestamp in generation_and_load data to sunset_time
                 nearest_timestamp = min(timestamps, key=lambda t: abs(t - sunset_time))
                 return nearest_timestamp
             return v
@@ -190,6 +200,7 @@ def minutes_horizon(starttime: datetime, endtime: datetime) -> float:
     :param endtime: The end timestamp.
     :return: The time horizon in minutes.
     """
+    # Calculate the time difference in seconds and convert to minutes
     time_delta = endtime - starttime
     total_seconds = time_delta.total_seconds()
     minutes = total_seconds / 60
@@ -203,19 +214,18 @@ def input_prep(battery_specs: BatterySpecs | list[BatterySpecs]):
     :param battery_specs: Battery specifications.
     :return: Updated battery specifications.
     """
-    # Transform battery percent to abs
+    # Transform battery percentage values to absolute values and calculate capacity in kWs
     if isinstance(battery_specs, list):
         for battery in battery_specs:
-            # Transform battery percent to abs
+            # Transform battery percent to absolute
             battery.min_SoC /= 100
             battery.max_SoC /= 100
             battery.initial_SoC /= 100
             if battery.final_SoC is not None:
                 battery.final_SoC /= 100
             battery.bat_capacity_kWs = battery.bat_capacity_kWh * 3600
-
     else:
-        # Transform battery percent to abs
+        # Transform battery percent to absolute
         battery_specs.min_SoC /= 100
         battery_specs.max_SoC /= 100
         battery_specs.initial_SoC /= 100
@@ -236,6 +246,7 @@ def generation_and_load_to_df(
     :param end: End timestamp for filtering data.
     :return: DataFrame containing filtered generation and load data.
     """
+    # Convert GenerationAndLoad objects to a DataFrame, set index to timestamp, and filter by time range
     df_forecasts = pd.json_normalize([mes.dict(by_alias=False) for mes in meas.values])
     df_forecasts.set_index("timestamp", inplace=True)
     df_forecasts.index.freq = pd.infer_freq(df_forecasts.index)
@@ -250,17 +261,17 @@ def battery_to_df(battery_specs: BatterySpecs | list[BatterySpecs]) -> pd.DataFr
     :param battery_specs: Battery specifications.
     :return: DataFrame containing battery specifications.
     """
+    # Convert BatterySpecs objects to a DataFrame, set index to 'id' if available
     if isinstance(battery_specs, list):
         df_battery = pd.json_normalize(
             [battery.dict(by_alias=False) for battery in battery_specs]
         )
-
     else:
         df_battery = pd.json_normalize(battery_specs.dict(by_alias=False))
 
-    # Set index to ids if all battery nodes have an id, otherwise leave rangeindex
     if ~df_battery.id.isna().any():
-        df_battery.set_index("id", inplace=True)
+        df_battery.set_index("id", inplace=True)  # Set index to 'id' if available
+
     return df_battery
 
 
@@ -271,6 +282,7 @@ def measurements_request_to_dict(measurements_request: MeasurementsRequest):
     :param measurements_request: Measurements request.
     :return: Dictionary containing measurements request data.
     """
+    # Convert MeasurementsRequest object to a dictionary
     measurements_request_dict = {
         "timestamp": measurements_request.timestamp,
         "P_req_kW": measurements_request.P_req_kW,
@@ -291,7 +303,7 @@ def P_net_after_kW_lim_to_df(
     :param gen_load_data: List of GenerationAndLoad objects.
     :return: DataFrame containing P_net_after_kWLimitation data.
     """
-    # Check if upper_bounds, lower_bounds are None
+    # Check if P_net_after_kW_limits is None
     if P_net_after_kW_limits is None:
         # Create a DataFrame with default values and use timestamps from gen_load_data
         all_timestamps = set(item.timestamp for item in gen_load_data.values)
@@ -302,7 +314,7 @@ def P_net_after_kW_lim_to_df(
                 "lower_bound": [0] * len(all_timestamps),
                 "with_lower_bound": [False] * len(all_timestamps),
             },
-            index=list(all_timestamps),  # Convert set to list
+            index=list(all_timestamps),
         )
         missing_data.index.name = "timestamp"  # Set the index name
         return missing_data
@@ -336,14 +348,3 @@ def P_net_after_kW_lim_to_df(
     result_df.index.name = "timestamp"  # Set the index name
 
     return result_df
-
-
-class Solver(StrEnum):
-    GUROBI = "gurobi"
-    IPOPT = "ipopt"
-
-
-class OptimizationJob(BaseModel):
-    created: datetime
-    solver: Solver
-    data: InputData

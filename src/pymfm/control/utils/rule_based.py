@@ -1,6 +1,6 @@
 import pandas as pd
 from datetime import timedelta
-from utils.data_input import BatterySpecs
+from pymfm.control.utils.data_input import BatterySpecs
 
 
 def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs):
@@ -78,7 +78,6 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
         act_ptcb = output["P_bat_kW"]
         if abs(output["P_bat_kW"]) <= battery_specs.P_ch_max_kW:
             export_kW = 0
-            print("here")
             pass
         else:
             export_kW = abs(output["P_bat_kW"]) - battery_specs.P_ch_max_kW
@@ -100,8 +99,6 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
         output["P_bat_kW"] = float(output["P_bat_kW"])
     output["SoC_bat_%"] = bat_Energy_kWh / battery_specs.bat_capacity_kWh * 100
     output["P_net_meas_kW"] = measurements_request_dict["P_net_meas_kW"]
-    print(export_kW)
-    print(import_kW)
     output["P_net_after_kW"] = -export_kW + import_kW
     output["P_bat_kW"] = (
         output["P_bat_kW"] * -1

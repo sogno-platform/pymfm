@@ -1,0 +1,12 @@
+{
+    "id": "near_real_time_rule_based",
+    "application": "pymfm",
+    "control_logic": "rule_based",
+    "operation_mode": "near_real_time",
+    "timestamp": "2021-04-01T00:00:00+00:00",
+    "initial_SoC_bat_%": 20.0,
+    "SoC_bat_%": 29.375,
+    "P_bat_kW": 300.0,
+    "P_net_meas_kW": -25.7,
+    "P_net_after_kW": -1725.7
+}

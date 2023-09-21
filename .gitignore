@@ -9,12 +9,12 @@
 *gurobi.log
 
 # Saved output files
-src/control/results/*.json
-src/control/results/*.png
-src/control/results/*.xlsx
-src/control/results/*.svg
-src/scenario_forecast_kit/outputs/forecast/*.json
-src/scenario_forecast_kit/outputs/scenario/*.json
+src/examples/control/outputs/*.json
+src/examples/control/outputs/*.png
+src/examples/control/outputs/*.xlsx
+src/examples/control/outputs/*.svg
+src/examples/scenario_forecast_kit/outputs/forecast/*.json
+src/examples/scenario_forecast_kit/outputs/scenario/*.json
 
 # Editors
 .vscode/
