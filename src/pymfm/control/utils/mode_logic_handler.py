@@ -2,8 +2,8 @@ import pandas as pd
 from pyomo.opt import SolverStatus, TerminationCondition
 from pymfm.control.utils import data_input, data_output
 from pymfm.control.utils.data_input import InputData, ControlLogic as CL, OperationMode as OM
-from pymfm.control.utils import optimization_based as OptB
-from pymfm.control.utils import rule_based as RB
+from pymfm.control.algorithms import optimization_based as OptB
+from pymfm.control.algorithms import rule_based as RB
 
 def mode_logic_handler(data: InputData):
     """

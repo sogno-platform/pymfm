@@ -1,5 +1,5 @@
-from pymfm.scenario_forecast_kit.utils.forecast_generation import generate_forecast
-from pymfm.scenario_forecast_kit.utils.scenario_generation import generate_scenario
+from pymfm.scenario_forecast_kit.forecast_generation import generate_forecast
+from pymfm.scenario_forecast_kit.scenario_generation import generate_scenario
 
 
 def main():
