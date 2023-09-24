@@ -25,116 +25,160 @@ def open_json(filename):
 
 
 class BaseModel(PydBaseModel):
+    """
+    Base Pydantic model with configuration settings to allow population by field name.
+    """
+
     class Config:
         allow_population_by_field_name = True
 
 
 class StrEnum(str, Enum):
+    """
+    An enumeration class for representing string-based enums.
+    """
+
     pass
 
 
 class ControlLogic(StrEnum):
-    RULE_BASED = "rule_based"
-    OPTIMIZATION_BASED = "optimization_based"
+    """
+    An enumeration class representing control logic options.
+    """
+
+    RULE_BASED = "rule_based" # Rule-based control logic.
+    OPTIMIZATION_BASED = "optimization_based" # Optimization-based control logic.
 
 
 class OperationMode(StrEnum):
-    NEAR_REAL_TIME = "near_real_time"
-    SCHEDULING = "scheduling"
+    """
+    An enumeration class representing operation mode options.
+    """
+
+    NEAR_REAL_TIME = "near_real_time" # Near real-time operation mode.
+    SCHEDULING = "scheduling" # Scheduling operation mode.
 
 
 class Bulk(BaseModel):
-    bulk_start: datetime = Field(..., alias="bulk_start")
-    bulk_end: datetime = Field(..., alias="bulk_end")
-    bulk_energy_kWh: float = Field(..., alias="bulk_energy_kWh")
+    """
+    Pydantic model representing bulk energy data.
+    """
+
+    bulk_start: datetime = Field(..., alias="bulk_start", description="The start datetime of the bulk energy operation.")
+    bulk_end: datetime = Field(..., alias="bulk_end", description="The end datetime of the bulk energy operation.")
+    bulk_energy_kWh: float = Field(..., alias="bulk_energy_kWh", description="The bulk energy in kilowatt-hours (kWh).")
 
 
 class P_net_after_kWLimitation(BaseModel):
-    timestamp: datetime = Field(..., alias="timestamp")
-    upper_bound: Optional[float] = Field(None, alias="upper_bound")
-    lower_bound: Optional[float] = Field(None, alias="lower_bound")
+    """
+    Pydantic model representing P_net_after limitations.
+    """
+
+    timestamp: datetime = Field(..., alias="timestamp", description="The timestamp when the limitation is applied.")
+    upper_bound: Optional[float] = Field(None, alias="upper_bound", description="The upper bound value for P_net_after (optional).")
+    lower_bound: Optional[float] = Field(None, alias="lower_bound", description="The lower bound value for P_net_after (optional).")
 
 
 class GenerationAndLoadValues(BaseModel):
-    timestamp: datetime = Field(..., alias="timestamp")
-    P_gen_kW: float = Field(..., alias="P_gen_kW")
-    P_load_kW: float = Field(..., alias="P_load_kW")
+    """
+    Pydantic model representing generation and load data at a specific timestamp.
+    """
+
+    timestamp: datetime = Field(..., alias="timestamp", description=" The timestamp of the data.")
+    P_gen_kW: float = Field(..., alias="P_gen_kW", description="The generated power in kilowatts (kW).")
+    P_load_kW: float = Field(..., alias="P_load_kW", description="The load power in kilowatts (kW).")
 
 
 class GenerationAndLoad(BaseModel):
-    pv_curtailment: Optional[float] = Field(None, alias="bulk")
-    values: List[GenerationAndLoadValues] = Field(..., alias="values")
+    """
+    Pydantic model representing a collection of generation and load data.
+    """
+
+    pv_curtailment: Optional[float] = Field(None, alias="bulk", description="The photovoltaic (PV) curtailment value (optional).")
+    values: List[GenerationAndLoadValues] = Field(..., alias="values", description="A list of generation and load data values.")
 
 
 class MeasurementsRequest(BaseModel):
-    timestamp: datetime = Field(..., alias="timestamp")
-    P_req_kW: Optional[float] = Field(..., alias="P_req_kW")
-    delta_T_h: float = Field(..., alias="delta_T_h")
-    P_net_meas_kW: float = Field(..., alias="P_net_meas_kW")
+    """
+    Pydantic model representing a measurements request.
+    """
+
+    timestamp: datetime = Field(..., alias="timestamp", description="The timestamp of the measurements request.")
+    P_req_kW: Optional[float] = Field(..., alias="P_req_kW", description="The requested power in kilowatts (kW) (optional).")
+    delta_T_h: float = Field(..., alias="delta_T_h",description="The time difference in hours (h).")
+    P_net_meas_kW: float = Field(..., alias="P_net_meas_kW", description="The measured net power in kilowatts (kW).")
 
 
 class BatterySpecs(BaseModel):
-    id: Optional[str]
+    """
+    Pydantic model representing battery specifications.
+    """
+
+    id: Optional[str] # The unique identifier for the battery (optional).
     bat_type: str = Field(
         ...,
         alias="bat_type",
-        description="The type of the battery. cbes: comunity battery energy storage, hbes: household battery energy storage",
+        description="The type of the battery. Can be 'cbes' (community battery energy storage) or 'hbes' (household battery energy storage).",
     )
     initial_SoC: float = Field(
         ...,
         alias="initial_SoC",
-        description="initial state of charge of the battery (SoC) in percentage at uc_start",
+        description="The initial state of charge of the battery (SoC) in percentage at uc_start.",
     )
     final_SoC: Optional[float] = Field(
         None,
         alias="final_SoC",
-        description="Final state of charge of the battery (SoC) in percentage at UC_en",
+        description="The final state of charge of the battery (SoC) in percentage at uc_end (optional).",
     )
     P_dis_max_kW: float = Field(
-        ..., alias="P_dis_max_kW", description="Max dischargable power in kW"
+        ..., alias="P_dis_max_kW", description="The maximum dischargable power of the battery in kilowatts (kW)."
     )
     P_ch_max_kW: float = Field(
-        ..., alias="P_ch_max_kW", description="Max chargable power in kW"
+        ..., alias="P_ch_max_kW", description="The maximum chargable power of the battery in kilowatts (kW)."
     )
     min_SoC: float = Field(
         ...,
         alias="min_SoC",
-        description="Minimum state of charge of the battery in percentage",
+        description="The minimum state of charge of the battery in percentage.",
     )
     max_SoC: float = Field(
         ...,
         alias="max_SoC",
-        description="Maximum state of charge of the battery in percentage",
+        description="The maximum state of charge of the battery in percentage.",
     )
     bat_capacity_kWh: float = Field(
         ...,
         alias="bat_capacity_kWh",
-        description="Full capacity of battery assets (100% SoC) in kWh",
+        description="The full capacity of battery assets (100% SoC) in kilowatt-hours (kWh).",
     )
-    ch_efficiency: float = Field(default=1.0, alias="ch_efficiency")
-    dis_efficiency: float = Field(default=1.0, alias="dis_efficiency")
-    bat_capacity_kWs: float = 0.0
+    ch_efficiency: float = Field(default=1.0, alias="ch_efficiency", description="The charging efficiency of the battery (default: 1.0).")
+    dis_efficiency: float = Field(default=1.0, alias="dis_efficiency", description="The discharging efficiency of the battery (default: 1.0).")
+    bat_capacity_kWs: float = 0.0 # The capacity of the battery assets in kilowatt-seconds (kWs).
 
 
 class InputData(BaseModel):
-    id: str
-    application: str
-    control_logic: ControlLogic = Field(..., alias="control_logic")
-    operation_mode: OperationMode = Field(..., alias="operation_mode")
-    uc_start: datetime = Field(..., alias="uc_start")
-    uc_end: datetime = Field(..., alias="uc_end")
+    """
+    Pydantic model representing input data for control logic.
+    """
+
+    id: str # The unique identifier for the input data.
+    application: str # The application name.
+    control_logic: ControlLogic = Field(..., alias="control_logic", description="The control logic used for decision-making.")
+    operation_mode: OperationMode = Field(..., alias="operation_mode", description="The operation mode of the controller.")
+    uc_start: datetime = Field(..., alias="uc_start", description="The start datetime of the control operation.")
+    uc_end: datetime = Field(..., alias="uc_end", description="The end datetime of the control operation.")
     generation_and_load: Optional[GenerationAndLoad] = Field(
-        None, alias="generation_and_load"
+        None, alias="generation_and_load", description="Generation and load data (optional)."
     )
-    day_end: Optional[datetime] = Field(None, alias="day_end")
-    bulk: Optional[Bulk] = Field(None, alias="bulk")
+    day_end: Optional[datetime] = Field(None, alias="day_end", description="The end of the sunlight for the day timestamp (optional).")
+    bulk: Optional[Bulk] = Field(None, alias="bulk", description="Bulk energy data (optional).")
     P_net_after_kW_limitation: Optional[List[P_net_after_kWLimitation]] = Field(
-        None, alias="P_net_after_kW_limitation"
+        None, alias="P_net_after_kW_limitation", description="P_net_after limitations (optional)."
     )
     measurements_request: Optional[MeasurementsRequest] = Field(
-        None, alias="measurements_request"
+        None, alias="measurements_request", description="Measurements request data (optional)."
     )
-    battery_specs: BatterySpecs | list[BatterySpecs]
+    battery_specs: BatterySpecs | list[BatterySpecs] # Battery specifications.
 
     @validator("generation_and_load")
     def generation_and_load_start_before_timewindow(cls, meas, values):

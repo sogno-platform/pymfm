@@ -4,6 +4,7 @@ from pymfm.control.utils.data_input import BatterySpecs
 
 
 def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs):
+    # TO-DO: Amir
     """
 
     :param measurements_request_dict:
@@ -107,6 +108,7 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
 
 
 def scheduling(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: timedelta):
+    # TO-DO: Amir
     """
 
     :param P_load_gen:

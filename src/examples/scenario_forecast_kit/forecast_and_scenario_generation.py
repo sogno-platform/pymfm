@@ -4,7 +4,7 @@ from pymfm.scenario_forecast_kit.scenario_generation import generate_scenario
 
 def main():
     """
-    The main function of the program, illustrating an example usage scenario.
+    Example usage of scenario generation.
     This function generates a forecast based on input data and then generates a scenario
     by merging the generated forecast with additional scenario data.
 

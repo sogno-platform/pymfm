@@ -39,14 +39,13 @@ def mode_logic_handler(data: InputData):
             # Initialize the output DataFrame
             output_df = None
             delta_T = pd.to_timedelta(df_forecasts.P_load_kW.index.freq)
+            print(
+                "Input data has been read successfully. Running scheduling rule-based control."
+            )
 
             # Iterate through forecasted data and perform scheduling
             for time, P_net_before_kW in df_forecasts.iterrows():
-                print(
-                    "Input data has been read successfully. Running scheduling rule-based control."
-                )
                 output = RB.scheduling(P_net_before_kW, battery_specs, delta_T)
-                print("Scheduling rule-based control finished.")
 
                 # Initialize output DataFrame if not created
                 if output_df is None:
@@ -61,6 +60,7 @@ def mode_logic_handler(data: InputData):
                 battery_specs.initial_SoC = (
                     output.bat_energy_kWs / battery_specs.bat_capacity_kWs
                 )
+            print("Scheduling rule-based control finished.")
 
             # Rename columns for battery-specific data
             if battery_specs.id is not None:
