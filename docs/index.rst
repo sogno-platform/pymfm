@@ -26,4 +26,5 @@ Contact
 =======
 For further questions please write an e-mail to:
    * Amir Ahmadifar, M.Sc. aahmadifar@eonerc.rwth-aachen.de
+   * Erdem Gumrukcu, M.Sc. erdem.guemruekcue@eonerc.rwth-aachen.de
    * Aytug Yavuzer, B.Sc. aytug.yavuzer@rwth-aachen.de
