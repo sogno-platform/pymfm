@@ -82,5 +82,5 @@ The datafev package is released by the Institute for Automation of Complex Power
 [RWTH Aachen University, Germany](http://www.rwth-aachen.de)
 
 
-<img src="https://fein-aachen.org/img/logos/eonerc.png"/>
+<img src="https://www.eonerc.rwth-aachen.de/global/show_picture.asp?id=aaaaaaaaaakevlz"/>
 
