@@ -67,14 +67,15 @@ For further information, please also visit the [FEIN Aachen association website]
 
 ## License
 
-The datafev package is released by the Institute for Automation of Complex Power Systems (ACS), E.ON Energy Research Center (E.ON ERC), RWTH Aachen University under the [MIT License](https://opensource.org/licenses/MIT).
+The datdatafevafev package is released by the Institute for Automation of Complex Power Systems (ACS), E.ON Energy Research Center (E.ON ERC), RWTH Aachen University under the [MIT License](https://opensource.org/licenses/MIT).
 
 
 ## Contact
 
 - Amir Ahmadifar, M.Sc. <aahmadifar@eonerc.rwth-aachen.de>
 - Erdem Gumrukcu, M.Sc. <erdem.guemruekcue@eonerc.rwth-aachen.de>
-- Aytug Yavuzer, B.Sc. <aytug.yavuzer@rwth-aachen.de>
+- Florian Oppermann, M.Sc. <florian.oppermann@eonerc.rwth-aachen.de>
+- Aytug Yavuzer, B.Sc. <aytug.yavuzer@eonerc.rwth-aachen.de>
 - Univ.-Prof. Antonello Monti, Ph.D. <post_acs@eonerc.rwth-aachen.de>
 
 [Institute for Automation of Complex Power Systems (ACS)](http://www.acs.eonerc.rwth-aachen.de) \
