@@ -1,22 +1,22 @@
 # pymfm
 
-Python package pymfm is a framework for ..
+Python package pymfm is a framework for microgrid flexibility management. The framework allows to develop scenario-oriented management strategies for community microgrids based on optimization and rule-based algorithms in both (near) real-time and scheduling operation modes by coordinating battery storage and photovoltaic units. Furthermore, this framework can be used to create realistic forecast profiles based on standard load and PV generation profiles. Its target users are researchers in the field of smart grid applications and the deployment of operational flexibility for renewable energy communities.
 
 ## Contribution
 
-1. Clone repository via SSH (`git clone git@github.com:erdemgumrukcu/datafev.git`) or clone repository via HTTPS (`git clone https://github.com/erdemgumrukcu/datafev.git`)
-2. Open an issue at [https://github.com/erdemgumrukcu/datafev/issues](https://github.com/erdemgumrukcu/datafev/issues)
+1. Clone repository via SSH (`git clone git@github.com:amirahmadifar/pymfm.git`) or clone repository via HTTPS (`git clone https://github.com/amirahmadifar/pymfm.git`)
+2. Open an issue at [https://github.com/amirahmadifar/pymfm/issues](https://github.com/amirahmadifar/pymfm/issues)
 3. Checkout the development branch: `git checkout development` 
 4. Update your local development branch (if necessary): `git pull origin development`
 5. Create your feature/issue branch: `git checkout -b issueXY_explanation`
 6. Commit your changes: `git commit -m "Add feature #XY"`
 7. Push to the branch: `git push origin issueXY_explanation`
-8. Submit a pull request from issueXY_explanation to development branch via [https://github.com/erdemgumrukcu/datafev/pulls](https://github.com/erdemgumrukcu/datafev/pulls)
+8. Submit a pull request from issueXY_explanation to development branch via [https://github.com/amirahmadifar/pymfm/pulls](https://github.com/amirahmadifar/pymfm/pulls)
 9. Wait for approval or revision of the new implementations.
 
 ## Installation
 
-datafev requires at least the following Python packages:
+pymfm requires at least the following Python packages:
 - matplotlib>=3.7.1
 - scipy>=1.11.0
 - astral>=3.2
@@ -60,14 +60,14 @@ This import should be possible without any errors.
 
 ## Documentation
 
-The documentation for the latest datafev release can be found in folder ./docs and on [this](https://datafev.fein-aachen.org//) GitHub page.
+The documentation for the latest datafev release can be found in folder ./docs and on [this](https://pymfm.fein-aachen.org//) GitHub page.
 
-For further information, please also visit the [FEIN Aachen association website](https://fein-aachen.org/en/projects/datafev/).
+For further information, please also visit the [FEIN Aachen association website](https://fein-aachen.org/en/projects/pymfm/).
 
 
 ## License
 
-The datdatafevafev package is released by the Institute for Automation of Complex Power Systems (ACS), E.ON Energy Research Center (E.ON ERC), RWTH Aachen University under the [MIT License](https://opensource.org/licenses/MIT).
+The pymfm package is released by the Institute for Automation of Complex Power Systems (ACS), E.ON Energy Research Center (E.ON ERC), RWTH Aachen University under the [MIT License](https://opensource.org/licenses/MIT).
 
 
 ## Contact
