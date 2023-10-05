@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pymfm-doc-deployment
+  namespace: fein
+  labels:
+    app: pymfm-doc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pymfm-doc
+  template:
+    metadata:
+      labels:
+        app: pymfm-doc
+    spec:
+      imagePullSecrets: 
+      - name: fop-pymfm-gitlab-secret
+      containers:
+      - name: pymfm-doc
+        image: registry.git.rwth-aachen.de/acs/public/automation/pymfm/pymfm_docs:latest
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: 1G
+            cpu: 1.0
+        imagePullPolicy: Always
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: pymfm-doc-service
+  namespace: fein
+spec:
+  selector:
+    app: pymfm-doc
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    eonerc.rwth-aachen.de/description: PyMFM Documentation
+    kubernetes.io/ingress.class: nginx
+  name: pymfm-doc
+  namespace: fein
+spec:
+  rules:
+  - host: pymfm.fein-aachen.org
+    http:
+      paths:
+      - backend:
+          service:
+            name: pymfm-doc-service
+            port: 
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+    - hosts:
+      - pymfm.fein-aachen.org
+      secretName: letsencrypt-prod-pymfm
