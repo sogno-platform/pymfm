@@ -48,7 +48,7 @@ This import should be possible without any errors.
 
 ## Documentation
 
-The documentation for the latest datafev release can be found in folder ./docs and on [this](https://pymfm.fein-aachen.org//) GitHub page.
+The documentation for the latest datafev release can be found in folder ./docs and on [this](https://pymfm.fein-aachen.org//) documentation page.
 
 For further information, please also visit the [FEIN Aachen association website](https://fein-aachen.org/en/projects/pymfm/).
 
