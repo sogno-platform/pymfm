@@ -10,7 +10,7 @@ with open("README.md") as f:
 setuptools.setup(
     name="pymfm",
     description="A Python framework for microgrid flexibility management.",
-    version="1.0.0",
+    version="0.5.0",
     author="Institute for Automation of Complex Power Systems (ACS),"
     "E.ON Energy Research Center (E.ON ERC),"
     "RWTH Aachen University",
