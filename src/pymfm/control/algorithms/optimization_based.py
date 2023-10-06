@@ -295,8 +295,8 @@ def surplus_case_2(model, t):
     :return: The constraint itself.
     """
     if model.P_net_before_kW[t] <= 0:
-        # Note for the future works: As we seperated P_imp_kW and x_imp from each other, make sure we always use P_imp_kW in all of our constraints.
-        # From now on x_imp can be 1 and P_imp_kW can be 0, therefore we MUST use P_imp_kW in the constraints.
+        # Note for the future works: As P_imp_kW and x_imp are separated from each other, make sure to always use P_imp_kW in all of the constraints.
+        # From now on x_imp can be 1 and P_imp_kW can be 0. Therefore, user MUST use P_imp_kW in the constraints.
         return model.P_imp_kW[t] * model.x_imp[t] <= 0
     else:
         return Constraint.Feasible
@@ -394,11 +394,9 @@ def scheduling(
     :param pv_curtailment:
     :return:
     """
-    # TO-DO: where to define the solver?
+
     # Selected optimization solver
-    # optimization_solver = SolverFactory("bonmin")
     optimization_solver = SolverFactory("gurobi")
-    # optimization_solver = SolverFactory("ipopt")
     # optimization_solver = SolverFactory("scip")
 
     # Initialize necessary values from the inputs

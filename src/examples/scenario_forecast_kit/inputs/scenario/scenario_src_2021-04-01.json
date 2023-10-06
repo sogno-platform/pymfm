@@ -55,7 +55,6 @@
             "id": "bat_2",
             "bat_type": "hbes",
             "initial_SoC": 40,
-            "final_SoC": 61.4,
             "P_dis_max_kW": 30,
             "P_ch_max_kW": 30,
             "min_SoC": 8.75,

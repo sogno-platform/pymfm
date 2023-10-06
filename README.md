@@ -23,7 +23,7 @@ pymfm requires at least the following Python packages:
 - pandas>=1.5.3
 - pyomo>=6.5.0
 - xlsxwriter >= 3.1.2
-- pydantic >= 1.10.9
+- pydantic >= 1.10.9, < 2.0
 
 as well as the installation of at least one mathematical programming solver for convex and/or non-convex problems, which is supported by the [Pyomo](http://www.pyomo.org/) optimisation modelling library.
 We recommend one of the following solvers:
@@ -31,25 +31,13 @@ We recommend one of the following solvers:
 - [Gurobi (gurobipy)](https://www.gurobi.com/products/gurobi-optimizer/) (default)
 - [SCIP (Solving Constraint Integer Programs)](https://scipopt.org/)
 
-If all the above-mentioned dependencies are installed, you should be able to install package datafev via [PyPI](https://pypi.org/) (using Python 3.X) as follows:
+To install pymfm and all its python dependencies, you can:
 
 `pip install pymfm`
 
 or:
 
-`pip install -e '<your_path_to_pymfm_git_folder>/src'`
-
-or:
-
-`<path_to_your_python_binary> -m pip install -e '<your_path_to_pymfm_git_folder>/src'`
-
-Another option rather than installing via PyPI would be installing via setup.py:
-
-`py <your_path_to_pymfm_git_folder>/setup.py install`
-
-or:
-
-`pyton <your_path_to_pymfm_git_folder>/setup.py install`
+`<path_to_your_python_binary> -m pip install -e '<your_path_to_pymfm_git_folder>'`
 
 
 You can check if the installation has been successful by trying to import package datafev into your Python environment.
