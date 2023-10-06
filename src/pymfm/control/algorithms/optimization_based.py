@@ -177,7 +177,7 @@ def bat_final_SoC(model, n):
     :return: The constraint itself.
     """
     if model.final_SoC_bat[n] is not None:
-        # Household battery should reach its maximum SoC at the end of the day
+        # Household battery should reach its maximum SoC at the end of the day (= either predefined or sunset)
         if model.bat_type[n] == "hbes":
             return model.SoC_bat[n, model.day_end] == model.max_SoC_bat[n]
         else:
@@ -187,7 +187,7 @@ def bat_final_SoC(model, n):
 
 
 def bulk_energy(model):
-    # TO-DO: Amir
+    # Delivery(+)/reception(-) of bulk amount of energy from the flexibility assets
     """
     The bulk energy constraint.
 
@@ -328,7 +328,7 @@ def penalty_for_exp(model, t):
 
 def hbes_avoid_diss(model, n, t):
     """
-    The avoiding discharging for the household batteries (hbes) constraint.
+    The constraint to avoid discharging of the household batteries (hbes).
     Household batteries are not allowed to be discharged during the optimization horizon.
 
     :param model: The pyomo model.
@@ -345,7 +345,7 @@ def hbes_avoid_diss(model, n, t):
 def pv_curtailment_constr(model, t):
     """
     The PV generation curtailment constraint.
-    If there is a curtailment, it keeps PV production below limits.
+    If curtailment is allowed, PV production will be kept below its limits (PV forecast).
 
     :param model: The pyomo model.
     :param t: The timestamp index.
@@ -383,9 +383,9 @@ def scheduling(
     P_net_after_kW_limits: pd.DataFrame,
     pv_curtailment: Boolean,
 ) -> tuple[pd.Series, pd.Series, pd.DataFrame, pd.DataFrame, SolverStatus]:
-    # TO-DO: Amir
     """
-
+    The scheduling optimization function which acts upon the load and generation forecast data considering battery specifications, optimization horizon, and power boundaries.
+    Depending on the input data, bulk delivery/reception and PV curtailment can also be satisfied. 
     :param P_load_gen:
     :param df_battery:
     :param day_end:

@@ -8,7 +8,7 @@ pmfm allows you to run multiple examples under three main use cases:
 With the help of scenario_forecast_kit, a wide variety of UC scenarios can be generated. 
 Additionally, json samples for the above-mnentioned UCs are already provided under src/exapmples/control/inputs for the comfort of the users.
 With the combination of different input paramaters and profiles, it is possible to run multiple UC scenarios as listed below:
-> UC1 can be acompanied a certain power boundary in form of a (near) real-time power delivery/reception request.
+> UC1 can be acompanied by a (near) real-time power delivery/reception request acting as a power boundary for the microgrid.
 > UC1 and UC2 can handle only a single Community Battery Energy Storage (cbes) unit.
 > UC3 can handle multiple storage units including Household Battery Energy Stoarge (hbes) units, ensure a target Final SoC for cbes, deliver/receipt bulk energy from flexible storage units, curtail PV generation output, and limit the net power exchange of the microgrid according to a predefined upper and lower bound profile.
 

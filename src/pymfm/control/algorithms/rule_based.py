@@ -25,9 +25,9 @@ from pymfm.control.utils.data_input import BatterySpecs
 
 
 def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs):
-    # TO-DO: Amir
     """
-
+    For this operation mode, rule based logic is implemented on the net power measurement of teh microgrid respecting battery boundaries. 
+    In case of (near) real time power requests from the microgrid,  
     :param measurements_request_dict:
     :param battery_specs:
     :return:
