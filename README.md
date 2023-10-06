@@ -4,14 +4,14 @@ Python package pymfm is a framework for microgrid flexibility management. The fr
 
 ## Contribution
 
-1. Clone repository via SSH (`git clone git@github.com:amirahmadifar/pymfm.git`) or clone repository via HTTPS (`git clone https://github.com/amirahmadifar/pymfm.git`)
-2. Open an issue at [https://github.com/amirahmadifar/pymfm/issues](https://github.com/amirahmadifar/pymfm/issues)
-3. Checkout the development branch: `git checkout development` 
-4. Update your local development branch (if necessary): `git pull origin development`
+1. Clone repository via SSH (`git@git.rwth-aachen.de:acs/public/automation/pymfm.git`) or clone repository via HTTPS (`https://git.rwth-aachen.de/acs/public/automation/pymfm.git`)
+2. Open an issue at [https://git.rwth-aachen.de/acs/public/automation/pymfm/-/issues](https://git.rwth-aachen.de/acs/public/automation/pymfm/-/issues)
+3. Checkout the development branch: `git checkout dev` 
+4. Update your local development branch: `git pull origin dev`
 5. Create your feature/issue branch: `git checkout -b issueXY_explanation`
 6. Commit your changes: `git commit -m "Add feature #XY"`
 7. Push to the branch: `git push origin issueXY_explanation`
-8. Submit a pull request from issueXY_explanation to development branch via [https://github.com/amirahmadifar/pymfm/pulls](https://github.com/amirahmadifar/pymfm/pulls)
+8. Submit a merge request from issueXY_explanation to development branch via [https://git.rwth-aachen.de/acs/public/automation/pymfm/-/merge_requests](https://git.rwth-aachen.de/acs/public/automation/pymfm/-/merge_requests)
 9. Wait for approval or revision of the new implementations.
 
 ## Installation
