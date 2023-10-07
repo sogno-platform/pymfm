@@ -5,18 +5,20 @@
 # E.ON Energy Research Center (E.ON ERC),
 # RWTH Aachen University
 
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-# documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
-# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
-# persons to whom the Software is furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+# and associated documentation files (the "Software"), to deal in the Software without restriction,
+# including without limitation the # rights to use, copy, modify, merge, publish, distribute,
+# sublicense, and/or sell copies of the Software, and to permit# persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
-# Software.
+# The above copyright notice and this permission notice shall be included in all copies or 
+#substantial portions of the Software.
 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 import pandas as pd
@@ -26,9 +28,14 @@ from pymfm.control.utils.data_input import BatterySpecs
 
 def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs):
     """
-    For this operation mode, rule based logic is implemented on the net power measurement of teh microgrid respecting battery boundaries. 
-    In case of (near) real time power requests from the microgrid,  
-    :param measurements_request_dict:
+    For this operation mode, rule based logic is implemented on the net power measurement of the microgrid respecting battery boundaries. 
+    In case of a (near) real time power requests from the microgrid, this request is resecpted by the microgrid community battery energy storage (cbes).
+
+    Parameters
+    ----------   
+    :param measurements_request_dict: dict of dict
+        In the measurement_request dictionary, for each time stamp (datetime), the corresponding float values for the requested (P_req_kW)
+        and measured (P_net_meas_kW) net power consumption of the microgrid (in kW)  
     :param battery_specs:
     :return:
     """
@@ -131,7 +138,8 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
 def scheduling(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: timedelta):
     # TO-DO: Amir
     """
-
+    For the scheduling operation mode and with the rule based logic, the same control method as in (near) real time is implemented. 
+    However, this logic is implemented on the net power forecast profile of the microgrid and not on the power measured at each instance. 
     :param P_load_gen:
     :param battery_specs:
     :param delta_T:

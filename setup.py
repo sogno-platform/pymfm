@@ -15,7 +15,7 @@ setuptools.setup(
     "E.ON Energy Research Center (E.ON ERC),"
     "RWTH Aachen University",
     author_email="post_acs@eonerc.rwth-aachen.de",
-    # url="https://github.com/erdemgumrukcu/datafev",
+    # url="https://git.rwth-aachen.de/acs/public/automation/pymfm",
     # license="MIT",
     packages=setuptools.find_packages(where="src"),
     package_dir={"": "src"},

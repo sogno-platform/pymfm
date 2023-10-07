@@ -40,7 +40,7 @@ or:
 `<path_to_your_python_binary> -m pip install -e '<your_path_to_pymfm_git_folder>'`
 
 
-You can check if the installation has been successful by trying to import package datafev into your Python environment.
+You can check if the installation has been successful by trying to import package pymfm into your Python environment.
 This import should be possible without any errors.
 
 `import pymfm`
@@ -48,7 +48,7 @@ This import should be possible without any errors.
 
 ## Documentation
 
-The documentation for the latest datafev release can be found in folder ./docs and on [this](https://pymfm.fein-aachen.org//) documentation page.
+The documentation for the latest pymfm release can be found in folder ./docs and on [this](https://pymfm.fein-aachen.org//) documentation page.
 
 For further information, please also visit the [FEIN Aachen association website](https://fein-aachen.org/en/projects/pymfm/).
 

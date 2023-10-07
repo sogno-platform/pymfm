@@ -5,18 +5,20 @@
 # E.ON Energy Research Center (E.ON ERC),
 # RWTH Aachen University
 
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-# documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
-# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
-# persons to whom the Software is furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+# and associated documentation files (the "Software"), to deal in the Software without restriction,
+# including without limitation the # rights to use, copy, modify, merge, publish, distribute,
+# sublicense, and/or sell copies of the Software, and to permit# persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
-# Software.
+# The above copyright notice and this permission notice shall be included in all copies or 
+#substantial portions of the Software.
 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-# COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-# OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+# DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 import pandas as pd
@@ -361,7 +363,7 @@ def obj_rule(model):
     """
     The objective function.
     Objective: Minimize the power exchange with the grid (Minimum interaction with the grid)
-
+    Power import and export as well as their peak values (alpha) are minimized. 
     :param model: The pyomo model.
     :return: The objective function itself.
     """
@@ -385,14 +387,28 @@ def scheduling(
 ) -> tuple[pd.Series, pd.Series, pd.DataFrame, pd.DataFrame, SolverStatus]:
     """
     The scheduling optimization function which acts upon the load and generation forecast data considering battery specifications, optimization horizon, and power boundaries.
-    Depending on the input data, bulk delivery/reception and PV curtailment can also be satisfied. 
-    :param P_load_gen:
-    :param df_battery:
-    :param day_end:
-    :param bulk_data:
-    :param P_net_after_kW_limits:
-    :param pv_curtailment:
-    :return:
+    Depending on the input data, bulk delivery/reception and PV curtailment can also be satisfied.
+
+    Parameters
+    ---------- 
+    :param P_load_gen: load and generation forecast time series of float type.
+    :param df_battery: battery specifications of float and string types.
+    :param day_end: user-defined end of the day (datetime) till which household batteries should reach maximum SoC. By default, its value is set to then sun-set time.
+    :param bulk_data: Class related to the bulk delivery/reception of energy from batteries including bulk_start and _end datetime and the bulk_energy_kWh float.
+    :param P_net_after_kW_limits: Data frame consisiting of upper and lower bound float time series (kW) and the integer identifiers for the existance of any upper or lower bounds.
+    :param pv_curtailment: Bollean type. If ture, PV generation can be curtailed.
+
+    Returns
+    ----------
+    :param pv_profile: Series containing the PV (Photovoltaic) profile.
+    :param P_bat_kW_df: DataFrame containing battery power for different nodes.
+    :param P_bat_total_kW: Series containing the total battery power.
+    :param SoC_bat_df: DataFrame containing battery state of charge for different nodes.
+    :param P_net_after_kW: Series containing net power after control.
+    :param df_forecasts: DataFrame containing forecasted data.
+    :param P_net_after_kW_upperb: Series containing upper bounds for net power after control.
+    :param P_net_after_kW_lowerb: Series containing lower bounds for net power after control.
+    
     """
 
     # Selected optimization solver
@@ -431,7 +447,6 @@ def scheduling(
     # Index set with aggregated battery identifiers
     model.N = list(df_battery.index)
     # Index set with optimization horizon time step identifiers
-    # XXX Not sure why generating a tuple here makes a difference but it does
     model.T = tuple(opt_horizon)
     # Index set with battery horizon time step identifiers
     model.T_SoC_bat = tuple(sof_horizon)
