@@ -31,8 +31,10 @@ def main():
     """
     Example usage of scheduling optimization based control.
 
-    This function reads input data from "inputs/scheduling_optimization_based.json" JSON file, processes it using the `mode_logic_handler`,
-    prepares output data, saves output JSON files under "outputs/", and saves visualized data through plots under "outputs/" as SVG files.
+    This function reads input data from "inputs/scheduling_optimization_based.json" JSON file, 
+    processes it using the `mode_logic_handler`, prepares output data, 
+    saves output JSON files under "outputs/", 
+    and saves visualized data through plots under "outputs/" as SVG files.
 
     :return: None
     """

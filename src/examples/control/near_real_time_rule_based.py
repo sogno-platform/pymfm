@@ -31,8 +31,9 @@ def main():
     """
     Example usage of near real time rule based control.
 
-    This function reads input data from "inputs/near_real_time_rule_based.json" JSON file, processes it using the `mode_logic_handler`,
-    prepares output data, saves output JSON files under "outputs/", and saves visualized data through plots under "outputs/" as SVG files.
+    This function reads input data from "inputs/near_real_time_rule_based.json" JSON file, 
+    processes it using the `mode_logic_handler`, prepares output data, saves output JSON files 
+    under "outputs/", and saves visualized data through plots under "outputs/" as SVG files.
 
     :return: None
     """
