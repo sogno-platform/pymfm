@@ -172,7 +172,8 @@ def P_net_after_kW_upper_bound(model, t):
 def bat_final_SoC(model, n):
     """
     The battery final state of charge (SoC) constraint.
-    Secures that batteries reach their final desired SoC at the very end timestamp t. If the battery type is household (hbes), then final desired SoC to be reached at the timestamp t, where daylight ends (day_end).
+    Secures that batteries reach their final desired SoC at the very end timestamp t. If the battery type is 
+    household (hbes), then final desired SoC to be reached at the timestamp t, where daylight ends (day_end).
 
     :param model: The pyomo model.
     :param n: The battery index.
@@ -271,8 +272,8 @@ def deficit_case_2(model, n, t):
 def surplus_case_1(model, t):
     """
     First surplus case constraint.
-    In terms of excess power, batteries should not be charged with a power more than exported power in any timestamp t.
-    The goal here is to be sure that batteries are not beeing charged with the imported power.
+    In case of power surplus, batteries should not be charged with a power more than exported power in any timestamp t.
+    The goal here is to be sure that batteries are not being charged with the imported power and just with the power surplus.
 
     :param model: The pyomo model.
     :param t: The timestamp index.
@@ -290,14 +291,15 @@ def surplus_case_1(model, t):
 def surplus_case_2(model, t):
     """
     Second surplus case constraint.
-    In terms of excess power, it is not allowed to import power.
+    In case of power surplus, it is not allowed to import power.
 
     :param model: The pyomo model.
     :param t: The timestamp index.
     :return: The constraint itself.
     """
     if model.P_net_before_kW[t] <= 0:
-        # Note for the future works: As P_imp_kW and x_imp are separated from each other, make sure to always use P_imp_kW in all of the constraints.
+        # Note for the future works: As P_imp_kW and x_imp are separated from each other, make sure to always 
+        # use P_imp_kW in all of the constraints.
         # From now on x_imp can be 1 and P_imp_kW can be 0. Therefore, user MUST use P_imp_kW in the constraints.
         return model.P_imp_kW[t] * model.x_imp[t] <= 0
     else:
@@ -307,7 +309,8 @@ def surplus_case_2(model, t):
 def penalty_for_imp(model, t):
     """
     Penalty constraint for imports.
-    Added to prevent unnecessary minimal imports. Penalty variable alpha_imp is in the objective function trying to be minimized.
+    Added to prevent unnecessary minimal imports. Penalty variable alpha_imp is in the objective function, 
+    reprsents the peak import, and shall be trying to be minimized.
 
     :param model: The pyomo model.
     :param t: The timestamp index.
@@ -319,7 +322,8 @@ def penalty_for_imp(model, t):
 def penalty_for_exp(model, t):
     """
     Penalty constraint for exports.
-    Added to prevent unnecessary minimal exports. Penalty variable alpha_exp is in the objective function trying to be minimized.
+    Added to prevent unnecessary minimal exports. Penalty variable alpha_exp is in the objective function,
+    represents the peak export and shall be minimized.
 
     :param model: The pyomo model.
     :param t: The timestamp index.
@@ -386,16 +390,20 @@ def scheduling(
     pv_curtailment: Boolean,
 ) -> tuple[pd.Series, pd.Series, pd.DataFrame, pd.DataFrame, SolverStatus]:
     """
-    The scheduling optimization function which acts upon the load and generation forecast data considering battery specifications, optimization horizon, and power boundaries.
+    The scheduling optimization function which acts upon the load and generation forecast data considering 
+    battery specifications, optimization horizon, and power boundaries.
     Depending on the input data, bulk delivery/reception and PV curtailment can also be satisfied.
 
     Parameters
     ---------- 
     :param P_load_gen: load and generation forecast time series of float type.
     :param df_battery: battery specifications of float and string types.
-    :param day_end: user-defined end of the day (datetime) till which household batteries should reach maximum SoC. By default, its value is set to then sun-set time.
-    :param bulk_data: Class related to the bulk delivery/reception of energy from batteries including bulk_start and _end datetime and the bulk_energy_kWh float.
-    :param P_net_after_kW_limits: Data frame consisiting of upper and lower bound float time series (kW) and the integer identifiers for the existance of any upper or lower bounds.
+    :param day_end: user-defined end of the day (datetime) till which household batteries should reach 
+     maximum SoC. By default, its value is set to then sun-set time.
+    :param bulk_data: Class related to the bulk delivery/reception of energy from batteries including bulk_start
+     and _end datetime and the bulk_energy_kWh float.
+    :param P_net_after_kW_limits: Data frame consisiting of upper and lower bound float time series (kW) and 
+     the integer identifiers for the existance of any upper or lower bounds.
     :param pv_curtailment: Bollean type. If ture, PV generation can be curtailed.
 
     Returns

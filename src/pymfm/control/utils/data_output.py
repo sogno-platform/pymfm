@@ -1,3 +1,4 @@
+
 # The pymfm framework
 
 # Copyright (C) 2023,
@@ -197,7 +198,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
                 "control_logic": "rule_based",
                 "operation_mode": "near_real_time",
                 "timestamp": output_df["timestamp"].isoformat(),
-                "initial_SoC_bat_%": output_df["initial_SoC_bat_%"] * 100,
+                "initial_SoC_bat_%": output_df["initial_SoC_bat_%"],
                 "SoC_bat_%": output_df["SoC_bat_%"],
                 "P_bat_kW": output_df["P_bat_kW"],
                 "P_net_meas_kW": output_df["P_net_meas_kW"],

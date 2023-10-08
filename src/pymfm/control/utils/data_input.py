@@ -128,7 +128,7 @@ class P_net_after_kWLimitation(BaseModel):
 
 class GenerationAndLoadValues(BaseModel):
     """
-    Pydantic model representing generation and load data at a specific timestamp.
+    Pydantic model representing generation and load forecast data at a specific timestamp.
     """
 
     timestamp: datetime = Field(
@@ -159,11 +159,11 @@ class GenerationAndLoad(BaseModel):
 
 class MeasurementsRequest(BaseModel):
     """
-    Pydantic model representing a measurements request.
+    Pydantic model representing near (real) time measurement and request.
     """
 
     timestamp: datetime = Field(
-        ..., alias="timestamp", description="The timestamp of the measurements request."
+        ..., alias="timestamp", description="The timestamp of the measurement and request."
     )
     P_req_kW: Optional[float] = Field(
         ...,
@@ -182,7 +182,10 @@ class MeasurementsRequest(BaseModel):
 
 class BatterySpecs(BaseModel):
     """
-    Pydantic model representing battery specifications.
+    Pydantic model representing battery specifications consisting of:
+    String values of battery "type" and "id" and Float values of initital SoC in %, 
+    maximum charging and discharging powers in kW, min and max SoC in %, battery capacity in kWh,
+    and (dis)charging efficiency (0<efficiency<=1) 
     """
 
     id: Optional[str]  # The unique identifier for the battery (optional).
@@ -243,7 +246,9 @@ class BatterySpecs(BaseModel):
 
 class InputData(BaseModel):
     """
-    Pydantic model representing input data for control logic.
+    Pydantic model representing input data for each use case including control logic,
+    operation mode, use case start and end time, load and generation forecast, day end time,
+    bulk window, power boundaries, measurement and requested powers, and battery specifications.
     """
 
     id: str  # The unique identifier for the input data.
@@ -448,8 +453,8 @@ def measurements_request_to_dict(measurements_request: MeasurementsRequest):
     """
     Convert measurements request to a dictionary.
 
-    :param measurements_request: Measurements request.
-    :return: Dictionary containing measurements request data.
+    :param measurements_request: Measurements and request.
+    :return: Dictionary containing measurements and request data.
     """
     # Convert MeasurementsRequest object to a dictionary
     measurements_request_dict = {
@@ -466,7 +471,7 @@ def P_net_after_kW_lim_to_df(
     gen_load_data: List[GenerationAndLoad],
 ) -> pd.DataFrame:
     """
-    Convert P_net_after_kWLimitation data to a DataFrame.
+    Convert P_net_after_kWLimitation data (upper and lower bouns of microgrid power) to a DataFrame.
 
     :param P_net_after_kW_limits: List of P_net_after_kWLimitation objects.
     :param gen_load_data: List of GenerationAndLoad objects.
