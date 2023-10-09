@@ -11,9 +11,9 @@ Python package pymfm is a framework for ...
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
+   
    modules
-
+   readme_main_link
 
 
 Indices and tables

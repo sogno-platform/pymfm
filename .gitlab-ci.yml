@@ -10,7 +10,7 @@ build-page:       # This job runs in the build stage, which runs first.
   image: sphinxdoc/sphinx
   stage: build
   script:
-    - pip3 install sphinx_rtd_theme
+    - pip3 install sphinx_rtd_theme myst_parser
     - pip3 install -e .
     # - pip3 install -r requirements.txt
     - cd ./docs
