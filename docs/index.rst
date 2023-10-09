@@ -5,7 +5,8 @@
 
 Documentation
 =============
-Python package pymfm is a framework for ...
+.. include:: ../README.md
+   :parser: myst_parser.sphinx_
 
 
 .. toctree::
@@ -13,7 +14,6 @@ Python package pymfm is a framework for ...
    :caption: Contents:
    
    modules
-   readme_main_link
 
 
 Indices and tables
