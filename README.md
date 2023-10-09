@@ -52,7 +52,10 @@ The documentation for the latest pymfm release can be found in folder ./docs and
 
 For further information, please also visit the [FEIN Aachen association website](https://www.fein-aachen.org/en/).
 
-# Example Usage
+
+## Example Usage
+
+```python
 
 import os
 from pymfm.control.utils.data_input import InputData, open_json
@@ -93,15 +96,15 @@ def main():
     data_output.visualize_and_save_plots(
         mode_logic, output_df, output_directory="outputs/"
     )
-
+if __name__ == "__main__":
+    main()
+```
 
 ## License
 
 The pymfm package is released by the Institute for Automation of Complex Power Systems (ACS), E.ON Energy Research Center (E.ON ERC), RWTH Aachen University under the [MIT License](https://opensource.org/licenses/MIT).
 
 
-if __name__ == "__main__":
-    main()
 
 
 ## Contact
