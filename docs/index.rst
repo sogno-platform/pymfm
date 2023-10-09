@@ -12,7 +12,7 @@ Documentation
    :caption: Contents:
    
    modules
-   
+
 .. include:: ../README.md
    :parser: myst_parser.sphinx_
 
@@ -21,11 +21,3 @@ Indices and tables
 
 * :ref:`genindex`
 * :ref:`modindex`
-
-Contact
-=======
-For further questions please write an e-mail to:
-   * Amir Ahmadifar, M.Sc. aahmadifar@eonerc.rwth-aachen.de
-   * Erdem Gumrukcu, M.Sc. erdem.guemruekcue@eonerc.rwth-aachen.de
-   * Florian Opperman, M.Sc lorian.oppermann@eonerc.rwth-aachen.de
-   * Aytug Yavuzer, B.Sc. aytug.yavuzer@eonerc.rwth-aachen.de
