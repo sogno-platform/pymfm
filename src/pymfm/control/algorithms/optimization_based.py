@@ -399,7 +399,7 @@ def scheduling(
     pd.Series,
     pd.Series,
     pd.Series,
-    Tuple[Any, Any],
+    Tuple[str,str],
 ]:
     """The scheduling optimization function which acts upon the load and generation forecast data considering
     battery specifications, optimization horizon, and power boundaries.
@@ -424,6 +424,8 @@ def scheduling(
     pv_curtailment : bool
         If true, PV generation can be curtailed.
 
+        (solver.status, solver.termination_condition),
+
     Returns
     -------
     Tuple[ pd.Series, pd.DataFrame, pd.Series, pd.DataFrame, pd.Series, pd.Series, pd.Series, Tuple[Any, Any], ]
@@ -432,9 +434,9 @@ def scheduling(
         P_bat_total_kW: Series containing the total battery power.
         SoC_bat_df: DataFrame containing battery state of charge for different nodes.
         P_net_after_kW: Series containing net power after control.
-        df_forecasts: DataFrame containing forecasted data.
         P_net_after_kW_upperb: Series containing upper bounds for net power after control.
         P_net_after_kW_lowerb: Series containing lower bounds for net power after control.
+        (str, str): status and details from the solver
     """
 
     # Selected optimization solver
