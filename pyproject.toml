@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "pymfm"
+authors = [
+    { name = "Institute for Automation of Complex Power Systems (ACS), E.ON Energy Research Center (E.ON ERC), RWTH Aachen University", email = "post_acs@eonerc.rwth-aachen.de" },
+]
+description = "A Python framework for microgrid flexibility management."
+requires-python = ">=3.8"
+keywords = []
+license = { text = "MIT" }
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    # "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.8",
+]
+dependencies = [
+    "pandas==1.5.3",
+    "pyomo==6.5.0",
+    "matplotlib==3.7.1",
+    "scipy==1.11.0",
+    "xlsxwriter==3.1.2",
+    "pydantic==1.10.9",
+    "astral==3.2",
+]
+version = "0.5.0"
+dynamic = ["readme"]
+
+[tool.setuptools]
+zip-safe = false
+platforms = ["any"]
+
+[tool.setuptools.dynamic]
+readme = { file = ["README.md"], content-type = "text/markdown" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+# [project.optional-dependencies]
+# pdf = ["ReportLab>=1.2", "RXP"]
+# rest = ["docutils>=0.3", "pack ==1.1, ==1.3"]
+
+# [project.scripts]
+# my-script = "my_package.module:function"
