@@ -5,8 +5,6 @@
 
 Documentation
 =============
-.. include:: ../README.md
-   :parser: myst_parser.sphinx_
 
 
 .. toctree::
@@ -14,7 +12,9 @@ Documentation
    :caption: Contents:
    
    modules
-
+   
+.. include:: ../README.md
+   :parser: myst_parser.sphinx_
 
 Indices and tables
 ==================
