@@ -192,7 +192,8 @@ class BatterySpecs(BaseModel):
     bat_type: str = Field(
         ...,
         alias="bat_type",
-        description="The type of the battery. Can be 'cbes' (community battery energy storage) or 'hbes' (household battery energy storage).",
+        description="The type of the battery. Can be 'cbes' (community battery energy storage) or 
+        'hbes' (household battery energy storage).",
     )
     initial_SoC: float = Field(
         ...,
@@ -307,24 +308,27 @@ class InputData(BaseModel):
         # Check if generation_and_load starts before or at uc_start
         if uc_start < meas.values[0].timestamp:
             raise ValueError(
-                f"generation_and_load have to start at or before uc_start. generation_and_load start at {meas.values[0].timestamp} uc_start was {uc_start}"
+                f"generation_and_load have to start at or 
+                before uc_start. generation_and_load start at {meas.values[0].timestamp} uc_start was {uc_start}"
             )
         return meas
 
     @validator("generation_and_load")
-    def generation_and_load_end_after_timewindow(cls, meas, values):
+    def generation_and_load_end_after_timewindow(cls, meas : dict , values : dict) -> dict:
+        
         """
         Validator to ensure generation_and_load ends after or at uc_end.
 
         :param meas: The value of generation_and_load.
         :param values: The values dictionary.
-        :return: The validated value.
+        :return: The validated value
         """
         uc_end = values["uc_end"]
         # Check if generation_and_load ends after or at uc_end
         if uc_end > meas.values[-1].timestamp:
             raise ValueError(
-                f"generation_and_load have to end at or after uc_end. generation_and_load end at {meas.values[-1].timestamp} uc_end was {uc_end}"
+                f"generation_and_load have to end at or after uc_end. 
+                generation_and_load end at {meas.values[-1].timestamp} uc_end was {uc_end}"
             )
         return meas
 
@@ -381,7 +385,8 @@ def minutes_horizon(starttime: datetime, endtime: datetime) -> float:
 
 def input_prep(battery_specs: Union[BatterySpecs, List[BatterySpecs]]):
     """
-    Prepare battery specifications by transforming battery percentages to absolute values and saving battery capacity also in kWs.
+    Prepare battery specifications by transforming battery percentages to absolute values
+    and saving battery capacity also in kWs.
 
     :param battery_specs: Battery specifications.
     :return: Updated battery specifications.

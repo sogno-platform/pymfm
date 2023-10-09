@@ -24,6 +24,7 @@
 from datetime import datetime
 from typing import Tuple
 import pandas as pd
+from typing import Tuple
 from pyomo.environ import SolverFactory
 from pyomo.core import *
 from pymfm.control.utils.data_input import Bulk
@@ -669,15 +670,30 @@ def prep_output_df(
     """
     Prepare the output DataFrame of scheduling optimization based mode.
 
-    :param pv_profile: Series containing the PV (Photovoltaic) profile.
-    :param P_bat_kW_df: DataFrame containing battery power for different nodes.
-    :param P_bat_total_kW: Series containing the total battery power.
-    :param SoC_bat_df: DataFrame containing battery state of charge for different nodes.
-    :param P_net_after_kW: Series containing net power after control.
-    :param df_forecasts: DataFrame containing forecasted data.
-    :param P_net_after_kW_upperb: Series containing upper bounds for net power after control.
-    :param P_net_after_kW_lowerb: Series containing lower bounds for net power after control.
-    :return: DataFrame containing prepared output data.
+    Parameters
+    ---------- 
+    pv_profile : pd.Series
+        containing the PV profile.
+    P_bat_kW_df : DataFrame
+        containing battery power for different nodes.
+    P_bat_total_kW : pd.Series
+        containing the total battery power.
+    SoC_bat_df : DataFrame
+        containing battery state of charge for different nodes.
+    P_net_after_kW : pd.Series
+        containing net power after control.
+    df_forecasts : DataFrame
+        containing forecasted data.
+    P_net_after_kW_upperb : pd.Series
+        containing upper bounds for net power after control.
+    P_net_after_kW_lowerb : pd.Series
+        containing lower bounds for net power after control.
+
+    Returns
+    ----------    
+    output_df : DataFrame
+        containing prepared output data.
+
     """
     # Create an empty output DataFrame with the same index as df_forecasts
     output_df = pd.DataFrame(index=df_forecasts.index)
