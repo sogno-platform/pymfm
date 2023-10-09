@@ -11,11 +11,11 @@
 # sublicense, and/or sell copies of the Software, and to permit# persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in all copies or 
-#substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all copies or
+# substantial portions of the Software.
 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
-# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
@@ -27,30 +27,29 @@ from pymfm.control.utils.data_input import BatterySpecs
 
 
 def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs):
-    """
-    For this operation mode, rule based logic is implemented on the net power measurement of 
-    the microgrid respecting battery boundaries. 
+    """For this operation mode, rule based logic is implemented on the net power measurement of
+    the microgrid respecting battery boundaries.
     In case of a (near) real time power requests from the microgrid, this request is resecpted
     by the microgrid community battery energy storage (cbes).
 
     Parameters
-    ----------   
+    ----------
     :param measurements_request_dict: dict of dict
-        In the measurement_request dictionary, for each time stamp (datetime), the corresponding 
-        float values for the requested (P_req_kW) and measured (P_net_meas_kW) net power 
-        consumption of the microgrid (in kW).  
+    In the measurement_request dictionary, for each time stamp (datetime), the corresponding
+    float values for the requested (P_req_kW) and measured (P_net_meas_kW) net power
+    consumption of the microgrid (in kW).
     :param battery_specs: BatterySpecs class and the corresponding pydantic model representing
-     string values of battery "type" and "id" and float values of initital SoC in %, 
-     maximum charging and discharging powers in kW, min and max SoC in %, battery capacity in kWh,
-     and (dis)charging efficiency (0<efficiency<=1)
+    string values of battery "type" and "id" and float values of initital SoC in %,
+    maximum charging and discharging powers in kW, min and max SoC in %, battery capacity in kWh,
+    and (dis)charging efficiency (0<efficiency<=1)
 
     Returns
-    -------  
+    -------
     :return output: dict of float
-        In the output dictionary and for each measurement timestamp (datetime), the corresponding 
-        float values for the initial and final SoCs before and after control action (in %), 
-        community battery energy storage (cebes) power setpoint (in kW), and net power consumption 
-        before and after control action (in kW) are returned.   
+        In the output dictionary and for each measurement timestamp (datetime), the corresponding
+        float values for the initial and final SoCs before and after control action (in %),
+        community battery energy storage (cebes) power setpoint (in kW), and net power consumption
+        before and after control action (in kW) are returned.
     """
     output = dict.fromkeys(
         [
@@ -150,27 +149,26 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
 
 
 def scheduling(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: timedelta):
-    """
-    For the scheduling operation mode and with the rule based logic, the same control method as 
-    in (near) real time is implemented. However, this logic is implemented on the net power 
+    """For the scheduling operation mode and with the rule based logic, the same control method as
+    in (near) real time is implemented. However, this logic is implemented on the net power
     forecast profile of the microgrid and not on the power measured at each instance.
 
     Parameters
-    ----------  
+    ----------
     :param P_load_gen: load and generation forecast time series of float type
-    :param battery_specs: BatterySpecs class and the corresponding pydantic model representing
-     string values of battery "type" and "id" and float values of initital SoC (between 0 and 1), 
-     maximum charging and discharging powers in kW, min and max SoC (between 0 and 1), battery capacity in kWh,
-     and (dis)charging efficiency (0<efficiency<=1)
-    :param delta_T: Pandas TimeDelta object (in day unit) representing time intervals of the forecast time series. 
+    param battery_specs: BatterySpecs class and the corresponding pydantic model representing
+    string values of battery "type" and "id" and float values of initital SoC (between 0 and 1),
+    maximum charging and discharging powers in kW, min and max SoC (between 0 and 1), battery capacity in kWh,
+    and (dis)charging efficiency (0<efficiency<=1)
+    :param delta_T: Pandas TimeDelta object (in day unit) representing time intervals of the forecast time series.
 
     Returns
-    -------  
+    -------
     :return: Series of float type
-        In the output Pandas series and for each forecast timestamp, the corresponding 
-        float values for the net power consumption before and after control action (in kW), 
+        In the output Pandas series and for each forecast timestamp, the corresponding
+        float values for the net power consumption before and after control action (in kW),
         community battery energy storage (cebes) power setpoint (in kW), battery SoC (in %) and its
-        associated energy (in kWs), and imported and exported powers afer control action (in kW) are reported.   
+        associated energy (in kWs), and imported and exported powers afer control action (in kW) are reported.
     """
     # initialize
     output_ds = pd.Series(

@@ -408,7 +408,7 @@ def input_prep(battery_specs: Union[BatterySpecs, List[BatterySpecs]]):
 
 
 def generation_and_load_to_df(
-    meas: Dict[GenerationAndLoad], start: datetime = None, end: datetime = None
+    meas: GenerationAndLoad, start: datetime = None, end: datetime = None
 ) -> pd.DataFrame:
     """
     Convert generation and load data to a DataFrame within a specified time range.
