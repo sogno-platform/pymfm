@@ -390,7 +390,7 @@ def scheduling(
     day_end: datetime,
     bulk_data: Bulk,
     P_net_after_kW_limits: pd.DataFrame,
-    pv_curtailment: Boolean,
+    pv_curtailment: bool,
 ) -> Tuple[
     pd.Series,
     pd.DataFrame,
@@ -421,7 +421,7 @@ def scheduling(
     P_net_after_kW_limits : pd.DataFrame
         consisiting of upper and lower bound float time series (kW) and
         the integer identifiers for the existance of any upper or lower bounds.
-    pv_curtailment : Boolean
+    pv_curtailment : bool
         If true, PV generation can be curtailed.
 
     Returns
