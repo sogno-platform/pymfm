@@ -396,15 +396,21 @@ def scheduling(
 
     Parameters
     ---------- 
-    :param P_load_gen: load and generation forecast time series of float type.
-    :param df_battery: battery specifications of float and string types.
-    :param day_end: user-defined end of the day (datetime) till which household batteries should reach 
-     maximum SoC. By default, its value is set to then sun-set time.
-    :param bulk_data: Class related to the bulk delivery/reception of energy from batteries including bulk_start
-     and _end datetime and the bulk_energy_kWh float.
-    :param P_net_after_kW_limits: Data frame consisiting of upper and lower bound float time series (kW) and 
-     the integer identifiers for the existance of any upper or lower bounds.
-    :param pv_curtailment: Bollean type. If ture, PV generation can be curtailed.
+    P_load_gen : pd.Series 
+        load and generation forecast time series of float type.
+    df_battery : pd.DataFrame
+        battery specifications of float and string types.
+    day_end : datetime.datetime
+        user-defined end of the day (datetime) till which household batteries should reach 
+        maximum SoC. By default, its value is set to then sun-set time.
+    bulk_data : pymfm.control.utils.data_input.Bulk
+        Class related to the bulk delivery/reception of energy from batteries including bulk_start
+        and _end datetime and the bulk_energy_kWh float.
+    P_net_after_kW_limits: DataFrame 
+        consisiting of upper and lower bound float time series (kW) and 
+        the integer identifiers for the existance of any upper or lower bounds.
+    :param pv_curtailment: bool 
+        If ture, PV generation can be curtailed.
 
     Returns
     ----------
