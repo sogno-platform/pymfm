@@ -26,13 +26,13 @@ Packages
 .. toctree::
    :maxdepth: 4
 
-   examples.control
-   examples.scenario_forecast_kit
+   pymfm.examples.control
+   pymfm.examples.scenario_forecast_kit
 
-.. automodule:: src.examples
+.. automodule:: pymfm.examples
    :members:
    :undoc-members:
    :show-inheritance:
 
-.. include:: ../src/examples/Examples_Readme.md
+.. include:: ../src/pymfm/examples/Examples_Readme.md
    :parser: myst_parser.sphinx_

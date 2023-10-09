@@ -8,7 +8,6 @@ import sys
 
 sys.path.insert(0, os.path.abspath(".."))
 import src.pymfm
-import src.examples
 
 
 # -- Project information -----------------------------------------------------

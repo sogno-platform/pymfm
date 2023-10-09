@@ -100,6 +100,15 @@ if __name__ == "__main__":
     main()
 ```
 
+For an example that can be run out of the box you can download the example folder from the [pymfm repository](https://git.rwth-aachen.de/acs/public/automation/pymfm/-/tree/main/src/examples).
+
+The file `examples/controle/scheduling_rule_based.py` can be run without installing any solver by running 
+```bash
+python scheduling_rule_based.py
+```
+
+from the `examples/control` folder.
+
 ## License
 
 The pymfm package is released by the Institute for Automation of Complex Power Systems (ACS), E.ON Energy Research Center (E.ON ERC), RWTH Aachen University under the [MIT License](https://opensource.org/licenses/MIT).
