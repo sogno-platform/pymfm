@@ -50,7 +50,7 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
     output : dict
         In the output dictionary and for each measurement "timestamp" (datetime), the corresponding
         initial SoC "initial_SoC_bat_%" and final SoC "SoC_bat_%" before and after control action in % (float),
-        community battery energy storage cebes power setpoint "P_bat_kW" in kW (float), 
+        community battery energy storage cbes power setpoint "P_bat_kW" in kW (float), 
         and net power consumption before "P_net_meas_kW" and after "P_net_after_kW" control action in kW (float)
         are returned.
 
@@ -175,7 +175,7 @@ def scheduling(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: time
     output_ds: pd.Series 
         In the output Pandas series and for each forecast timestamp, the corresponding
         net power consumption before "P_net_before_kW" and after "P_net_after_kW" control action in kW,
-        community battery energy storage (cebes) power setpoint in kW , battery SoC in % "SoC_bat" and its
+        community battery energy storage (cbes) power setpoint in kW , battery SoC in % "SoC_bat" and its
         associated energy in kWs "bat_energy_kWs", and imported "import_kW" and exported "export_kW" powers
         afer control action in kW are reported.
     """
