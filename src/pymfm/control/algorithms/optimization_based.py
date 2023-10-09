@@ -11,16 +11,18 @@
 # sublicense, and/or sell copies of the Software, and to permit# persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in all copies or 
-#substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all copies or
+# substantial portions of the Software.
 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
-# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from datetime import datetime
+from typing import Tuple
 import pandas as pd
 from pyomo.environ import SolverFactory
 from pyomo.core import *
@@ -172,7 +174,7 @@ def P_net_after_kW_upper_bound(model, t):
 def bat_final_SoC(model, n):
     """
     The battery final state of charge (SoC) constraint.
-    Secures that batteries reach their final desired SoC at the very end timestamp t. If the battery type is 
+    Secures that batteries reach their final desired SoC at the very end timestamp t. If the battery type is
     household (hbes), then final desired SoC to be reached at the timestamp t, where daylight ends (day_end).
 
     :param model: The pyomo model.
@@ -298,7 +300,7 @@ def surplus_case_2(model, t):
     :return: The constraint itself.
     """
     if model.P_net_before_kW[t] <= 0:
-        # Note for the future works: As P_imp_kW and x_imp are separated from each other, make sure to always 
+        # Note for the future works: As P_imp_kW and x_imp are separated from each other, make sure to always
         # use P_imp_kW in all of the constraints.
         # From now on x_imp can be 1 and P_imp_kW can be 0. Therefore, user MUST use P_imp_kW in the constraints.
         return model.P_imp_kW[t] * model.x_imp[t] <= 0
@@ -309,7 +311,7 @@ def surplus_case_2(model, t):
 def penalty_for_imp(model, t):
     """
     Penalty constraint for imports.
-    Added to prevent unnecessary minimal imports. Penalty variable alpha_imp is in the objective function, 
+    Added to prevent unnecessary minimal imports. Penalty variable alpha_imp is in the objective function,
     reprsents the peak import, and shall be trying to be minimized.
 
     :param model: The pyomo model.
@@ -367,7 +369,7 @@ def obj_rule(model):
     """
     The objective function.
     Objective: Minimize the power exchange with the grid (Minimum interaction with the grid)
-    Power import and export as well as their peak values (alpha) are minimized. 
+    Power import and export as well as their peak values (alpha) are minimized.
     :param model: The pyomo model.
     :return: The objective function itself.
     """
@@ -384,45 +386,54 @@ def obj_rule(model):
 def scheduling(
     P_load_gen: pd.Series,
     df_battery: pd.DataFrame,
-    day_end,
+    day_end: datetime,
     bulk_data: Bulk,
     P_net_after_kW_limits: pd.DataFrame,
     pv_curtailment: Boolean,
-) -> tuple[pd.Series, pd.Series, pd.DataFrame, pd.DataFrame, SolverStatus]:
-    """
-    The scheduling optimization function which acts upon the load and generation forecast data considering 
+) -> Tuple[
+    pd.Series,
+    pd.DataFrame,
+    pd.Series,
+    pd.DataFrame,
+    pd.Series,
+    pd.Series,
+    pd.Series,
+    Tuple[Any, Any],
+]:
+    """The scheduling optimization function which acts upon the load and generation forecast data considering
     battery specifications, optimization horizon, and power boundaries.
     Depending on the input data, bulk delivery/reception and PV curtailment can also be satisfied.
 
+
     Parameters
-    ---------- 
-    P_load_gen : pd.Series 
+    ----------
+    P_load_gen : pd.Series
         load and generation forecast time series of float type.
     df_battery : pd.DataFrame
         battery specifications of float and string types.
-    day_end : datetime.datetime
-        user-defined end of the day (datetime) till which household batteries should reach 
+    day_end : datetime
+        user-defined end of the day (datetime) till which household batteries should reach
         maximum SoC. By default, its value is set to then sun-set time.
-    bulk_data : pymfm.control.utils.data_input.Bulk
+    bulk_data : Bulk
         Class related to the bulk delivery/reception of energy from batteries including bulk_start
         and _end datetime and the bulk_energy_kWh float.
-    P_net_after_kW_limits: DataFrame 
-        consisiting of upper and lower bound float time series (kW) and 
+    P_net_after_kW_limits : pd.DataFrame
+        consisiting of upper and lower bound float time series (kW) and
         the integer identifiers for the existance of any upper or lower bounds.
-    :param pv_curtailment: bool 
-        If ture, PV generation can be curtailed.
+    pv_curtailment : Boolean
+        If true, PV generation can be curtailed.
 
     Returns
-    ----------
-    :param pv_profile: Series containing the PV (Photovoltaic) profile.
-    :param P_bat_kW_df: DataFrame containing battery power for different nodes.
-    :param P_bat_total_kW: Series containing the total battery power.
-    :param SoC_bat_df: DataFrame containing battery state of charge for different nodes.
-    :param P_net_after_kW: Series containing net power after control.
-    :param df_forecasts: DataFrame containing forecasted data.
-    :param P_net_after_kW_upperb: Series containing upper bounds for net power after control.
-    :param P_net_after_kW_lowerb: Series containing lower bounds for net power after control.
-    
+    -------
+    Tuple[ pd.Series, pd.DataFrame, pd.Series, pd.DataFrame, pd.Series, pd.Series, pd.Series, Tuple[Any, Any], ]
+        pv_profile: Series containing the PV (Photovoltaic) profile.
+        P_bat_kW_df: DataFrame containing battery power for different nodes.
+        P_bat_total_kW: Series containing the total battery power.
+        SoC_bat_df: DataFrame containing battery state of charge for different nodes.
+        P_net_after_kW: Series containing net power after control.
+        df_forecasts: DataFrame containing forecasted data.
+        P_net_after_kW_upperb: Series containing upper bounds for net power after control.
+        P_net_after_kW_lowerb: Series containing lower bounds for net power after control.
     """
 
     # Selected optimization solver
