@@ -11,7 +11,7 @@ Packages
    pymfm.scenario_forecast_kit
 
 
-.. automodule:: src.pymfm
+.. automodule:: pymfm
    :members:
    :undoc-members:
    :show-inheritance:
@@ -29,7 +29,7 @@ Packages
    pymfm.examples.control
    pymfm.examples.scenario_forecast_kit
 
-.. automodule:: pymfm.examples
+.. automodule:: pymfm
    :members:
    :undoc-members:
    :show-inheritance:
