@@ -34,3 +34,5 @@ Packages
    :undoc-members:
    :show-inheritance:
 
+.. include:: ../src/examples/Examples_Readme.md
+   :parser: myst_parser.sphinx_
