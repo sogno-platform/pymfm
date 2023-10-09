@@ -36,13 +36,17 @@ from pymfm.control.utils.data_input import (
 def visualize_and_save_plots(
     mode_logic: dict, dataframe: pd.DataFrame, output_directory: str
 ):
-    """
-    Visualize control output data from a DataFrame and save plots as SVG files based on control logic and operation mode.
+    """Visualize control output data from a DataFrame and save plots as SVG files based on control logic and operation mode.
 
-    :param mode_logic: Dictionary containing control logic and operation mode information.
-    :param dataframe: DataFrame containing data to be visualized.
-    :param output_directory: Directory where the SVG plots will be saved.
-    """
+    Parameters
+    ----------
+    mode_logic : dict
+        containing control logic and operation mode information.
+    dataframe : pd.DataFrame
+        containing data to be visualized.
+    output_directory : str
+        Directory where the SVG plots will be saved.
+    """    
     if mode_logic["CL"] == CL.OPTIMIZATION_BASED:
         # First subplot for 'P_net_after_kW', 'upperb', and 'lowerb'
         plt.figure(figsize=(12, 8))
@@ -182,13 +186,18 @@ def visualize_and_save_plots(
 
 
 def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: str):
-    """
-    Prepare and save output control data as JSON files based on control logic and operation mode.
+    """Prepare and save output control data as JSON files based on control logic and operation mode.
 
-    :param mode_logic: Dictionary containing control logic and operation mode information.
-    :param output_df: DataFrame containing data to be saved as JSON.
-    :param output_directory: Directory where the JSON files will be saved.
-    """
+
+    Parameters
+    ----------
+    mode_logic : dict
+        containing control logic and operation mode information.
+    output_df : pd.DataFrame
+        containing data to be saved as JSON.
+    output_directory : str
+        Directory where the JSON files will be saved.
+    """    
     if mode_logic["CL"] == CL.RULE_BASED:
         if mode_logic["OM"] == OM.NEAR_REAL_TIME:
             # Prepare JSON data for near real-time rule-based mode

@@ -192,8 +192,7 @@ class BatterySpecs(BaseModel):
     bat_type: str = Field(
         ...,
         alias="bat_type",
-        description="The type of the battery. Can be 'cbes' (community battery energy storage) or 
-        'hbes' (household battery energy storage).",
+        description="The type of the battery. Can be 'cbes' (community battery energy storage) or 'hbes' (household battery energy storage).",
     )
     initial_SoC: float = Field(
         ...,
@@ -308,8 +307,7 @@ class InputData(BaseModel):
         # Check if generation_and_load starts before or at uc_start
         if uc_start < meas.values[0].timestamp:
             raise ValueError(
-                f"generation_and_load have to start at or 
-                before uc_start. generation_and_load start at {meas.values[0].timestamp} uc_start was {uc_start}"
+                f"generation_and_load have to start at or before uc_start. generation_and_load start at {meas.values[0].timestamp} uc_start was {uc_start}"
             )
         return meas
 
@@ -327,8 +325,7 @@ class InputData(BaseModel):
         # Check if generation_and_load ends after or at uc_end
         if uc_end > meas.values[-1].timestamp:
             raise ValueError(
-                f"generation_and_load have to end at or after uc_end. 
-                generation_and_load end at {meas.values[-1].timestamp} uc_end was {uc_end}"
+                f"generation_and_load have to end at or after uc_end. generation_and_load end at {meas.values[-1].timestamp} uc_end was {uc_end}"
             )
         return meas
 
@@ -369,12 +366,19 @@ class InputData(BaseModel):
 
 
 def minutes_horizon(starttime: datetime, endtime: datetime) -> float:
-    """
-    Calculate the time horizon in minutes between two timestamps.
+    """Calculate the time horizon in minutes between two timestamps.
 
-    :param starttime: The start timestamp.
-    :param endtime: The end timestamp.
-    :return: The time horizon in minutes.
+    Parameters
+    ----------
+    starttime : datetime
+        The start timestamp
+    endtime : datetime
+        The end timestamp.
+
+    Returns
+    -------
+    float
+        The time horizon in minutes.
     """
     # Calculate the time difference in seconds and convert to minutes
     time_delta = endtime - starttime
@@ -415,14 +419,22 @@ def input_prep(battery_specs: Union[BatterySpecs, List[BatterySpecs]]):
 def generation_and_load_to_df(
     meas: GenerationAndLoad, start: datetime = None, end: datetime = None
 ) -> pd.DataFrame:
-    """
-    Convert generation and load data to a DataFrame within a specified time range.
+    """Convert generation and load data to a DataFrame within a specified time range.
 
-    :param meas: Generation and load data.
-    :param start: Start timestamp for filtering data.
-    :param end: End timestamp for filtering data.
-    :return: DataFrame containing filtered generation and load data.
-    """
+    Parameters
+    ----------
+    meas : GenerationAndLoad
+        Generation and load data.
+    start : datetime, optional
+        Start timestamp for filtering data, by default None
+    end : datetime, optional
+        End timestamp for filtering data, by default None
+
+    Returns
+    -------
+    pd.DataFrame
+        containing filtered generation and load data.
+    """    
     # Convert GenerationAndLoad objects to a DataFrame, set index to timestamp, and filter by time range
     df_forecasts = pd.json_normalize([mes.dict(by_alias=False) for mes in meas.values])
     df_forecasts.set_index("timestamp", inplace=True)
@@ -475,13 +487,20 @@ def P_net_after_kW_lim_to_df(
     P_net_after_kW_limits: List[P_net_after_kWLimitation],
     gen_load_data: List[GenerationAndLoad],
 ) -> pd.DataFrame:
-    """
-    Convert P_net_after_kWLimitation data (upper and lower bouns of microgrid power) to a DataFrame.
+    """Convert P_net_after_kWLimitation data (upper and lower bouns of microgrid power) to a DataFrame.
 
-    :param P_net_after_kW_limits: List of P_net_after_kWLimitation objects.
-    :param gen_load_data: List of GenerationAndLoad objects.
-    :return: DataFrame containing P_net_after_kWLimitation data.
-    """
+    Parameters
+    ----------
+    P_net_after_kW_limits : List[P_net_after_kWLimitation]
+        List of P_net_after_kWLimitation objects.
+    gen_load_data : List[GenerationAndLoad]
+        List of GenerationAndLoad objects.
+
+    Returns
+    -------
+    pd.DataFrame
+        containing P_net_after_kWLimitation data
+    """    
     # Check if P_net_after_kW_limits is None
     if P_net_after_kW_limits is None:
         # Create a DataFrame with default values and use timestamps from gen_load_data
