@@ -119,7 +119,7 @@ The pymfm package is released by the Institute for Automation of Complex Power S
 
 - Amir Ahmadifar, M.Sc. <aahmadifar@eonerc.rwth-aachen.de>
 - Erdem Gumrukcu, M.Sc. <erdem.guemruekcue@eonerc.rwth-aachen.de>
-- Florian Oppermann, M.Sc. <florian.oppermann@eonerc.rwth-aachen.de>
+- Florian Oppermann, B.Sc. <florian.oppermann@eonerc.rwth-aachen.de>
 - Aytug Yavuzer, B.Sc. <aytug.yavuzer@eonerc.rwth-aachen.de>
 - Univ.-Prof. Antonello Monti, Ph.D. <post_acs@eonerc.rwth-aachen.de>
 
