@@ -1,0 +1,13 @@
+I, Amir Ahmadifar hereby sign-off-by all of my past commits to this repo subject to the Developer Certificate of Origin (DCO), Version 1.1. In the past I have used emails: amir.ahmadifar@eonerc.rwth-aachen.de and aahmadifar@eonerc.rwth-aachen.de.
+
+
+7c12f94aa8fa7e2b0bfa0485dc94f1bdd44d5715 version 0.5.2 release
+2f254aeab6f1a4bede42ca6d8cf8439192ca0c0d sogno github readmde
+582ac7a7b805ceb3c7d68eb01b7860c795b35561 readme sogno github
+db92ab8177a028d0e9b2aa9173a638dd6340e967 0.5.1 release
+4bf336f697961beb482978214e7d0f8df5f967e9 cebes typo
+753f8bff89e96e52b9026f5198bb43e3a8bfc922 bool typo corrected
+14ef7ea6d18f54dfa8439ed622fba2dd19e452ae add readmes
+958a8e2eb6ae29cc93859b871af877ca97063102 NumPy Docstrings added
+f1c03e4fdbffb87275b34e9f8a963b8153abbce4 merge tempo changes
+cdc529309201fe0ba93fcae885eb02c14783c89a Initial commit
