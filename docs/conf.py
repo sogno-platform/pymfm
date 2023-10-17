@@ -16,7 +16,7 @@ import src.pymfm
 project = "pymfm"
 copyright = "2023, Institute for Automation of Complex Power Systems (ACS), E.ON Energy Research Center (E.ON ERC), RWTH Aachen University"
 author = "Institute for Automation of Complex Power Systems (ACS), E.ON Energy Research Center (E.ON ERC), RWTH Aachen University"
-release = "0.5.1"
+release = "0.5.2"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

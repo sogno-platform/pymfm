@@ -30,7 +30,7 @@ dependencies = [
     "pydantic==1.10.9",
     "astral==3.2",
 ]
-version = "0.5.1"
+version = "0.5.2"
 dynamic = ["readme"]
 
 [tool.setuptools]
