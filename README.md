@@ -3,15 +3,14 @@
 Python package pymfm is a framework for microgrid flexibility management. The framework allows to develop scenario-oriented management strategies for community microgrids based on optimization and rule-based algorithms in both (near) real-time and scheduling operation modes by coordinating battery storage and photovoltaic units. Furthermore, this framework can be used to create realistic forecast profiles based on standard load and PV generation profiles. Its target users are researchers in the field of smart grid applications and the deployment of operational flexibility for renewable energy communities.
 
 ## Contribution
-
-1. Clone repository via SSH (`git@git.rwth-aachen.de:acs/public/automation/pymfm.git`) or clone repository via HTTPS (`https://git.rwth-aachen.de/acs/public/automation/pymfm.git`)
-2. Open an issue at [https://git.rwth-aachen.de/acs/public/automation/pymfm/-/issues](https://git.rwth-aachen.de/acs/public/automation/pymfm/-/issues)
+Clone repository via SSH (`git@github.com:sogno-platform/pymfm.git`) or clone repository via HTTPS (`https://github.com/sogno-platform/pymfm.git`)
+2. Open an issue at [https://github.com/sogno-platform/pymfm/issues](https://github.com/sogno-platform/pymfm/issues)
 3. Checkout the development branch: `git checkout dev` 
 4. Update your local development branch: `git pull origin dev`
 5. Create your feature/issue branch: `git checkout -b issueXY_explanation`
 6. Commit your changes: `git commit -m "Add feature #XY"`
 7. Push to the branch: `git push origin issueXY_explanation`
-8. Submit a merge request from issueXY_explanation to development branch via [https://git.rwth-aachen.de/acs/public/automation/pymfm/-/merge_requests](https://git.rwth-aachen.de/acs/public/automation/pymfm/-/merge_requests)
+8. Submit a pull request from issueXY_explanation to dev branch via [https://github.com/sogno-platform/pymfm/pulls](https://github.com/sogno-platform/pymfm/pulls)
 9. Wait for approval or revision of the new implementations.
 
 ## Installation
