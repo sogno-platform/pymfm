@@ -11,12 +11,12 @@ authors = [
 description = "A Python framework for microgrid flexibility management."
 requires-python = ">=3.8"
 keywords = []
-license = { text = "MIT" }
+license = { text = "Apache-2.0" }
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Operating System :: OS Independent",
     "Intended Audience :: Science/Research",
-    # "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Topic :: Scientific/Engineering",
     "Natural Language :: English",
     "Programming Language :: Python :: 3.8",
@@ -30,7 +30,7 @@ dependencies = [
     "pydantic==1.10.9",
     "astral==3.2",
 ]
-version = "0.5.2"
+version = "0.5.5"
 dynamic = ["readme"]
 
 [tool.setuptools]
