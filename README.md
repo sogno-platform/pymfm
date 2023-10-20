@@ -110,8 +110,7 @@ from the `examples/control` folder.
 
 ## License
 
-The pymfm package is released by the Institute for Automation of Complex Power Systems (ACS), E.ON Energy Research Center (E.ON ERC), RWTH Aachen University under the [MIT License](https://opensource.org/licenses/MIT).
-
+The pymfm package is released by the Institute for Automation of Complex Power Systems (ACS), E.ON Energy Research Center (E.ON ERC), RWTH Aachen University under the [Apache2.0 License](https://www.apache.org/licenses/LICENSE-2.0)
 
 
 
