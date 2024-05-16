@@ -21,8 +21,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import pandas as pd
 from datetime import timedelta
+
+import pandas as pd
+
 from pymfm.control.utils.data_input import BatterySpecs
 
 
@@ -39,7 +41,7 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
         In the measurement_request dictionary, for each time stamp (datetime), the corresponding
         float values for the requested (P_req_kW) and measured (P_net_meas_kW) net power
         consumption of the microgrid (in kW).
-    battery_specs : pymfm.control.utils.data_input.BatterySpecs 
+    battery_specs : pymfm.control.utils.data_input.BatterySpecs
         BatterySpecs class and the corresponding pydantic model representing
         string values of battery "type" and "id" and float values of initital SoC in %,
         maximum charging and discharging powers in kW, min and max SoC in %, battery capacity in kWh,
@@ -50,7 +52,7 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
     output : dict
         In the output dictionary and for each measurement "timestamp" (datetime), the corresponding
         initial SoC "initial_SoC_bat_%" and final SoC "SoC_bat_%" before and after control action in % (float),
-        community battery energy storage cbes power setpoint "P_bat_kW" in kW (float), 
+        community battery energy storage cbes power setpoint "P_bat_kW" in kW (float),
         and net power consumption before "P_net_meas_kW" and after "P_net_after_kW" control action in kW (float)
         are returned.
 
@@ -74,22 +76,16 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
     bat_initial_Energy_kWh = battery_specs.initial_SoC * battery_specs.bat_capacity_kWh
     bat_min_Energy_kWh = battery_specs.min_SoC * battery_specs.bat_capacity_kWh
     bat_max_Energy_kWh = battery_specs.max_SoC * battery_specs.bat_capacity_kWh
-    output["P_bat_kW"] = (
-        -measurements_request_dict["P_req_kW"]
-        + measurements_request_dict["P_net_meas_kW"]
-    )
+    output["P_bat_kW"] = -measurements_request_dict["P_req_kW"] + measurements_request_dict["P_net_meas_kW"]
     if output["P_bat_kW"] > 0:
         bat_Energy_kWh = bat_initial_Energy_kWh - (
-            battery_specs.dis_efficiency
-            * output["P_bat_kW"]
-            * measurements_request_dict["delta_T_h"]
+            battery_specs.dis_efficiency * output["P_bat_kW"] * measurements_request_dict["delta_T_h"]
         )
         output["P_bat_kW"] = output["P_bat_kW"] / battery_specs.dis_efficiency
     else:
         bat_Energy_kWh = (
             bat_initial_Energy_kWh
-            - (output["P_bat_kW"] * measurements_request_dict["delta_T_h"])
-            / battery_specs.ch_efficiency
+            - (output["P_bat_kW"] * measurements_request_dict["delta_T_h"]) / battery_specs.ch_efficiency
         )
         output["P_bat_kW"] = output["P_bat_kW"] * battery_specs.ch_efficiency
     # discharging
@@ -102,19 +98,12 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
             output["P_bat_kW"] = battery_specs.P_dis_max_kW
             bat_Energy_kWh = (
                 bat_initial_Energy_kWh
-                - battery_specs.dis_efficiency
-                * battery_specs.P_dis_max_kW
-                * measurements_request_dict["delta_T_h"]
+                - battery_specs.dis_efficiency * battery_specs.P_dis_max_kW * measurements_request_dict["delta_T_h"]
             )
         if bat_Energy_kWh >= bat_min_Energy_kWh:
             pass
         else:
-            import_kW = import_kW + (
-                (
-                    (bat_min_Energy_kWh - bat_Energy_kWh)
-                    / measurements_request_dict["delta_T_h"]
-                )
-            )
+            import_kW = import_kW + (((bat_min_Energy_kWh - bat_Energy_kWh) / measurements_request_dict["delta_T_h"]))
             output["P_bat_kW"] = act_ptcb - import_kW
 
             bat_Energy_kWh = bat_min_Energy_kWh
@@ -130,25 +119,19 @@ def near_real_time(measurements_request_dict: dict, battery_specs: BatterySpecs)
             output["P_bat_kW"] = -battery_specs.P_ch_max_kW
             bat_Energy_kWh = (
                 bat_initial_Energy_kWh
-                + (battery_specs.P_ch_max_kW * measurements_request_dict["delta_T_h"])
-                / battery_specs.ch_efficiency
+                + (battery_specs.P_ch_max_kW * measurements_request_dict["delta_T_h"]) / battery_specs.ch_efficiency
             )
         if bat_Energy_kWh <= bat_max_Energy_kWh:
             pass
         else:
-            export_kW = export_kW + (
-                (bat_Energy_kWh - bat_max_Energy_kWh)
-                / measurements_request_dict["delta_T_h"]
-            )
+            export_kW = export_kW + ((bat_Energy_kWh - bat_max_Energy_kWh) / measurements_request_dict["delta_T_h"])
             output["P_bat_kW"] = -(abs(act_ptcb) - export_kW)
             bat_Energy_kWh = bat_max_Energy_kWh
         output["P_bat_kW"] = float(output["P_bat_kW"])
     output["SoC_bat_%"] = bat_Energy_kWh / battery_specs.bat_capacity_kWh * 100
     output["P_net_meas_kW"] = measurements_request_dict["P_net_meas_kW"]
     output["P_net_after_kW"] = -export_kW + import_kW
-    output["P_bat_kW"] = (
-        output["P_bat_kW"] * -1
-    )  # charging: positiv, discharging: negativ
+    output["P_bat_kW"] = output["P_bat_kW"] * -1  # charging: positiv, discharging: negativ
     return output
 
 
@@ -172,7 +155,7 @@ def scheduling(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: time
 
     Returns
     -------
-    output_ds: pd.Series 
+    output_ds: pd.Series
         In the output Pandas series and for each forecast timestamp, the corresponding
         net power consumption before "P_net_before_kW" and after "P_net_after_kW" control action in kW,
         community battery energy storage (cbes) power setpoint in kW , battery SoC in % "SoC_bat" and its
@@ -200,9 +183,8 @@ def scheduling(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: time
     output_ds.P_bat_kW = P_load_gen.P_load_kW - P_load_gen.P_gen_kW
 
     if output_ds.P_bat_kW > 0:
-        output_ds.bat_energy_kWs = (
-            battery_specs.initial_SoC * battery_specs.bat_capacity_kWs
-            - (battery_specs.dis_efficiency * output_ds.P_bat_kW * delta_time_in_sec)
+        output_ds.bat_energy_kWs = battery_specs.initial_SoC * battery_specs.bat_capacity_kWs - (
+            battery_specs.dis_efficiency * output_ds.P_bat_kW * delta_time_in_sec
         )
         output_ds.P_bat_kW = output_ds.P_bat_kW / battery_specs.dis_efficiency
     else:
@@ -217,29 +199,15 @@ def scheduling(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: time
         if abs(output_ds.P_bat_kW) >= battery_specs.P_dis_max_kW:
             output_ds.import_kW = output_ds.P_bat_kW - battery_specs.P_dis_max_kW
             output_ds.P_bat_kW = battery_specs.P_dis_max_kW
-            output_ds.bat_energy_kWs = (
-                battery_specs.initial_SoC * battery_specs.bat_capacity_kWs
-                - (
-                    battery_specs.dis_efficiency
-                    * battery_specs.P_dis_max_kW
-                    * delta_time_in_sec
-                )
+            output_ds.bat_energy_kWs = battery_specs.initial_SoC * battery_specs.bat_capacity_kWs - (
+                battery_specs.dis_efficiency * battery_specs.P_dis_max_kW * delta_time_in_sec
             )
-        if (
-            output_ds.bat_energy_kWs
-            < battery_specs.min_SoC * battery_specs.bat_capacity_kWs
-        ):
+        if output_ds.bat_energy_kWs < battery_specs.min_SoC * battery_specs.bat_capacity_kWs:
             output_ds.import_kW = output_ds.import_kW + (
-                (
-                    battery_specs.min_SoC * battery_specs.bat_capacity_kWs
-                    - output_ds.bat_energy_kWs
-                )
-                / delta_time_in_sec
+                (battery_specs.min_SoC * battery_specs.bat_capacity_kWs - output_ds.bat_energy_kWs) / delta_time_in_sec
             )
             output_ds.P_bat_kW = act_ptcb - output_ds.import_kW
-            output_ds.bat_energy_kWs = (
-                battery_specs.min_SoC * battery_specs.bat_capacity_kWs
-            )
+            output_ds.bat_energy_kWs = battery_specs.min_SoC * battery_specs.bat_capacity_kWs
     # charging
     if output_ds.P_bat_kW < 0:
         act_ptcb = output_ds.P_bat_kW
@@ -251,32 +219,18 @@ def scheduling(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: time
             output_ds.P_bat_kW = -battery_specs.P_ch_max_kW
             output_ds.bat_energy_kWs = (
                 battery_specs.initial_SoC * battery_specs.bat_capacity_kWs
-                + (battery_specs.P_ch_max_kW * delta_time_in_sec)
-                / battery_specs.ch_efficiency
+                + (battery_specs.P_ch_max_kW * delta_time_in_sec) / battery_specs.ch_efficiency
             )
-        if (
-            output_ds.bat_energy_kWs
-            > battery_specs.max_SoC * battery_specs.bat_capacity_kWs
-        ):
+        if output_ds.bat_energy_kWs > battery_specs.max_SoC * battery_specs.bat_capacity_kWs:
             output_ds.export_kW = output_ds.export_kW + (
-                (
-                    output_ds.bat_energy_kWs
-                    - battery_specs.max_SoC * battery_specs.bat_capacity_kWs
-                )
-                / delta_time_in_sec
+                (output_ds.bat_energy_kWs - battery_specs.max_SoC * battery_specs.bat_capacity_kWs) / delta_time_in_sec
             )
             output_ds.P_bat_kW = -(abs(act_ptcb) - (output_ds.export_kW))
-            output_ds.bat_energy_kWs = (
-                battery_specs.max_SoC * battery_specs.bat_capacity_kWs
-            )
+            output_ds.bat_energy_kWs = battery_specs.max_SoC * battery_specs.bat_capacity_kWs
         output_ds.P_bat_kW = float(output_ds.P_bat_kW)
     output_ds.P_net_before_kW = P_load_gen.P_load_kW - P_load_gen.P_gen_kW
     output_ds.P_net_after_kW = -output_ds.export_kW + output_ds.import_kW
-    output_ds.SoC_bat = (
-        output_ds.bat_energy_kWs / battery_specs.bat_capacity_kWs
-    ) * 100
-    output_ds.P_bat_kW = (
-        output_ds.P_bat_kW * -1
-    )  # charging: positiv, discharging: negativ
+    output_ds.SoC_bat = (output_ds.bat_energy_kWs / battery_specs.bat_capacity_kWs) * 100
+    output_ds.P_bat_kW = output_ds.P_bat_kW * -1  # charging: positiv, discharging: negativ
 
     return output_ds

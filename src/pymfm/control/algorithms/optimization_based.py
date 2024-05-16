@@ -23,14 +23,14 @@
 
 from datetime import datetime
 from typing import Tuple
-import pandas as pd
-from typing import Tuple
-from pyomo.environ import SolverFactory
-from pyomo.core import *
-from pymfm.control.utils.data_input import Bulk
-from pyomo.opt import SolverStatus
-import pyomo.kernel as pmo
 
+import pandas as pd
+import pyomo.kernel as pmo
+from pyomo.core import *
+from pyomo.environ import SolverFactory
+from pyomo.opt import SolverStatus
+
+from pymfm.control.utils.data_input import Bulk
 
 # Constraints
 
@@ -44,12 +44,8 @@ def power_balance(model, t):
     :return: The constraint itself.
     """
     return (
-        model.P_load_kW[t]
-        + sum(model.P_ch_bat_kW[n, t] for n in model.N)
-        + model.P_exp_kW[t] * model.x_exp[t]
-        == sum(model.P_dis_bat_kW[n, t] for n in model.N)
-        + model.P_imp_kW[t] * model.x_imp[t]
-        + model.P_PV_kW[t]
+        model.P_load_kW[t] + sum(model.P_ch_bat_kW[n, t] for n in model.N) + model.P_exp_kW[t] * model.x_exp[t]
+        == sum(model.P_dis_bat_kW[n, t] for n in model.N) + model.P_imp_kW[t] * model.x_imp[t] + model.P_PV_kW[t]
     )
 
 
@@ -65,9 +61,7 @@ def bat_charging(model, n, t):
     """
     return model.SoC_bat[n, t + model.dT] == model.SoC_bat[n, t] + model.dT.seconds * (
         (model.P_ch_bat_kW[n, t] / model.ch_eff_bat[n]) / model.bat_capacity_kWs[n]
-    ) - model.dT.seconds * (
-        (model.P_dis_bat_kW[n, t] * model.dis_eff_bat[n]) / model.bat_capacity_kWs[n]
-    )
+    ) - model.dT.seconds * ((model.P_dis_bat_kW[n, t] * model.dis_eff_bat[n]) / model.bat_capacity_kWs[n])
 
 
 def bat_init_SoC(model, n):
@@ -105,9 +99,7 @@ def bat_max_dis_power(model, n, t):
     :param t: The timestamp index.
     :return: The constraint itself.
     """
-    return (
-        model.P_dis_bat_kW[n, t] <= float(model.P_dis_bat_max_kW[n]) * model.x_dis[n, t]
-    )
+    return model.P_dis_bat_kW[n, t] <= float(model.P_dis_bat_max_kW[n]) * model.x_dis[n, t]
 
 
 def bat_min_SoC(model, n, t):
@@ -146,10 +138,7 @@ def P_net_after_kW_lower_bound(model, t):
     :return: The constraint itself.
     """
     if model.with_lower_bound[t]:
-        return (
-            model.lower_bound_kW[t]
-            <= model.P_imp_kW[t] * model.x_imp[t] - model.P_exp_kW[t] * model.x_exp[t]
-        )
+        return model.lower_bound_kW[t] <= model.P_imp_kW[t] * model.x_imp[t] - model.P_exp_kW[t] * model.x_exp[t]
     else:
         return Constraint.Feasible
 
@@ -164,10 +153,7 @@ def P_net_after_kW_upper_bound(model, t):
     :return: The constraint itself.
     """
     if model.with_upper_bound[t]:
-        return (
-            model.P_imp_kW[t] * model.x_imp[t] - model.P_exp_kW[t] * model.x_exp[t]
-            <= model.upper_bound_kW[t]
-        )
+        return model.P_imp_kW[t] * model.x_imp[t] - model.P_exp_kW[t] * model.x_exp[t] <= model.upper_bound_kW[t]
     else:
         return Constraint.Feasible
 
@@ -203,10 +189,7 @@ def bulk_energy(model):
     return (
         sum(
             sum(
-                (
-                    model.P_dis_bat_kW[n, t] * model.dis_eff_bat[n]
-                    - (model.P_ch_bat_kW[n, t]) / model.ch_eff_bat[n]
-                )
+                (model.P_dis_bat_kW[n, t] * model.dis_eff_bat[n] - (model.P_ch_bat_kW[n, t]) / model.ch_eff_bat[n])
                 * model.dT.seconds
                 for t in model.T_bulk
             )
@@ -283,10 +266,7 @@ def surplus_case_1(model, t):
     :return: The constraint itself.
     """
     if model.P_net_before_kW[t] <= 0:
-        return (
-            sum((model.P_ch_bat_kW[n, t]) / model.ch_eff_bat[n] for n in model.N)
-            <= -model.P_net_before_kW[t]
-        )
+        return sum((model.P_ch_bat_kW[n, t]) / model.ch_eff_bat[n] for n in model.N) <= -model.P_net_before_kW[t]
     else:
         return Constraint.Feasible
 
@@ -375,10 +355,7 @@ def obj_rule(model):
     :return: The objective function itself.
     """
     return (
-        sum(
-            model.P_exp_kW[t] * model.x_exp[t] + model.P_imp_kW[t] * model.x_imp[t]
-            for t in model.T
-        )
+        sum(model.P_exp_kW[t] * model.x_exp[t] + model.P_imp_kW[t] * model.x_imp[t] for t in model.T)
         + model.alpha_exp
         + model.alpha_imp
     )
@@ -399,7 +376,7 @@ def scheduling(
     pd.Series,
     pd.Series,
     pd.Series,
-    Tuple[str,str],
+    Tuple[str, str],
 ]:
     """The scheduling optimization function which acts upon the load and generation forecast data considering
     battery specifications, optimization horizon, and power boundaries.
@@ -449,16 +426,10 @@ def scheduling(
     start_time = load.index[0]
     end_time = load.index[-1]
     delta_T = pd.to_timedelta(load.index.freq)
-    opt_horizon = pd.date_range(
-        start_time, end_time + delta_T, freq=delta_T, inclusive="left"
-    )
-    sof_horizon = pd.date_range(
-        start_time, end_time + delta_T, freq=delta_T, inclusive="both"
-    )
+    opt_horizon = pd.date_range(start_time, end_time + delta_T, freq=delta_T, inclusive="left")
+    sof_horizon = pd.date_range(start_time, end_time + delta_T, freq=delta_T, inclusive="both")
     if bulk_data is not None:
-        bulk_horizon = pd.date_range(
-            bulk_data.bulk_start, bulk_data.bulk_end, freq=delta_T, inclusive="both"
-        )
+        bulk_horizon = pd.date_range(bulk_data.bulk_start, bulk_data.bulk_end, freq=delta_T, inclusive="both")
 
     considered_load_forecast = load[
         opt_horizon
@@ -576,12 +547,8 @@ def scheduling(
     model.bat_max_dis_power = Constraint(model.N, model.T, rule=bat_max_dis_power)
     model.bat_min_SoC = Constraint(model.N, model.T_SoC_bat, rule=bat_min_SoC)
     model.bat_max_SoC = Constraint(model.N, model.T_SoC_bat, rule=bat_max_SoC)
-    model.P_net_after_kW_upper_bound = Constraint(
-        model.T, rule=P_net_after_kW_upper_bound
-    )
-    model.P_net_after_kW_lower_bound = Constraint(
-        model.T, rule=P_net_after_kW_lower_bound
-    )
+    model.P_net_after_kW_upper_bound = Constraint(model.T, rule=P_net_after_kW_upper_bound)
+    model.P_net_after_kW_lower_bound = Constraint(model.T, rule=P_net_after_kW_lower_bound)
     model.ch_dis_binary = Constraint(model.N, model.T, rule=ch_dis_binary)
     model.imp_exp_binary = Constraint(model.T, rule=imp_exp_binary)
     model.penalty_for_imp = Constraint(model.T, rule=penalty_for_imp)
@@ -615,15 +582,13 @@ def scheduling(
     # Loop through time steps to calculate and store post-processing results
     for t in model.T:
         # Calculate net power after considering import and export
-        P_net_after_kW[t] = value(
-            model.x_imp[t] * model.P_imp_kW[t] - model.x_exp[t] * model.P_exp_kW[t]
-        )
+        P_net_after_kW[t] = value(model.x_imp[t] * model.P_imp_kW[t] - model.x_exp[t] * model.P_exp_kW[t])
         total_supply = 0
         # Loop through battery nodes (n) to calculate battery power and total supply
         for n in model.N:
-            total_supply += value(
-                -model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]
-            ) + value(model.x_ch[n, t] * model.P_ch_bat_kW[n, t] * model.ch_eff_bat[n])
+            total_supply += value(-model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]) + value(
+                model.x_ch[n, t] * model.P_ch_bat_kW[n, t] * model.ch_eff_bat[n]
+            )
 
             P_bat_kW_df.loc[t, n] = value(
                 -model.x_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]
@@ -673,7 +638,7 @@ def prep_output_df(
     Prepare the output DataFrame of scheduling optimization based mode.
 
     Parameters
-    ---------- 
+    ----------
     pv_profile : pd.Series
         containing the PV profile.
     P_bat_kW_df : DataFrame
@@ -692,7 +657,7 @@ def prep_output_df(
         containing lower bounds for net power after control.
 
     Returns
-    ----------    
+    ----------
     output_df : DataFrame
         containing prepared output data.
 
