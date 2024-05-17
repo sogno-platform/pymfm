@@ -113,9 +113,7 @@ def near_real_time(measurements_request: MeasurementsRequest, battery_specs: Bat
                 bat_initial_Energy_kWh
                 - battery_specs.dis_efficiency * battery_specs.P_dis_max_kW * measurements_request.delta_T_h
             )
-        if output_ds.bat_energy_kWh < bat_min_Energy_kWh:
-            pass
-        else:
+        if output_ds.bat_energy_kWh >= bat_min_Energy_kWh:
             output_ds.import_kW = output_ds.import_kW + (
                 (bat_min_Energy_kWh - output_ds.bat_energy_kWh) / measurements_request.delta_T_h
             )
@@ -227,7 +225,6 @@ def scheduling(P_load_gen: pd.Series, battery_specs: BatterySpecs, delta_T: time
         act_ptcb = output_ds.P_bat_kW
         if abs(output_ds.P_bat_kW) <= battery_specs.P_ch_max_kW:
             output_ds.export_kW = 0
-            pass
         else:
             output_ds.export_kW = abs(output_ds.P_bat_kW) - battery_specs.P_ch_max_kW
             output_ds.P_bat_kW = -battery_specs.P_ch_max_kW
