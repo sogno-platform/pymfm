@@ -11,11 +11,11 @@
 # sublicense, and/or sell copies of the Software, and to permit# persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in all copies or 
-#substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all copies or
+# substantial portions of the Software.
 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
-# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
@@ -131,15 +131,9 @@ class GenerationAndLoadValues(BaseModel):
     Pydantic model representing generation and load forecast data at a specific timestamp.
     """
 
-    timestamp: datetime = Field(
-        ..., alias="timestamp", description=" The timestamp of the data."
-    )
-    P_gen_kW: float = Field(
-        ..., alias="P_gen_kW", description="The generated power in kilowatts (kW)."
-    )
-    P_load_kW: float = Field(
-        ..., alias="P_load_kW", description="The load power in kilowatts (kW)."
-    )
+    timestamp: datetime = Field(..., alias="timestamp", description=" The timestamp of the data.")
+    P_available_kW: float = Field(..., alias="P_available_kW", description="The generated power in kilowatts (kW).")
+    P_required_kW: float = Field(..., alias="P_required_kW", description="The load power in kilowatts (kW).")
 
 
 class GenerationAndLoad(BaseModel):
@@ -155,6 +149,7 @@ class GenerationAndLoad(BaseModel):
     values: List[GenerationAndLoadValues] = Field(
         ..., alias="values", description="A list of generation and load data values."
     )
+    delta_T_h: Optional[float] = Field(None, alias="delta_T_h", description="The time difference in hours (h).")
 
 
 class MeasurementsRequest(BaseModel):
@@ -162,17 +157,13 @@ class MeasurementsRequest(BaseModel):
     Pydantic model representing near (real) time measurement and request.
     """
 
-    timestamp: datetime = Field(
-        ..., alias="timestamp", description="The timestamp of the measurement and request."
-    )
-    P_req_kW: Optional[float] = Field(
+    timestamp: datetime = Field(..., alias="timestamp", description="The timestamp of the measurement and request.")
+    P_req_kW: float = Field(  # XXX THIS CAN NOT BE OPTIONAL AS RULEBASE NRT DOES REQUIRE IT BUT WAS MARKED AS SUCH
         ...,
         alias="P_req_kW",
         description="The requested power in kilowatts (kW) (optional).",
     )
-    delta_T_h: float = Field(
-        ..., alias="delta_T_h", description="The time difference in hours (h)."
-    )
+    delta_T_h: float = Field(..., alias="delta_T_h", description="The time difference in hours (h).")
     P_net_meas_kW: float = Field(
         ...,
         alias="P_net_meas_kW",
@@ -183,9 +174,9 @@ class MeasurementsRequest(BaseModel):
 class BatterySpecs(BaseModel):
     """
     Pydantic model representing battery specifications consisting of:
-    String values of battery "type" and "id" and Float values of initital SoC in %, 
+    String values of battery "type" and "id" and Float values of initital SoC in %,
     maximum charging and discharging powers in kW, min and max SoC in %, battery capacity in kWh,
-    and (dis)charging efficiency (0<efficiency<=1) 
+    and (dis)charging efficiency (0<efficiency<=1)
     """
 
     id: Optional[str]  # The unique identifier for the battery (optional).
@@ -239,9 +230,9 @@ class BatterySpecs(BaseModel):
         alias="dis_efficiency",
         description="The discharging efficiency of the battery (default: 1.0).",
     )
-    bat_capacity_kWs: float = (
-        0.0  # The capacity of the battery assets in kilowatt-seconds (kWs).
-    )
+    # bat_capacity_kWs: float = (
+    #     0.0  # The capacity of the battery assets in kilowatt-seconds (kWs).
+    # )
 
 
 class InputData(BaseModel):
@@ -261,14 +252,12 @@ class InputData(BaseModel):
     operation_mode: OperationMode = Field(
         ..., alias="operation_mode", description="The operation mode of the controller."
     )
-    uc_start: datetime = Field(
-        ...,
+    uc_start: Optional[datetime] = Field(
+        None,
         alias="uc_start",
         description="The start datetime of the control operation.",
     )
-    uc_end: datetime = Field(
-        ..., alias="uc_end", description="The end datetime of the control operation."
-    )
+    uc_end: Optional[datetime] = Field(None, alias="uc_end", description="The end datetime of the control operation.")
     generation_and_load: Optional[GenerationAndLoad] = Field(
         None,
         alias="generation_and_load",
@@ -279,9 +268,7 @@ class InputData(BaseModel):
         alias="day_end",
         description="The end of the sunlight for the day timestamp (optional).",
     )
-    bulk: Optional[Bulk] = Field(
-        None, alias="bulk", description="Bulk energy data (optional)."
-    )
+    bulk: Optional[Bulk] = Field(None, alias="bulk", description="Bulk energy data (optional).")
     P_net_after_kW_limitation: Optional[List[P_net_after_kWLimitation]] = Field(
         None,
         alias="P_net_after_kW_limitation",
@@ -294,40 +281,40 @@ class InputData(BaseModel):
     )
     battery_specs: Union[BatterySpecs, List[BatterySpecs]]  # Battery specifications.
 
-    @validator("generation_and_load")
-    def generation_and_load_start_before_timewindow(cls, meas, values):
-        """
-        Validator to ensure generation_and_load starts before or at uc_start.
+    # TODO rethink validation
+    # @validator("generation_and_load")
+    # def generation_and_load_start_before_timewindow(cls, meas, values):
+    #     """
+    #     Validator to ensure generation_and_load starts before or at uc_start.
 
-        :param meas: The value of generation_and_load.
-        :param values: The values dictionary.
-        :return: The validated value.
-        """
-        uc_start = values["uc_start"]
-        # Check if generation_and_load starts before or at uc_start
-        if uc_start < meas.values[0].timestamp:
-            raise ValueError(
-                f"generation_and_load have to start at or before uc_start. generation_and_load start at {meas.values[0].timestamp} uc_start was {uc_start}"
-            )
-        return meas
+    #     :param meas: The value of generation_and_load.
+    #     :param values: The values dictionary.
+    #     :return: The validated value.
+    #     """
+    #     uc_start = values["uc_start"]
+    #     # Check if generation_and_load starts before or at uc_start
+    #     if uc_start < meas.values[0].timestamp:
+    #         raise ValueError(
+    #             f"generation_and_load have to start at or before uc_start. generation_and_load start at {meas.values[0].timestamp} uc_start was {uc_start}"
+    #         )
+    #     return meas
 
-    @validator("generation_and_load")
-    def generation_and_load_end_after_timewindow(cls, meas : dict , values : dict) -> dict:
-        
-        """
-        Validator to ensure generation_and_load ends after or at uc_end.
+    # @validator("generation_and_load")
+    # def generation_and_load_end_after_timewindow(cls, meas: dict, values: dict) -> dict:
+    #     """
+    #     Validator to ensure generation_and_load ends after or at uc_end.
 
-        :param meas: The value of generation_and_load.
-        :param values: The values dictionary.
-        :return: The validated value
-        """
-        uc_end = values["uc_end"]
-        # Check if generation_and_load ends after or at uc_end
-        if uc_end > meas.values[-1].timestamp:
-            raise ValueError(
-                f"generation_and_load have to end at or after uc_end. generation_and_load end at {meas.values[-1].timestamp} uc_end was {uc_end}"
-            )
-        return meas
+    #     :param meas: The value of generation_and_load.
+    #     :param values: The values dictionary.
+    #     :return: The validated value
+    #     """
+    #     uc_end = values["uc_end"]
+    #     # Check if generation_and_load ends after or at uc_end
+    #     if uc_end > meas.values[-1].timestamp:
+    #         raise ValueError(
+    #             f"generation_and_load have to end at or after uc_end. generation_and_load end at {meas.values[-1].timestamp} uc_end was {uc_end}"
+    #         )
+    #     return meas
 
     @validator("day_end", always=True)
     def set_day_end(cls, v, values):
@@ -343,20 +330,14 @@ class InputData(BaseModel):
         # Check if day_end is not provided
         if v is None:
             # Calculate the sunset time for uc_start date and location (Berlin)
-            berlin_location = LocationInfo(
-                "Berlin", "Germany", "Europe/Berlin", 52.52, 13.40
-            )
+            berlin_location = LocationInfo("Berlin", "Germany", "Europe/Berlin", 52.52, 13.40)
             s = sun(berlin_location.observer, date=values["uc_start"].date())
 
             # Set day_end to the sunset time
             sunset_time = s["sunset"].astimezone(timezone.utc)
 
-            if generation_and_load and isinstance(
-                generation_and_load, GenerationAndLoad
-            ):
-                timestamps = [
-                    data_point.timestamp for data_point in generation_and_load.values
-                ]
+            if generation_and_load and isinstance(generation_and_load, GenerationAndLoad):
+                timestamps = [data_point.timestamp for data_point in generation_and_load.values]
                 # Find the nearest timestamp in generation_and_load data to sunset_time
                 nearest_timestamp = min(timestamps, key=lambda t: abs(t - sunset_time))
                 return nearest_timestamp
@@ -404,20 +385,20 @@ def input_prep(battery_specs: Union[BatterySpecs, List[BatterySpecs]]):
             battery.initial_SoC /= 100
             if battery.final_SoC is not None:
                 battery.final_SoC /= 100
-            battery.bat_capacity_kWs = battery.bat_capacity_kWh * 3600
+            # battery.bat_capacity_kWs = battery.bat_capacity_kWh * 3600
     else:
         # Transform battery percent to absolute
         battery_specs.min_SoC /= 100
         battery_specs.max_SoC /= 100
         battery_specs.initial_SoC /= 100
         battery_specs.final_SoC /= 100
-        battery_specs.bat_capacity_kWs = battery_specs.bat_capacity_kWh * 3600
+        # battery_specs.bat_capacity_kWs = battery_specs.bat_capacity_kWh * 3600
 
     return battery_specs
 
 
 def generation_and_load_to_df(
-    meas: GenerationAndLoad, start: datetime = None, end: datetime = None
+    meas: GenerationAndLoad, start: Optional[datetime] = None, end: Optional[datetime] = None
 ) -> pd.DataFrame:
     """Convert generation and load data to a DataFrame within a specified time range.
 
@@ -434,18 +415,19 @@ def generation_and_load_to_df(
     -------
     pd.DataFrame
         containing filtered generation and load data.
-    """    
+    """
     # Convert GenerationAndLoad objects to a DataFrame, set index to timestamp, and filter by time range
     df_forecasts = pd.json_normalize([mes.dict(by_alias=False) for mes in meas.values])
     df_forecasts.set_index("timestamp", inplace=True)
-    df_forecasts.index.freq = pd.infer_freq(df_forecasts.index)
+    try:
+        df_forecasts.index.freq = pd.infer_freq(df_forecasts.index)
+    except ValueError:
+        df_forecasts.index.freq = None
     df_forecasts = df_forecasts.loc[start:end]
     return df_forecasts
 
 
-def battery_to_df(
-    battery_specs: Union[BatterySpecs, List[BatterySpecs]]
-) -> pd.DataFrame:
+def battery_to_df(battery_specs: Union[BatterySpecs, List[BatterySpecs]]) -> pd.DataFrame:
     """
     Convert battery specifications to a DataFrame.
 
@@ -454,9 +436,7 @@ def battery_to_df(
     """
     # Convert BatterySpecs objects to a DataFrame, set index to 'id' if available
     if isinstance(battery_specs, list):
-        df_battery = pd.json_normalize(
-            [battery.dict(by_alias=False) for battery in battery_specs]
-        )
+        df_battery = pd.json_normalize([battery.dict(by_alias=False) for battery in battery_specs])
     else:
         df_battery = pd.json_normalize(battery_specs.dict(by_alias=False))
 
@@ -500,7 +480,7 @@ def P_net_after_kW_lim_to_df(
     -------
     pd.DataFrame
         containing P_net_after_kWLimitation data
-    """    
+    """
     # Check if P_net_after_kW_limits is None
     if P_net_after_kW_limits is None:
         # Create a DataFrame with default values and use timestamps from gen_load_data
@@ -527,9 +507,7 @@ def P_net_after_kW_lim_to_df(
     df.fillna(0, inplace=True)
 
     # Handle timestamps not present in P_net_after_kWLimitation but in generation_and_load
-    all_timestamps = set(df.index).union(
-        set(item.timestamp for item in gen_load_data.values)
-    )
+    all_timestamps = set(df.index).union(set(item.timestamp for item in gen_load_data.values))
     missing_timestamps = list(set(all_timestamps).difference(df.index))
     missing_data = pd.DataFrame(
         {
