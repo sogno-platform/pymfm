@@ -22,7 +22,7 @@
 
 
 import os
-from pymfm.control.utils.data_input import InputData, open_json
+from pymfm.control.utils.data_input import InputData
 from pymfm.control.utils.mode_logic_handler import mode_logic_handler
 from pymfm.control.utils import data_output
 
@@ -45,7 +45,8 @@ def main():
     filepath = os.path.join(fpath, "inputs/scheduling_optimization_based.json")
 
     # Open and load the JSON data from the file
-    data = open_json(filepath)
+    with open(filepath) as data_file:
+        data = json.load(data_file)
 
     # Create an InputData object from the loaded data
     input_data = InputData(**data)
@@ -53,8 +54,8 @@ def main():
     # Execute the control logic handler to process the input data
     mode_logic, output_df, status = mode_logic_handler(input_data)
 
-    # Prepare and save control output data as JSON files
     data_output.prepare_json(mode_logic, output_df, output_directory="outputs/")
+    # Prepare and save control output data as JSON files
 
     # Visualize and save control output data as SVG plots
     data_output.visualize_and_save_plots(

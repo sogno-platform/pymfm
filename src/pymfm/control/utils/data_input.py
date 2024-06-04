@@ -22,41 +22,16 @@
 
 
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict, List, Optional, Union
 
 import pandas as pd
 from astral.location import LocationInfo
 from astral.sun import sun
-from pydantic import BaseModel as PydBaseModel
-from pydantic import Field, ValidationError, validator
+from pydantic import Field, validator
 
-from pymfm.control.utils.common import BaseModel
-
-
-def open_json(filename):
-    """
-    Open and load JSON data from a file.
-
-    :param filename: The name of the JSON file to open.
-    :return: Loaded JSON data as a Python dictionary or list.
-    """
-    # Open the JSON file in read mode
-    with open(filename) as data_file:
-        # Load and parse the JSON data
-        data = json.load(data_file)
-
-    # Return the loaded data as a Python dictionary or list
-    return data
-
-
-class StrEnum(str, Enum):
-    """
-    An enumeration class for representing string-based enums.
-    """
-
-    pass
+from pymfm.control.utils.common import BaseModel, StrEnum
 
 
 class ControlLogic(StrEnum):
@@ -143,7 +118,7 @@ class GenerationAndLoad(BaseModel):
     pv_curtailment: bool = Field(
         False,
         alias="bulk",
-        description="The photovoltaic (PV) curtailment value (optional).",  # TODO this used to be a float but the algorithm assumes a bool
+        description="The photovoltaic (PV) curtailment value (optional).",
     )
     values: List[GenerationAndLoadValues] = Field(
         ..., alias="values", description="A list of generation and load data values."
@@ -222,9 +197,6 @@ class BatterySpecs(BaseModel):
         alias="dis_efficiency",
         description="The discharging efficiency of the battery (default: 1.0).",
     )
-    # bat_capacity_kWs: float = (
-    #     0.0  # The capacity of the battery assets in kilowatt-seconds (kWs).
-    # )
 
 
 class InputData(BaseModel):
@@ -266,11 +238,6 @@ class InputData(BaseModel):
         alias="P_net_after_kW_limitation",
         description="P_net_after limitations (optional).",
     )
-    # measurements_request: Optional[MeasurementsRequest] = Field(
-    #     None,
-    #     alias="measurements_request",
-    #     description="Measurements request data (optional).",
-    # )
     battery_specs: Union[BatterySpecs, List[BatterySpecs]]  # Battery specifications.
 
     # TODO rethink validation
@@ -320,205 +287,18 @@ class InputData(BaseModel):
         generation_and_load = values.get("generation_and_load")
 
         # Check if day_end is not provided
-        if v is None:
-            # Calculate the sunset time for uc_start date and location (Berlin)
-            berlin_location = LocationInfo("Berlin", "Germany", "Europe/Berlin", 52.52, 13.40)
-            s = sun(berlin_location.observer, date=values["uc_start"].date())
-
-            # Set day_end to the sunset time
-            sunset_time = s["sunset"].astimezone(timezone.utc)
-
-            if generation_and_load and isinstance(generation_and_load, GenerationAndLoad):
-                timestamps = [data_point.timestamp for data_point in generation_and_load.values]
-                # Find the nearest timestamp in generation_and_load data to sunset_time
-                nearest_timestamp = min(timestamps, key=lambda t: abs(t - sunset_time))
-                return nearest_timestamp
+        if v is not None:
             return v
-        else:
-            return v
+        # Calculate the sunset time for uc_start date and location (Berlin)
+        berlin_location = LocationInfo("Berlin", "Germany", "Europe/Berlin", 52.52, 13.40)
+        s = sun(berlin_location.observer, date=values["uc_start"].date())
 
+        # Set day_end to the sunset time
+        sunset_time = s["sunset"].astimezone(timezone.utc)
 
-def minutes_horizon(starttime: datetime, endtime: datetime) -> float:
-    """Calculate the time horizon in minutes between two timestamps.
-
-    Parameters
-    ----------
-    starttime : datetime
-        The start timestamp
-    endtime : datetime
-        The end timestamp.
-
-    Returns
-    -------
-    float
-        The time horizon in minutes.
-    """
-    # Calculate the time difference in seconds and convert to minutes
-    time_delta = endtime - starttime
-    total_seconds = time_delta.total_seconds()
-    minutes = total_seconds / 60
-    return minutes
-
-
-def input_prep(battery_specs: Union[BatterySpecs, List[BatterySpecs]]):
-    """
-    Prepare battery specifications by transforming battery percentages to absolute values
-    and saving battery capacity also in kWs.
-
-    :param battery_specs: Battery specifications.
-    :return: Updated battery specifications.
-    """
-    raise DeprecationWarning("battery SoC's are not floats 0 to 1, this calculation should not be applied anymore")
-
-    # Transform battery percentage values to absolute values and calculate capacity in kWs
-    if isinstance(battery_specs, list):
-        for battery in battery_specs:
-            # Transform battery percent to absolute
-            battery.min_SoC /= 100
-            battery.max_SoC /= 100
-            battery.initial_SoC /= 100
-            if battery.final_SoC is not None:
-                battery.final_SoC /= 100
-            # battery.bat_capacity_kWs = battery.bat_capacity_kWh * 3600
-    else:
-        # Transform battery percent to absolute
-        battery_specs.min_SoC /= 100
-        battery_specs.max_SoC /= 100
-        battery_specs.initial_SoC /= 100
-        battery_specs.final_SoC /= 100
-        # battery_specs.bat_capacity_kWs = battery_specs.bat_capacity_kWh * 3600
-
-    return battery_specs
-
-
-def generation_and_load_to_df(
-    meas: GenerationAndLoad,
-    start: Optional[datetime] = None,
-    end: Optional[datetime] = None,
-) -> pd.DataFrame:
-    """Convert generation and load data to a DataFrame within a specified time range.
-
-    Parameters
-    ----------
-    meas : GenerationAndLoad
-        Generation and load data.
-    start : datetime, optional
-        Start timestamp for filtering data, by default None
-    end : datetime, optional
-        End timestamp for filtering data, by default None
-
-    Returns
-    -------
-    pd.DataFrame
-        containing filtered generation and load data.
-    """
-    # Convert GenerationAndLoad objects to a DataFrame, set index to timestamp, and filter by time range
-    df_forecasts = pd.json_normalize([mes.dict(by_alias=False) for mes in meas.values])
-    df_forecasts.set_index("timestamp", inplace=True)
-    try:
-        df_forecasts.index.freq = pd.infer_freq(df_forecasts.index)
-    except ValueError:
-        df_forecasts.index.freq = None
-    df_forecasts = df_forecasts.loc[start:end]
-    return df_forecasts
-
-
-def battery_to_df(battery_specs: Union[BatterySpecs, List[BatterySpecs]]) -> pd.DataFrame:
-    """
-    Convert battery specifications to a DataFrame.
-
-    :param battery_specs: Battery specifications.
-    :return: DataFrame containing battery specifications.
-    """
-    # Convert BatterySpecs objects to a DataFrame, set index to 'id' if available
-    if isinstance(battery_specs, list):
-        df_battery = pd.json_normalize([battery.dict(by_alias=False) for battery in battery_specs])
-    else:
-        df_battery = pd.json_normalize(battery_specs.dict(by_alias=False))
-
-    if ~df_battery.id.isna().any():
-        df_battery.set_index("id", inplace=True)  # Set index to 'id' if available
-
-    return df_battery
-
-
-# TODO REMOVE
-# def measurements_request_to_dict(measurements_request: MeasurementsRequest):
-#     """
-#     Convert measurements request to a dictionary.
-
-#     :param measurements_request: Measurements and request.
-#     :return: Dictionary containing measurements and request data.
-#     """
-#     # Convert MeasurementsRequest object to a dictionary
-#     measurements_request_dict = {
-#         "timestamp": measurements_request.timestamp,
-#         "P_req_kW": measurements_request.P_req_kW,
-#         "delta_T_h": measurements_request.delta_T_h,
-#         "P_net_meas_kW": measurements_request.P_net_meas_kW,
-#     }
-#     return measurements_request_dict
-
-
-def P_net_after_kW_lim_to_df(
-    P_net_after_kW_limits: List[P_net_after_kWLimitation],
-    gen_load_data: List[GenerationAndLoad],
-) -> pd.DataFrame:
-    """Convert P_net_after_kWLimitation data (upper and lower bouns of microgrid power) to a DataFrame.
-
-    Parameters
-    ----------
-    P_net_after_kW_limits : List[P_net_after_kWLimitation]
-        List of P_net_after_kWLimitation objects.
-    gen_load_data : List[GenerationAndLoad]
-        List of GenerationAndLoad objects.
-
-    Returns
-    -------
-    pd.DataFrame
-        containing P_net_after_kWLimitation data
-    """
-
-    # Check if P_net_after_kW_limits is None
-    if P_net_after_kW_limits is None:
-        # Create a DataFrame with default values and use timestamps from gen_load_data
-        all_timestamps = set(item.timestamp for item in gen_load_data.values)
-        missing_data = pd.DataFrame(
-            {
-                "upper_bound": [0] * len(all_timestamps),
-                "with_upper_bound": [False] * len(all_timestamps),
-                "lower_bound": [0] * len(all_timestamps),
-                "with_lower_bound": [False] * len(all_timestamps),
-            },
-            index=list(all_timestamps),
-        )
-        missing_data.index.name = "timestamp"  # Set the index name
-        return missing_data
-
-    # Convert the list of P_net_after_kWLimitation objects to a DataFrame
-    df = pd.DataFrame([item.dict() for item in P_net_after_kW_limits])
-    df.set_index("timestamp", inplace=True)
-
-    # Adding new columns and filling default values
-    df["with_upper_bound"] = df["upper_bound"].notnull()
-    df["with_lower_bound"] = df["lower_bound"].notnull()
-    df.fillna(0, inplace=True)
-
-    # Handle timestamps not present in P_net_after_kWLimitation but in generation_and_load
-    all_timestamps = set(df.index).union(set(item.timestamp for item in gen_load_data.values))
-    missing_timestamps = list(set(all_timestamps).difference(df.index))
-    missing_data = pd.DataFrame(
-        {
-            "upper_bound": [0] * len(missing_timestamps),
-            "with_upper_bound": [False] * len(missing_timestamps),
-            "lower_bound": [0] * len(missing_timestamps),
-            "with_lower_bound": [False] * len(missing_timestamps),
-        },
-        index=missing_timestamps,
-    )
-
-    # Concatenate the two DataFrames
-    result_df = pd.concat([df, missing_data.astype(int)], axis=0)
-    result_df.index.name = "timestamp"  # Set the index name
-
-    return result_df
+        if generation_and_load and isinstance(generation_and_load, GenerationAndLoad):
+            timestamps = [data_point.timestamp for data_point in generation_and_load.values]
+            # Find the nearest timestamp in generation_and_load data to sunset_time
+            nearest_timestamp = min(timestamps, key=lambda t: abs(t - sunset_time))
+            return nearest_timestamp
+        return v

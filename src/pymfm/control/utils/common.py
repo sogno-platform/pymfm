@@ -1,11 +1,12 @@
 from datetime import datetime
+from enum import Enum
 from typing import Any, Dict, List, Optional
-from pydantic import BaseModel as PydBaseModel, Field
-import pandas as pd
 
+import pandas as pd
+from pydantic import BaseModel as PydBaseModel
+from pydantic import Field
 
 INDEX_COLUMN = "time"
-
 
 def get_freq(*dfs):
     delta_t = None
@@ -20,6 +21,14 @@ def get_freq(*dfs):
         if delta_t != df.index.freq:
             raise AttributeError("All deltaT of the specified timeseries have to be the same")
     return delta_t
+
+
+class StrEnum(str, Enum):
+    """
+    An enumeration class for representing string-based enums.
+    """
+
+    pass
 
 
 # for global configuration
@@ -67,21 +76,3 @@ def df_to_list(df: pd.DataFrame) -> List[Dict]:
     num_levels = df.columns.nlevels
     if num_levels > 1:
         {col: df_to_list(df[col]) for col in df.columns.levels[0]}  # TODO unfinished, still needed?
-
-
-class TimeseriesData(BaseModel):
-    time: Optional[List[datetime]] = Field(None, alias="Timestamp")
-    # XXX this alias should really be Value but it is probably to late to change api
-    values: Dict[str, List[Any]] = Field(..., alias="Values")
-
-    def to_df(self) -> pd.DataFrame:
-        df = pd.DataFrame.from_records(self.values, index=self.time)
-        if INDEX_COLUMN in df.columns:
-            df.set_index(INDEX_COLUMN)
-        else:
-            df.index.name = INDEX_COLUMN
-        return df
-
-    @classmethod
-    def from_df(cls, df: pd.DataFrame):
-        return cls(time=df.index.to_list(), values=df.to_dict(orient="list"))

@@ -21,6 +21,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+from typing import Tuple
 import pandas as pd
 from pydantic import BaseModel
 from pyomo.opt import SolverStatus, TerminationCondition
@@ -35,7 +36,7 @@ from pymfm.control.utils.data_input import OperationMode as OM
 from pymfm.control.utils.data_output import unstack_keys, BalancerOutput, validate_timestep
 
 
-def mode_logic_handler(data: InputData):  # -> tuple[dict, pd.DataFrame, tuple]:
+def mode_logic_handler(data: InputData) -> Tuple[BalancerOutput, tuple[SolverStatus, TerminationCondition]]:  # -> tuple[dict, pd.DataFrame, tuple]:
     """
     Handle different control logic modes and operation modes.
 
@@ -45,8 +46,7 @@ def mode_logic_handler(data: InputData):  # -> tuple[dict, pd.DataFrame, tuple]:
     # Prepare battery specifications, converting battery percentage to absolute values
     # battery_specs = data_input.input_prep(data.battery_specs)
 
-    tmp = data.generation_and_load
-    if tmp is None:
+    if data.generation_and_load is None:
         raise RuntimeWarning(
             "Generation and load not specified"
         )  # TODO generation and load should be named something else.
@@ -59,15 +59,12 @@ def mode_logic_handler(data: InputData):  # -> tuple[dict, pd.DataFrame, tuple]:
 
     # Prepare battery specifications data
     df_battery_specs = extract_df(data, attr="battery_specs", index_col="id")
-    # df_battery_specs = data_input.battery_to_df(battery_specs)
-    # TODO tmp should not be used sync with RB
-    if tmp.delta_T_h is None:
+    delta_T_h = data.generation_and_load.delta_T_h
+    if delta_T_h is None:
         delta_T_h = get_freq(df_power, df_limits).nanos * 1e-9 / 3600
-    else:
-        delta_T_h = tmp.delta_T_h
-
+    
     df = df_power.asfreq(f"{delta_T_h}H")
-    if df_limits:
+    if df_limits is not None:
         df = df.join(df_limits)
 
     # TODO readd start and stop time
@@ -101,7 +98,6 @@ def mode_logic_handler(data: InputData):  # -> tuple[dict, pd.DataFrame, tuple]:
             output_df.rename({"SoC_bat": ("SoC_bat", battery_specs.id)}, inplace=True, axis=1)
         output_df.index.name = "time" # XXX should be one name everywhere instead of sometimes "time" and sometimes "timestamp"
 
-        # TODO sync postprocessing with optimization based
         output_ts = [validate_timestep(data.to_dict()) for time, data in output_df.reset_index().iterrows()]
 
         out = BalancerOutput(

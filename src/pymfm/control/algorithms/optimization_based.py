@@ -22,23 +22,16 @@
 
 
 from datetime import datetime
-from typing import List, Tuple
+from typing import List
 
 import pandas as pd
-from pymfm.control.utils.common import TimeseriesData
 import pyomo.kernel as pmo
-from pyomo.core import (
-    ConcreteModel,
-    Constraint,
-    NonNegativeReals,
-    Objective,
-    Var,
-    minimize,
-)
+from pyomo.core import (ConcreteModel, Constraint, NonNegativeReals, Objective,
+                        Var, minimize)
 from pyomo.environ import SolverFactory
 from pyomo.opt import SolverStatus, TerminationCondition
 
-from pymfm.control.utils.data_input import BatterySpecs, Bulk, P_net_after_kWLimitation
+from pymfm.control.utils.data_input import Bulk, P_net_after_kWLimitation
 
 # Constraints
 
@@ -553,7 +546,6 @@ def scheduling(
     model.bat_min_SoC = Constraint(model.N, model.T_SoC_bat, rule=bat_min_SoC)
     model.bat_max_SoC = Constraint(model.N, model.T_SoC_bat, rule=bat_max_SoC)
     if "upper_bound" in timeseries:
-        # TODO deal with infinite bound
         model.P_net_after_kW_upper_bound = Constraint(model.T, rule=P_net_after_kW_upper_bound)
     if "lower_bound" in timeseries:
         model.P_net_after_kW_lower_bound = Constraint(model.T, rule=P_net_after_kW_lower_bound)
@@ -610,64 +602,6 @@ def scheduling(
         output_batteries,
         output_system,
         output_static,
-        (solver.status, solver.termination_condition),
-    )
-    p_net_after_kw = (
-        output_system.is_imp * output_system.P_imp_kW - output_system.is_exp * output_system.P_exp_kW
-    )  # XXX could these all be one value (-inf,inf)?
-    supply = (
-        output_batteries.is_ch * output_batteries.P_ch_bat_kW * df_battery.ch_efficiency
-        - output_batteries.is_dis * output_batteries.P_dis_bat_kW / df_battery.dis_efficiency
-    )
-    return (
-        output_batteries,
-        output_static,
-        output_system,
-        p_net_after_kw,
-        supply,
-        (solver.status, solver.termination_condition),
-    )
-
-    # TODO remove below
-    for t in model.T:
-        # Calculate net power after considering import and export
-        total_supply = 0
-        # Loop through battery nodes (n) to calculate battery power and total supply
-        for n in model.N:
-            total_supply += value(-model.is_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]) + value(
-                model.is_ch[n, t] * model.P_ch_bat_kW[n, t] * model.ch_eff_bat[n]
-            )
-
-            P_bat_kW_df.loc[t, n] = value(
-                -model.is_dis[n, t] * model.P_dis_bat_kW[n, t] / model.dis_eff_bat[n]
-                + model.is_ch[n, t] * model.P_ch_bat_kW[n, t] * model.ch_eff_bat[n]
-            )
-        # Store the total supply in P_bat_total_kW
-        P_bat_total_kW[t] = total_supply
-
-        # Check if lower and upper bounds exist for this time step and store them
-        if model.with_lower_bound[t]:
-            lower_bound[t] = model.lower_bound_kW[t]
-        if model.with_upper_bound[t]:
-            upper_bound[t] = model.upper_bound_kW[t]
-
-    # Loop through battery nodes (col) to extract charging, discharging, and SoC data
-    for col in df_battery.index:
-        bat_ch[col] = model.P_ch_bat_kW[col, :]()
-        bat_dis[col] = model.P_dis_bat_kW[col, :]()
-        SoC_bat_df[col] = model.SoC_bat[col, :]()
-
-    # Extract the PV profile data
-    PV_profile = pd.Series(model.P_PV_kW[:](), index=model.T)
-
-    return (
-        PV_profile,
-        P_bat_kW_df,
-        P_bat_total_kW,
-        SoC_bat_df,
-        P_net_after_kW,
-        upper_bound,
-        lower_bound,
         (solver.status, solver.termination_condition),
     )
 

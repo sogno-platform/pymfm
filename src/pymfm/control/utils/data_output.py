@@ -26,7 +26,6 @@ import matplotlib.pyplot as plt
 import os
 import json
 import itertools
-from pymfm.control.utils.common import TimeseriesData
 from pymfm.control.utils.data_input import (
     ControlLogic as CL,
     OperationMode as OM,
@@ -262,8 +261,6 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
     print(f"Output .json file generated and saved under: {absolute_output_file_path}")
 
 
-############# OLD STUFF
-
 from importlib.metadata import version
 from typing import Dict, List, Optional, Tuple
 import pandas as pd
@@ -288,12 +285,12 @@ class ResultTimeseries(BaseModel):
 
 
 class BalancerOutput(BaseModel):
-    id: str
+    id: str  # XXX this is weird place to have the have, it should be at the highest level
     version: str = version("pymfm")
     peak_imp: Optional[float] = None
     peak_exp: Optional[float] = None
     schedule: List[ResultTimeseries]
-    # units: Dict[str, str] = Field(default_factory=dict)
+    # units: Dict[str, str] = Field(default_factory=dict) # TODO readd
 
 
 # XXX not sure why it is structured like this but this is needed to keep the response the same
@@ -303,44 +300,17 @@ class BalancerOutputWrapper(BaseModel):
     balancer_output: BalancerOutput = Field(..., alias="Balancer_output")
 
 
-def prep_optimizer_output(
-    import_profile: pd.Series,
-    flex_profiles: pd.DataFrame,
-    sof_profiles: pd.DataFrame,
-    forecasts: pd.Series,
-    df_flex: pd.DataFrame,
-):
-    result_overview = pd.DataFrame(
-        index=forecasts.index,
-        columns=["ptei_kw", "expected_ptei_kw"],
-    )
-    result_overview["ptei_kw"] = forecasts["cal_ions_kw"]
-
-    result_overview["expected_ptei_kw"] = import_profile
-    for col in flex_profiles.columns:
-        result_overview[f"ptcb_kw_{col}"] = flex_profiles[col]
-        result_overview[f"sof_kwh_{col}"] = sof_profiles[col] * df_flex.agg_cap_flex[col] / 3600
-
-    return result_overview
-
-
-def values_mapper(col_name: str):
-    if col_name.startswith("ptcb_kw_"):
-        return col_name.removeprefix("ptcb_kw_")
-    return col_name
-
-
 def unstack_keys(d: dict):
     out = dict()
     for key, val in d.items():
         next = out
         # single level column can be done directly
         if isinstance(key, str):
-            out[key] = val 
+            out[key] = val
             continue
         for k in key:
             # skip empty strings, None etc. these only exist becaus pandas does not like columns with different levels in one DF
-            if not k: 
+            if not k:
                 continue
             # if valid key extend the outstructure if necessary and walk.
             last_valid = k
@@ -354,22 +324,3 @@ def unstack_keys(d: dict):
 
 def validate_timestep(d: dict) -> ResultTimeseries:
     return ResultTimeseries(**unstack_keys(d))
-
-
-def df_to_output(
-    output: pd.DataFrame, id: str, status: Tuple[SolverStatus, TerminationCondition]
-) -> BalancerOutputWrapper:
-    value_cols = output.columns[output.columns.map(lambda col: col == "time" or col.startswith("ptcb_kw"))]
-    # TODO decide whether "ptcb_kw" should be included in the name
-    # output = output[value_cols].rename(columns=values_mapper).to_dict(orient="index")
-    output = output[value_cols].to_dict(orient="index")
-    output = [{"time": time, "values": d} for time, d in output.items()]
-    out = BalancerOutput(
-        id=id,
-        version=version("platone-balancing-module"),
-        units={"time": "ISO8601", "Ptcb": "kW"},
-        output=output,
-    )
-
-    wrapped_output = BalancerOutputWrapper(status=status[0], details=status[1], balancer_output=out)
-    return out, status[0], status[1]

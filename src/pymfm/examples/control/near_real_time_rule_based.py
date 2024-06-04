@@ -21,8 +21,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
+import json
 import os
-from pymfm.control.utils.data_input import InputData, open_json
+from pymfm.control.utils.data_input import InputData
 from pymfm.control.utils.mode_logic_handler import mode_logic_handler
 from pymfm.control.utils import data_output
 
@@ -44,7 +45,8 @@ def main():
     filepath = os.path.join(fpath, "inputs/near_real_time_rule_based.json")
 
     # Open and load the JSON data from the file
-    data = open_json(filepath)
+    with open(filepath) as data_file:
+        data = json.load(data_file)
 
     # Create an InputData object from the loaded data
     input_data = InputData(**data)
