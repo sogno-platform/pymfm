@@ -55,7 +55,7 @@ def main():
     results, status = mode_logic_handler(input_data)
 
     # Prepare and save control output data as JSON files
-    # TODO from here
+    # TODO from here this is broken
     data_output.prepare_json(mode_logic, output_df, output_directory="outputs/")
 
     # Visualize and save control output data as SVG plots 
