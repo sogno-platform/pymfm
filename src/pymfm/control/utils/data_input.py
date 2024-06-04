@@ -21,14 +21,18 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-from typing import Dict, Optional, List, Union
 import json
-import pandas as pd
-from pydantic import BaseModel as PydBaseModel, Field, ValidationError, validator
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
-from astral.sun import sun
+from typing import Dict, List, Optional, Union
+
+import pandas as pd
 from astral.location import LocationInfo
+from astral.sun import sun
+from pydantic import BaseModel as PydBaseModel
+from pydantic import Field, ValidationError, validator
+
+from pymfm.control.utils.common import BaseModel
 
 
 def open_json(filename):
@@ -45,15 +49,6 @@ def open_json(filename):
 
     # Return the loaded data as a Python dictionary or list
     return data
-
-
-class BaseModel(PydBaseModel):
-    """
-    Base Pydantic model with configuration settings to allow population by field name.
-    """
-
-    class Config:
-        allow_population_by_field_name = True
 
 
 class StrEnum(str, Enum):
@@ -132,7 +127,11 @@ class GenerationAndLoadValues(BaseModel):
     """
 
     timestamp: datetime = Field(..., alias="timestamp", description=" The timestamp of the data.")
-    P_available_kW: float = Field(..., alias="P_available_kW", description="The generated power in kilowatts (kW).")
+    P_available_kW: float = Field(
+        ...,
+        alias="P_available_kW",
+        description="The generated power in kilowatts (kW).",
+    )
     P_required_kW: float = Field(..., alias="P_required_kW", description="The load power in kilowatts (kW).")
 
 
@@ -141,34 +140,15 @@ class GenerationAndLoad(BaseModel):
     Pydantic model representing a collection of generation and load data.
     """
 
-    pv_curtailment: Optional[float] = Field(
-        None,
+    pv_curtailment: bool = Field(
+        False,
         alias="bulk",
-        description="The photovoltaic (PV) curtailment value (optional).",
+        description="The photovoltaic (PV) curtailment value (optional).",  # TODO this used to be a float but the algorithm assumes a bool
     )
     values: List[GenerationAndLoadValues] = Field(
         ..., alias="values", description="A list of generation and load data values."
     )
     delta_T_h: Optional[float] = Field(None, alias="delta_T_h", description="The time difference in hours (h).")
-
-
-class MeasurementsRequest(BaseModel):
-    """
-    Pydantic model representing near (real) time measurement and request.
-    """
-
-    timestamp: datetime = Field(..., alias="timestamp", description="The timestamp of the measurement and request.")
-    P_req_kW: float = Field(  # XXX THIS CAN NOT BE OPTIONAL AS RULEBASE NRT DOES REQUIRE IT BUT WAS MARKED AS SUCH
-        ...,
-        alias="P_req_kW",
-        description="The requested power in kilowatts (kW) (optional).",
-    )
-    delta_T_h: float = Field(..., alias="delta_T_h", description="The time difference in hours (h).")
-    P_net_meas_kW: float = Field(
-        ...,
-        alias="P_net_meas_kW",
-        description="The measured net power in kilowatts (kW).",
-    )
 
 
 class BatterySpecs(BaseModel):
@@ -187,11 +167,15 @@ class BatterySpecs(BaseModel):
     )
     initial_SoC: float = Field(
         ...,
+        le=1.0,
+        ge=0.0,
         alias="initial_SoC",
         description="The initial state of charge of the battery (SoC) in percentage at uc_start.",
     )
     final_SoC: Optional[float] = Field(
         None,
+        le=1.0,
+        ge=0.0,
         alias="final_SoC",
         description="The final state of charge of the battery (SoC) in percentage at uc_end (optional).",
     )
@@ -207,11 +191,15 @@ class BatterySpecs(BaseModel):
     )
     min_SoC: float = Field(
         ...,
+        le=1.0,
+        ge=0.0,
         alias="min_SoC",
         description="The minimum state of charge of the battery in percentage.",
     )
     max_SoC: float = Field(
         ...,
+        le=1.0,
+        ge=0.0,
         alias="max_SoC",
         description="The maximum state of charge of the battery in percentage.",
     )
@@ -222,11 +210,15 @@ class BatterySpecs(BaseModel):
     )
     ch_efficiency: float = Field(
         default=1.0,
+        le=1.0,
+        ge=0.0,
         alias="ch_efficiency",
         description="The charging efficiency of the battery (default: 1.0).",
     )
     dis_efficiency: float = Field(
         default=1.0,
+        le=1.0,
+        ge=0.0,
         alias="dis_efficiency",
         description="The discharging efficiency of the battery (default: 1.0).",
     )
@@ -258,8 +250,8 @@ class InputData(BaseModel):
         description="The start datetime of the control operation.",
     )
     uc_end: Optional[datetime] = Field(None, alias="uc_end", description="The end datetime of the control operation.")
-    generation_and_load: Optional[GenerationAndLoad] = Field(
-        None,
+    generation_and_load: GenerationAndLoad = Field(
+        ...,
         alias="generation_and_load",
         description="Generation and load data (optional).",
     )
@@ -274,11 +266,11 @@ class InputData(BaseModel):
         alias="P_net_after_kW_limitation",
         description="P_net_after limitations (optional).",
     )
-    measurements_request: Optional[MeasurementsRequest] = Field(
-        None,
-        alias="measurements_request",
-        description="Measurements request data (optional).",
-    )
+    # measurements_request: Optional[MeasurementsRequest] = Field(
+    #     None,
+    #     alias="measurements_request",
+    #     description="Measurements request data (optional).",
+    # )
     battery_specs: Union[BatterySpecs, List[BatterySpecs]]  # Battery specifications.
 
     # TODO rethink validation
@@ -376,6 +368,8 @@ def input_prep(battery_specs: Union[BatterySpecs, List[BatterySpecs]]):
     :param battery_specs: Battery specifications.
     :return: Updated battery specifications.
     """
+    raise DeprecationWarning("battery SoC's are not floats 0 to 1, this calculation should not be applied anymore")
+
     # Transform battery percentage values to absolute values and calculate capacity in kWs
     if isinstance(battery_specs, list):
         for battery in battery_specs:
@@ -398,7 +392,9 @@ def input_prep(battery_specs: Union[BatterySpecs, List[BatterySpecs]]):
 
 
 def generation_and_load_to_df(
-    meas: GenerationAndLoad, start: Optional[datetime] = None, end: Optional[datetime] = None
+    meas: GenerationAndLoad,
+    start: Optional[datetime] = None,
+    end: Optional[datetime] = None,
 ) -> pd.DataFrame:
     """Convert generation and load data to a DataFrame within a specified time range.
 
@@ -446,21 +442,22 @@ def battery_to_df(battery_specs: Union[BatterySpecs, List[BatterySpecs]]) -> pd.
     return df_battery
 
 
-def measurements_request_to_dict(measurements_request: MeasurementsRequest):
-    """
-    Convert measurements request to a dictionary.
+# TODO REMOVE
+# def measurements_request_to_dict(measurements_request: MeasurementsRequest):
+#     """
+#     Convert measurements request to a dictionary.
 
-    :param measurements_request: Measurements and request.
-    :return: Dictionary containing measurements and request data.
-    """
-    # Convert MeasurementsRequest object to a dictionary
-    measurements_request_dict = {
-        "timestamp": measurements_request.timestamp,
-        "P_req_kW": measurements_request.P_req_kW,
-        "delta_T_h": measurements_request.delta_T_h,
-        "P_net_meas_kW": measurements_request.P_net_meas_kW,
-    }
-    return measurements_request_dict
+#     :param measurements_request: Measurements and request.
+#     :return: Dictionary containing measurements and request data.
+#     """
+#     # Convert MeasurementsRequest object to a dictionary
+#     measurements_request_dict = {
+#         "timestamp": measurements_request.timestamp,
+#         "P_req_kW": measurements_request.P_req_kW,
+#         "delta_T_h": measurements_request.delta_T_h,
+#         "P_net_meas_kW": measurements_request.P_net_meas_kW,
+#     }
+#     return measurements_request_dict
 
 
 def P_net_after_kW_lim_to_df(
@@ -481,6 +478,7 @@ def P_net_after_kW_lim_to_df(
     pd.DataFrame
         containing P_net_after_kWLimitation data
     """
+
     # Check if P_net_after_kW_limits is None
     if P_net_after_kW_limits is None:
         # Create a DataFrame with default values and use timestamps from gen_load_data

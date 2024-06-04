@@ -22,16 +22,17 @@
 
 
 import pandas as pd
+from pydantic import BaseModel
 from pyomo.opt import SolverStatus, TerminationCondition
-from pymfm.control.utils import data_input, data_output
-from pymfm.control.utils.data_input import (
-    GenerationAndLoad,
-    InputData,
-    ControlLogic as CL,
-    OperationMode as OM,
-)
+
 from pymfm.control.algorithms import optimization_based as OptB
 from pymfm.control.algorithms import rule_based as RB
+from pymfm.control.utils import data_input, data_output
+from pymfm.control.utils.common import extract_df, get_freq
+from pymfm.control.utils.data_input import ControlLogic as CL
+from pymfm.control.utils.data_input import GenerationAndLoad, InputData
+from pymfm.control.utils.data_input import OperationMode as OM
+from pymfm.control.utils.data_output import unstack_keys, BalancerOutput, validate_timestep
 
 
 def mode_logic_handler(data: InputData):  # -> tuple[dict, pd.DataFrame, tuple]:
@@ -42,16 +43,19 @@ def mode_logic_handler(data: InputData):  # -> tuple[dict, pd.DataFrame, tuple]:
     :return: Tuple containing mode logic information, output DataFrame, and solver status.
     """
     # Prepare battery specifications, converting battery percentage to absolute values
-    battery_specs = data_input.input_prep(data.battery_specs)
+    # battery_specs = data_input.input_prep(data.battery_specs)
+
+    tmp = data.generation_and_load
+    if tmp is None:
+        raise RuntimeWarning(
+            "Generation and load not specified"
+        )  # TODO generation and load should be named something else.
 
     if data.control_logic == CL.RULE_BASED:
-        tmp = data.generation_and_load
-        if tmp is None:
-            raise RuntimeWarning(
-                "Generation and load not specified"
-            )  # TODO generation and load should be named something else.
+
         if not isinstance(tmp.values, list):
             tmp.values = [tmp.values]
+
         df = data_input.generation_and_load_to_df(tmp, start=data.uc_start, end=data.uc_end)
 
         if df.index.freq is not None and tmp.delta_T_h is not None:
@@ -61,7 +65,7 @@ def mode_logic_handler(data: InputData):  # -> tuple[dict, pd.DataFrame, tuple]:
             delta_T_h = df.index.freq.nanos * 1e-9 / 3600
         else:
             delta_T_h = tmp.delta_T_h
-
+        battery_specs = data.battery_specs
         if isinstance(battery_specs, list):
             if len(battery_specs) == 1:
                 battery_specs = battery_specs[0]
@@ -70,6 +74,7 @@ def mode_logic_handler(data: InputData):  # -> tuple[dict, pd.DataFrame, tuple]:
 
         output_df = None
 
+        # XXX think about moving this to the RB algorithm to be analog to optimization based
         for time, P in df.iterrows():
             output = RB.combined_rule_based(P.P_required_kW - P.P_available_kW, battery_specs, delta_T_h)
 
@@ -77,171 +82,76 @@ def mode_logic_handler(data: InputData):  # -> tuple[dict, pd.DataFrame, tuple]:
                 output_df = pd.DataFrame(columns=output.index, index=df.index)
 
             # Append the output for the current time
-            output_df.loc[time] = output # type: ignore
-            battery_specs.initial_SoC = output.SoC_bat_per
+            output_df.loc[time] = output  # type: ignore
+            battery_specs.initial_SoC = output.SoC_bat
 
         if battery_specs.id is not None and output_df is not None:
-            output_df.rename({"P_bat_kW": f"P_{battery_specs.id}_kW"}, inplace=True, axis=1)
-            output_df.rename({"SoC_bat": f"SoC_{battery_specs.id}_per"}, inplace=True, axis=1)
-
+            # output_df.rename({"P_bat_kW": f"P_{battery_specs.id}_kW"}, inplace=True, axis=1)
+            # output_df.rename({"SoC_bat": f"SoC_{battery_specs.id}_per"}, inplace=True, axis=1)
+            output_df.rename({"P_bat_kW": ("P_bat_kW", battery_specs.id)}, inplace=True, axis=1)
+            output_df.rename({"SoC_bat": ("SoC_bat", battery_specs.id)}, inplace=True, axis=1)
+        # TODO sync postprocessing with optimization based
         return (
             output_df,
             (SolverStatus.ok, TerminationCondition.optimal),
         )
 
-        ######## OLD BELOW
-        if data.operation_mode == OM.SCHEDULING:
-            # Prepare the forecasted data
-            df_forecasts = data_input.generation_and_load_to_df(
-                data.generation_and_load, start=data.uc_start, end=data.uc_end
-            )
-
-            # If multiple battery nodes are present, handle them
-            if isinstance(battery_specs, list):
-                if len(battery_specs) == 1:
-                    battery_specs = battery_specs[0]
-                else:
-                    raise RuntimeError("Rule based control cannot deal with multiple flex nodes.")
-
-            # Initialize the output DataFrame
-            output_df = None
-            delta_T = pd.to_timedelta(df_forecasts.P_load_kW.index.freq)
-            delta_T_h = delta_T.total_seconds() / 3600  # 3600 seconds per hour
-            print("Input data has been read successfully. Running scheduling rule-based control.")
-
-            # TODO add logic to unify requested and data delta_T (what should take precedence when both present?)
-
-            # Iterate through forecasted data and perform scheduling
-            for time, P_net_before_kW in df_forecasts.iterrows():
-                output = RB.scheduling(P_net_before_kW, battery_specs, delta_T_h)
-
-                # Initialize output DataFrame if not created
-                if output_df is None:
-                    output_df = pd.DataFrame(columns=output.index, index=df_forecasts.index)
-
-                # Append the output for the current time
-                output_df.loc[time] = output
-
-                # Update initial SoC for the next time step
-                battery_specs.initial_SoC = output.bat_energy_kWs / battery_specs.bat_capacity_kWs
-            print("Scheduling rule-based control finished.")
-
-            # Rename columns for battery-specific data
-            if battery_specs.id is not None:
-                output_df.rename({"P_bat_kW": f"P_{battery_specs.id}_kW"}, inplace=True, axis=1)
-                output_df.rename({"SoC_bat": f"SoC_{battery_specs.id}_%"}, inplace=True, axis=1)
-            else:
-                output_df.rename({"P_bat_kW": "P_bat_1_kW"}, inplace=True, axis=1)
-                output_df.rename({"SoC_bat": "SoC_bat_1_%"}, inplace=True, axis=1)
-
-            # Drop unnecessary columns
-            output_df = output_df.drop(["bat_energy_kWs", "import_kW", "export_kW"], axis=1)
-
-            # Define mode_logic information
-            mode_logic = {
-                "ID": data.id,
-                "CL": data.control_logic,
-                "OM": data.operation_mode,
-            }
-
-            return (
-                mode_logic,
-                output_df,
-                (SolverStatus.ok, TerminationCondition.optimal),
-            )
-
-        elif data.operation_mode == OM.NEAR_REAL_TIME:
-            # Handle near real-time rule-based control
-            if isinstance(battery_specs, list):
-                if len(battery_specs) == 1:
-                    battery_specs = battery_specs[0]
-                else:
-                    raise RuntimeError("Near real-time control cannot deal with multiple flex nodes.")
-
-            # Prepare measurements request data
-            # measurements_request_dict = data_input.measurements_request_to_dict(
-            #     data.measurements_request
-            # )
-
-            print("Input data has been read successfully. Running near real-time rule-based control.")
-
-            # Perform near real-time rule-based control
-            output_df = RB.near_real_time(
-                data.measurements_request, battery_specs
-            )  # XXX This is probably a series not a df
-
-            # Define mode_logic information
-            mode_logic = {
-                "ID": data.id,
-                "CL": data.control_logic,
-                "OM": data.operation_mode,
-            }
-
-            print("Near real-time rule-based control finished.")
-            return (
-                mode_logic,
-                output_df,
-                (SolverStatus.ok, TerminationCondition.optimal),
-            )
-        else:
-            raise AttributeError("control logic needs to be either `scheduling` or `near_real_time`")
-
     elif data.control_logic == CL.OPTIMIZATION_BASED:
         # Prepare forecasted data
-        df_forecasts = data_input.generation_and_load_to_df(
-            data.generation_and_load, start=data.uc_start, end=data.uc_end
-        )
+        df_power = extract_df(data.generation_and_load, attr="values", index_col="timestamp")
 
         # Prepare power limitations data
-        P_net_after_kW_limits = data_input.P_net_after_kW_lim_to_df(
-            data.P_net_after_kW_limitation, data.generation_and_load
-        )
+        df_limits = extract_df(data, attr="P_net_after_kW_limitation", index_col="timestamp")
 
         # Prepare battery specifications data
-        df_battery_specs = data_input.battery_to_df(battery_specs)
+        df_battery_specs = extract_df(data, attr="battery_specs", index_col="id")
+        # df_battery_specs = data_input.battery_to_df(battery_specs)
+        # TODO tmp should not be used sync with RB
+        if tmp.delta_T_h is None:
+            delta_T_h = get_freq(df_power, df_limits).nanos * 1e-9 / 3600
+        else:
+            delta_T_h = tmp.delta_T_h
+
+        df = df_power.asfreq(f"{delta_T_h}H")
+
+        df = df.join(df_limits)
+
+        # TODO read start and stop time
 
         print("Input data has been read successfully. Running scheduling optimization-based control.")
 
         # Perform scheduling optimization-based control
-        (
-            P_net_after_kW,
-            PV_profile,
-            P_bat_kW_df,
-            P_bat_total_kW,
-            SoC_bat_df,
-            upper_bound_kW,
-            lower_bound_kW,
-            solver_status,
-        ) = OptB.scheduling(
-            df_forecasts,
+        (output_batteries, output_system, output_static, solver_status) = OptB.scheduling(
+            df,
             df_battery_specs,
             data.day_end,
             data.bulk,
-            P_net_after_kW_limits,
             data.generation_and_load.pv_curtailment,
         )
 
         print("Scheduling optimization-based control finished.")
 
-        # Prepare the output DataFrame
-        output_df = OptB.prep_output_df(
-            P_net_after_kW,
-            PV_profile,
-            P_bat_kW_df,
-            P_bat_total_kW,
-            SoC_bat_df,
-            df_forecasts,
-            upper_bound_kW,
-            lower_bound_kW,
+        # postprocess
+        ## prep batteries output
+        tmp = output_batteries.P_ch_bat_kW - output_batteries.P_dis_bat_kW
+        tmp.columns = pd.MultiIndex.from_product([["P_bat_kW"], tmp.columns])
+        output_df = output_batteries.join(tmp)
+        output_df.drop(["is_ch", "is_dis", "P_ch_bat_kW", "P_dis_bat_kW"], axis="columns", level=0, inplace=True)
+        # output_df.columns = ["|".join(col) for col in output_df.columns.to_flat_index()]
+        ## prep system output
+        output_system["P_net_after_kW"] = output_system.P_imp_kW - output_system.P_exp_kW
+        output_system.drop(["is_imp", "is_exp", "P_exp_kW", "P_imp_kW"], axis="columns", inplace=True)
+
+        ## combine
+        output_system.columns = pd.MultiIndex.from_product([output_system.columns, [""]])
+        output_df = output_df.join(output_system)
+
+        output_ts = [validate_timestep(data.to_dict()) for time, data in output_df.reset_index().iterrows()]
+
+        out = BalancerOutput(
+            id=data.id, peak_exp=output_static.peak_exp, peak_imp=output_static.peak_imp, schedule=output_ts
         )
 
-        # Define mode_logic information
-        mode_logic = {
-            "ID": data.id,
-            "CL": data.control_logic,
-            "OM": data.operation_mode,
-        }
-
-        return mode_logic, output_df, solver_status
+        return out, solver_status
     else:
         raise AttributeError("control logic needs to be either `rule_base` or `optimization`")
