@@ -1,4 +1,3 @@
-
 # The pymfm framework
 
 # Copyright (C) 2023,
@@ -12,11 +11,11 @@
 # sublicense, and/or sell copies of the Software, and to permit# persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 
-# The above copyright notice and this permission notice shall be included in all copies or 
-#substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all copies or
+# substantial portions of the Software.
 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING 
-# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+# BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
 # NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
 # DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
@@ -27,15 +26,14 @@ import matplotlib.pyplot as plt
 import os
 import json
 import itertools
+from pymfm.control.utils.common import TimeseriesData
 from pymfm.control.utils.data_input import (
     ControlLogic as CL,
     OperationMode as OM,
 )
 
 
-def visualize_and_save_plots(
-    mode_logic: dict, dataframe: pd.DataFrame, output_directory: str
-):
+def visualize_and_save_plots(mode_logic: dict, dataframe: pd.DataFrame, output_directory: str):
     """Visualize control output data from a DataFrame and save plots as SVG files based on control logic and operation mode.
 
     Parameters
@@ -46,7 +44,7 @@ def visualize_and_save_plots(
         containing data to be visualized.
     output_directory : str
         Directory where the SVG plots will be saved.
-    """    
+    """
     if mode_logic["CL"] == CL.OPTIMIZATION_BASED:
         # First subplot for 'P_net_after_kW', 'upperb', and 'lowerb'
         plt.figure(figsize=(12, 8))
@@ -58,12 +56,8 @@ def visualize_and_save_plots(
             c="olivedrab",
             lw=2,
         )
-        plt.plot(
-            dataframe.index, dataframe["upperb"], label="Upperbound", c="red", lw=2
-        )
-        plt.plot(
-            dataframe.index, dataframe["lowerb"], label="Lowerbound", c="red", lw=2
-        )
+        plt.plot(dataframe.index, dataframe["upperb"], label="Upperbound", c="red", lw=2)
+        plt.plot(dataframe.index, dataframe["lowerb"], label="Lowerbound", c="red", lw=2)
         plt.title("Net power after and its Boundaries")
         plt.xlabel("Timestamp")
         plt.ylabel("Value")
@@ -71,9 +65,7 @@ def visualize_and_save_plots(
         plt.legend()
 
         # Save the first plot to an SVG file in the specified output directory
-        output_file1 = os.path.join(
-            output_directory, f"{mode_logic['ID']}_p_net_after_and_boundries_plot.svg"
-        )
+        output_file1 = os.path.join(output_directory, f"{mode_logic['ID']}_p_net_after_and_boundries_plot.svg")
         plt.savefig(output_file1, format="svg")
 
         # Second subplot for power output ('P_net_before_kW', 'P_net_after_kW', and battery power)
@@ -108,9 +100,7 @@ def visualize_and_save_plots(
         plt.legend()
 
         # Save the second plot to an SVG file in the specified output directory
-        output_file2 = os.path.join(
-            output_directory, f"{mode_logic['ID']}_power_balance_plot.svg"
-        )
+        output_file2 = os.path.join(output_directory, f"{mode_logic['ID']}_power_balance_plot.svg")
         plt.savefig(output_file2, format="svg")
 
         # Third subplot for battery state of charge ('SoC_bat_n_%')
@@ -131,9 +121,7 @@ def visualize_and_save_plots(
         plt.legend()
 
         # Save the third plot to an SVG file in the specified output directory
-        output_file3 = os.path.join(
-            output_directory, f"{mode_logic['ID']}_battery_soc_plot.svg"
-        )
+        output_file3 = os.path.join(output_directory, f"{mode_logic['ID']}_battery_soc_plot.svg")
         plt.savefig(output_file3, format="svg")
 
         plt.close()  # Close the current figure to free up resources
@@ -172,17 +160,13 @@ def visualize_and_save_plots(
             plt.legend()
 
             # Save the plot as an SVG image under the given directory
-            output_file = os.path.join(
-                output_directory, f"{mode_logic['ID']}_output_plot.svg"
-            )
+            output_file = os.path.join(output_directory, f"{mode_logic['ID']}_output_plot.svg")
             plt.savefig(output_file, format="svg")
             plt.close()  # Close the current figure to free up resources
 
     # Get the absolute file path of the generated .json file
     absolute_output_directory_path = os.path.abspath(output_directory)
-    print(
-        f"Output .svg plots generated and saved under: {absolute_output_directory_path}"
-    )
+    print(f"Output .svg plots generated and saved under: {absolute_output_directory_path}")
 
 
 def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: str):
@@ -197,7 +181,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
         containing data to be saved as JSON.
     output_directory : str
         Directory where the JSON files will be saved.
-    """    
+    """
     if mode_logic["CL"] == CL.RULE_BASED:
         if mode_logic["OM"] == OM.NEAR_REAL_TIME:
             # Prepare JSON data for near real-time rule-based mode
@@ -218,9 +202,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
             json_string = json.dumps(formatted_data, indent=4)
 
             # Write the JSON string to a file
-            output_file = os.path.join(
-                output_directory, f"{mode_logic['ID']}_output.json"
-            )
+            output_file = os.path.join(output_directory, f"{mode_logic['ID']}_output.json")
             with open(output_file, "w") as json_file:
                 json_file.write(json_string)
                 # Save the dictionary as JSON to the specified output file
@@ -247,9 +229,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
             json_string = json.dumps(result, indent=4)
 
             # Write the JSON string to a file
-            output_file = os.path.join(
-                output_directory, f"{mode_logic['ID']}_output.json"
-            )
+            output_file = os.path.join(output_directory, f"{mode_logic['ID']}_output.json")
             with open(output_file, "w") as json_file:
                 json_file.write(json_string)
 
@@ -280,3 +260,116 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
     # Get the absolute file path of the generated .json file
     absolute_output_file_path = os.path.abspath(output_file)
     print(f"Output .json file generated and saved under: {absolute_output_file_path}")
+
+
+############# OLD STUFF
+
+from importlib.metadata import version
+from typing import Dict, List, Optional, Tuple
+import pandas as pd
+from datetime import datetime
+from pydantic import BaseModel as PydBaseModel, Field
+from pyomo.opt import SolverStatus, TerminationCondition
+
+
+class BaseModel(PydBaseModel):
+    class Config:
+        allow_population_by_field_name = True
+        json_encoders = {datetime: lambda dt: dt.strftime("%Y-%m-%dT%H:%M:%SZ")}
+        use_enum_values = True
+
+
+class ResultTimeseries(BaseModel):
+    time: datetime
+    soc_bat: Dict[str, float] = Field(..., alias="SoC_bat")
+    p_bat_kw: Dict[str, float] = Field(..., alias="P_bat_kW")
+    p_pv_kw: Optional[float] = Field(None, alias="P_PV_kW")
+    p_net_after_kw: float = Field(..., alias="P_net_after_kW")
+
+
+class BalancerOutput(BaseModel):
+    id: str
+    version: str = version("pymfm")
+    peak_imp: Optional[float] = None
+    peak_exp: Optional[float] = None
+    schedule: List[ResultTimeseries]
+    # units: Dict[str, str] = Field(default_factory=dict)
+
+
+# XXX not sure why it is structured like this but this is needed to keep the response the same
+class BalancerOutputWrapper(BaseModel):
+    status: str = Field(default="success")
+    details: str = Field(default="ok")
+    balancer_output: BalancerOutput = Field(..., alias="Balancer_output")
+
+
+def prep_optimizer_output(
+    import_profile: pd.Series,
+    flex_profiles: pd.DataFrame,
+    sof_profiles: pd.DataFrame,
+    forecasts: pd.Series,
+    df_flex: pd.DataFrame,
+):
+    result_overview = pd.DataFrame(
+        index=forecasts.index,
+        columns=["ptei_kw", "expected_ptei_kw"],
+    )
+    result_overview["ptei_kw"] = forecasts["cal_ions_kw"]
+
+    result_overview["expected_ptei_kw"] = import_profile
+    for col in flex_profiles.columns:
+        result_overview[f"ptcb_kw_{col}"] = flex_profiles[col]
+        result_overview[f"sof_kwh_{col}"] = sof_profiles[col] * df_flex.agg_cap_flex[col] / 3600
+
+    return result_overview
+
+
+def values_mapper(col_name: str):
+    if col_name.startswith("ptcb_kw_"):
+        return col_name.removeprefix("ptcb_kw_")
+    return col_name
+
+
+def unstack_keys(d: dict):
+    out = dict()
+    for key, val in d.items():
+        next = out
+        # single level column can be done directly
+        if isinstance(key, str):
+            out[key] = val 
+            continue
+        for k in key:
+            # skip empty strings, None etc. these only exist becaus pandas does not like columns with different levels in one DF
+            if not k: 
+                continue
+            # if valid key extend the outstructure if necessary and walk.
+            last_valid = k
+            current = next
+            if k not in current:
+                current[k] = {}
+            next = current[k]
+        current[last_valid] = val
+    return out
+
+
+def validate_timestep(d: dict) -> ResultTimeseries:
+    return ResultTimeseries(**unstack_keys(d))
+
+
+def df_to_output(
+    output: pd.DataFrame, id: str, status: Tuple[SolverStatus, TerminationCondition]
+) -> BalancerOutputWrapper:
+    value_cols = output.columns[output.columns.map(lambda col: col == "time" or col.startswith("ptcb_kw"))]
+    # TODO decide whether "ptcb_kw" should be included in the name
+    # output = output[value_cols].rename(columns=values_mapper).to_dict(orient="index")
+    output = output[value_cols].to_dict(orient="index")
+    output = [{"time": time, "values": d} for time, d in output.items()]
+    out = BalancerOutput(
+        id=id,
+        version=version("platone-balancing-module"),
+        units={"time": "ISO8601", "Ptcb": "kW"},
+        output=output,
+    )
+
+    wrapped_output = BalancerOutputWrapper(status=status[0], details=status[1], balancer_output=out)
+    return out, status[0], status[1]

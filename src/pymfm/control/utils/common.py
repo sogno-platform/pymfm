@@ -10,6 +10,8 @@ INDEX_COLUMN = "time"
 def get_freq(*dfs):
     delta_t = None
     for df in dfs:
+        if df is None:
+            continue
         if df.index.freq is None:
             continue
         if delta_t is None:
@@ -50,8 +52,13 @@ def list_to_df(li: list, index_col: str = INDEX_COLUMN) -> pd.DataFrame:
     return df
 
 
-def extract_df(obj: BaseModel, attr: str, index_col: str = INDEX_COLUMN) -> pd.DataFrame:
+def extract_df(obj: BaseModel, attr: str, index_col: str = INDEX_COLUMN) -> Optional[pd.DataFrame]:
+    # try:
     li = obj.dict()[attr]
+    # except KeyError: # XXX should we let this throw?
+    #     return None
+    if li is None:
+        return None
     return list_to_df(li, index_col)
 
 
@@ -59,7 +66,7 @@ def df_to_list(df: pd.DataFrame) -> List[Dict]:
     df = df.reset_index()
     num_levels = df.columns.nlevels
     if num_levels > 1:
-        {col: df_to_list(df[col]) for col in df.columns.levels[0]}
+        {col: df_to_list(df[col]) for col in df.columns.levels[0]}  # TODO unfinished, still needed?
 
 
 class TimeseriesData(BaseModel):

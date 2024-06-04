@@ -50,21 +50,30 @@ def mode_logic_handler(data: InputData):  # -> tuple[dict, pd.DataFrame, tuple]:
         raise RuntimeWarning(
             "Generation and load not specified"
         )  # TODO generation and load should be named something else.
+    
+    # Prepare forecasted data
+    df_power = extract_df(data.generation_and_load, attr="values", index_col="timestamp")
+
+    # Prepare power limitations data
+    df_limits = extract_df(data, attr="P_net_after_kW_limitation", index_col="timestamp")
+
+    # Prepare battery specifications data
+    df_battery_specs = extract_df(data, attr="battery_specs", index_col="id")
+    # df_battery_specs = data_input.battery_to_df(battery_specs)
+    # TODO tmp should not be used sync with RB
+    if tmp.delta_T_h is None:
+        delta_T_h = get_freq(df_power, df_limits).nanos * 1e-9 / 3600
+    else:
+        delta_T_h = tmp.delta_T_h
+
+    df = df_power.asfreq(f"{delta_T_h}H")
+    if df_limits:
+        df = df.join(df_limits)
+
+    # TODO readd start and stop time
 
     if data.control_logic == CL.RULE_BASED:
 
-        if not isinstance(tmp.values, list):
-            tmp.values = [tmp.values]
-
-        df = data_input.generation_and_load_to_df(tmp, start=data.uc_start, end=data.uc_end)
-
-        if df.index.freq is not None and tmp.delta_T_h is not None:
-            if df.index.freq.nanos * 1e-9 / 3600 != tmp.delta_T_h:
-                raise AttributeError("Specified time delta and is different from ")
-        if tmp.delta_T_h is None:
-            delta_T_h = df.index.freq.nanos * 1e-9 / 3600
-        else:
-            delta_T_h = tmp.delta_T_h
         battery_specs = data.battery_specs
         if isinstance(battery_specs, list):
             if len(battery_specs) == 1:
@@ -90,33 +99,22 @@ def mode_logic_handler(data: InputData):  # -> tuple[dict, pd.DataFrame, tuple]:
             # output_df.rename({"SoC_bat": f"SoC_{battery_specs.id}_per"}, inplace=True, axis=1)
             output_df.rename({"P_bat_kW": ("P_bat_kW", battery_specs.id)}, inplace=True, axis=1)
             output_df.rename({"SoC_bat": ("SoC_bat", battery_specs.id)}, inplace=True, axis=1)
+        output_df.index.name = "time" # XXX should be one name everywhere instead of sometimes "time" and sometimes "timestamp"
+
         # TODO sync postprocessing with optimization based
+        output_ts = [validate_timestep(data.to_dict()) for time, data in output_df.reset_index().iterrows()]
+
+        out = BalancerOutput(
+            id=data.id, schedule=output_ts
+        )
+
         return (
-            output_df,
+            out,
             (SolverStatus.ok, TerminationCondition.optimal),
         )
 
     elif data.control_logic == CL.OPTIMIZATION_BASED:
-        # Prepare forecasted data
-        df_power = extract_df(data.generation_and_load, attr="values", index_col="timestamp")
-
-        # Prepare power limitations data
-        df_limits = extract_df(data, attr="P_net_after_kW_limitation", index_col="timestamp")
-
-        # Prepare battery specifications data
-        df_battery_specs = extract_df(data, attr="battery_specs", index_col="id")
-        # df_battery_specs = data_input.battery_to_df(battery_specs)
-        # TODO tmp should not be used sync with RB
-        if tmp.delta_T_h is None:
-            delta_T_h = get_freq(df_power, df_limits).nanos * 1e-9 / 3600
-        else:
-            delta_T_h = tmp.delta_T_h
-
-        df = df_power.asfreq(f"{delta_T_h}H")
-
-        df = df.join(df_limits)
-
-        # TODO read start and stop time
+        
 
         print("Input data has been read successfully. Running scheduling optimization-based control.")
 
