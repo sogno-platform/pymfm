@@ -1,0 +1,11 @@
+services:
+  pymfm:
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - 8000:8000
+    environment:
+      - REDIS_HOST=redis
+  redis:
+    image: redis:latest
