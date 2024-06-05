@@ -30,7 +30,7 @@ dependencies = [
     "pydantic==1.10.9",
     "astral==3.2",
 ]
-version = "0.5.5"
+version = "0.6.0"
 dynamic = ["readme"]
 
 [tool.setuptools]
@@ -44,7 +44,7 @@ readme = { file = ["README.md"], content-type = "text/markdown" }
 where = ["src"]
 
 [project.optional-dependencies]
-service = ["fastapi[all]~=0.94.1", "werkzeug~=2.2", "redis~=4.5"]
+service = ["fastapi~=0.111.0", "werkzeug~=2.2", "redis~=4.5"]
 
 
 # [project.scripts]

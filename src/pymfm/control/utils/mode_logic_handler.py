@@ -33,7 +33,7 @@ from pymfm.control.utils.data_input import InputData
 from pymfm.control.utils.data_output import BalancerOutput, validate_timestep
 
 
-def mode_logic_handler(data: InputData) -> Tuple[BalancerOutput, tuple[SolverStatus, TerminationCondition]]:  # -> tuple[dict, pd.DataFrame, tuple]:
+def mode_logic_handler(data: InputData) -> Tuple[BalancerOutput, tuple[SolverStatus, TerminationCondition]]: 
     """
     Handle different control logic modes and operation modes.
 
