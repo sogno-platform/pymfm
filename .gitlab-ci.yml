@@ -32,7 +32,7 @@ build-image:
     - echo $CI_REGISTRY_USER 
     - echo $CI_REGISTRY_PASSWORD
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker build --file $CI_PROJECT_DIR/dockerfile-docs --tag ${DOCKER_IMAGE_DOCS} .
+    - docker build --file $CI_PROJECT_DIR/docker/dockerfile-docs --tag ${DOCKER_IMAGE_DOCS} .
     - docker push ${DOCKER_IMAGE_DOCS}
 
 # unit-test-job:   # This job runs in the test stage.

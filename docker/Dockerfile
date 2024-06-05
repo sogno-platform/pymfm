@@ -28,19 +28,17 @@ RUN apt-get install -yq --no-install-recommends wget \
 
 RUN mkdir /build
 COPY ./dep-build /build
+COPY ./docker/install_scip.sh /build
+COPY ./docker/install_gurobi.sh /build
 WORKDIR /build
-RUN export SCIP_FILENAME=`ls | grep 'SCIP'` && \
-    export GUROBI_FILENAME=`ls|grep 'gurobi.*[^(.lic)]'` && \
-    export GUROBI_VERSION=`echo $GUROBI_FILENAME | awk -F'_' '{print $1}' | awk -F'gurobi' '{print $2}'| sed 's/[.]//g'` && \
-    export GUROBI_HOME=/opt/gurobi${GUROBI_VERSION}/linux64 && \
-    mv ${GUROBI_FILENAME} /opt && \
-    mv ${SCIP_FILENAME} /opt && \
-    dpkg -i /opt/${SCIP_FILENAME} && rm /opt/${SCIP_FILENAME} && \
-    tar xfz /opt/${GUROBI_FILENAME} --directory /opt && rm /opt/${GUROBI_FILENAME}
+RUN . ./install_scip.sh && export SCIP_AVAILABLE=TRUE || SCIP_AVAILABLE=FALSE
+RUN . ./install_gurobi.sh && export GUROBI_AVAILABLE=TRUE || GUROBI_AVAILABLE=FALSE
 
 FROM dependency_build as pymfm_build
 RUN mkdir /pymfm
-COPY ./src/pymfm /pymfm
+COPY ./src/pymfm /pymfm/src/pymfm
+COPY ./src/service /pymfm/src/service
+COPY ./pyproject.toml /pymfm/pyproject.toml
 WORKDIR /pymfm
-RUN python3 -m pip --no-cache-dir install .
-CMD ["tail","-f"]
+RUN python3 -m pip --no-cache-dir install .["service"]
+CMD ["fastapi","run","./src/service/server.py"]
