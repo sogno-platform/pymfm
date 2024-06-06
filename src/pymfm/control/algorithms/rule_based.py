@@ -76,7 +76,7 @@ def combined_rule_based(raw_demand_kw: float, battery_specs: BatterySpecs, delta
     met_demand_kw, access_demand = clamp_and_delta(
         raw_demand_kw, upper=[battery_specs.P_dis_max_kW, -P_min_soc], lower=[-battery_specs.P_ch_max_kW, -P_max_soc]
     )
-    assert abs(met_demand_kw) > abs(raw_demand_kw)
+    assert abs(met_demand_kw) < abs(raw_demand_kw)
 
     # TODO confirm that setpoints for battery are from battery perspective not network perspective
     # discharging
