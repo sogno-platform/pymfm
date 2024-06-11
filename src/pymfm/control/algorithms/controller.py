@@ -52,7 +52,7 @@ async def scheduling_or_real_time(
         )
         while job.input.uc_end > datetime.datetime.now(datetime.timezone.utc):
             await do_balancing(job, storage)
-            await asyncio.sleep(JOB_FREQ)  # TODO add frequency to input
+            await asyncio.sleep(job.input.repeat_seconds)
     else:
         await do_balancing(job, storage)
 

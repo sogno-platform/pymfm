@@ -222,6 +222,7 @@ class InputData(BaseModel):
         description="The start datetime of the control operation.",
     )
     uc_end: Optional[datetime] = Field(None, alias="uc_end", description="The end datetime of the control operation.")
+    repeat_seconds: Optional[float] = None
     generation_and_load: GenerationAndLoad = Field(
         ...,
         alias="generation_and_load",
