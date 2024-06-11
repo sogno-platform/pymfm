@@ -34,4 +34,5 @@ class JobComplete(JobBase):
     status: Status = Status.CREATED
     details: Optional[str] = None
     created: datetime = Field(default_factory=datetime.now)
+    finished: Optional[datetime] = None
     result: Optional[BalancerOutput] = None

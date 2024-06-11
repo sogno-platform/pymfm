@@ -45,7 +45,7 @@ def clamp_and_delta(
     return (acutal, value - acutal)
 
 
-def combined_rule_based(raw_demand_kw: float, battery_specs: BatterySpecs, delta_T_h: float):
+def rule_based_step(raw_demand_kw: float, battery_specs: pd.Series, delta_T_h: float):
     output_ds = pd.Series(
         index=[
             "SoC_bat",
@@ -74,7 +74,7 @@ def combined_rule_based(raw_demand_kw: float, battery_specs: BatterySpecs, delta
     # limit power delivered by max charging and discharging and max available charge/capacity
     # TODO confirm that P_max are power received on network side not on battery side.
     met_demand_kw, access_demand = clamp_and_delta(
-        raw_demand_kw, upper=[battery_specs.P_dis_max_kW, -P_min_soc], lower=[-battery_specs.P_ch_max_kW, -P_max_soc]
+        raw_demand_kw, upper=[battery_specs.P_dis_max_kW[0], -P_min_soc[0]], lower=[-battery_specs.P_ch_max_kW[0], -P_max_soc[0]]
     )
     assert abs(met_demand_kw) <= abs(raw_demand_kw)
 
@@ -90,3 +90,42 @@ def combined_rule_based(raw_demand_kw: float, battery_specs: BatterySpecs, delta
     output_ds.P_net_after_kW = access_demand
     output_ds.P_bat_kW = -P_bat_kw  # charging: positiv, discharging: negativ
     return output_ds
+
+def rule_based(
+    df: pd.DataFrame,
+    battery_specs: pd.DataFrame,
+    delta_T_h: float,
+):
+    # battery_specs = data.battery_specs
+    if isinstance(battery_specs, list):
+        if len(battery_specs) == 1:
+            battery_specs = battery_specs[0]
+        else:
+            raise RuntimeError(
+                "Rule based control cannot deal with multiple flex nodes."
+            )
+
+    output_df = None
+
+    # XXX think about moving this to the RB algorithm to be analog to optimization based
+    for time, P in df.iterrows():
+        output = rule_based_step(
+            P.P_required_kW - P.P_available_kW, battery_specs, delta_T_h
+        )
+
+        if output_df is None:
+            output_df = pd.DataFrame(columns=output.index, index=df.index)
+
+        # Append the output for the current time
+        output_df.loc[time] = output  # type: ignore
+        battery_specs.initial_SoC = output.SoC_bat
+    battery_specs.reset_index(inplace=True)
+    if battery_specs.id[0] is not None and output_df is not None:
+        output_df.rename(
+            {"P_bat_kW": ("P_bat_kW", battery_specs.id[0])}, inplace=True, axis=1
+        )
+        output_df.rename(
+            {"SoC_bat": ("SoC_bat", battery_specs.id[0])}, inplace=True, axis=1
+        )
+    output_df.index.name = "time"  # XXX should be one name everywhere instead of sometimes "time" and sometimes "timestamp"
+    return output_df
