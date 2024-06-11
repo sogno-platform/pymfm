@@ -22,6 +22,7 @@
 
 
 from datetime import datetime
+import os
 from typing import List
 
 import pandas as pd
@@ -411,8 +412,11 @@ def scheduling(
     """
 
     # Selected optimization solver
-    # optimization_solver = SolverFactory("gurobi")
-    optimization_solver = SolverFactory("scip")
+    if os.getenv("GUROBI_AVAILABLE", "FALSE") == "TRUE":
+        optimization_solver = SolverFactory("gurobi")
+    # elif os.getenv("SCIP_AVAILABLE", "FALSE") == "TRUE":
+    else:
+        optimization_solver = SolverFactory("scip")
 
     # Initialize necessary values from the inputs
     load = timeseries.P_required_kW
