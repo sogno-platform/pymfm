@@ -106,7 +106,7 @@ def mode_logic_handler(
     else:
         raise AttributeError(
             "control logic needs to be either `rule_base` or `optimization`"
-        )
+        ) 
 
     output_ts = [
         validate_timestep(data.to_dict())

@@ -21,15 +21,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-import pandas as pd
-import matplotlib.pyplot as plt
-import os
-import json
 import itertools
-from pymfm.control.utils.data_input import (
-    ControlLogic as CL,
-    OperationMode as OM,
-)
+import json
+import os
+
+import matplotlib.pyplot as plt
+import pandas as pd
+
+from pymfm.control.utils.common import BaseModel
+from pymfm.control.utils.data_input import ControlLogic as CL
+from pymfm.control.utils.data_input import OperationMode as OM
 
 
 def visualize_and_save_plots(mode_logic: dict, dataframe: pd.DataFrame, output_directory: str):
@@ -261,19 +262,19 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
     print(f"Output .json file generated and saved under: {absolute_output_file_path}")
 
 
-from importlib.metadata import version
-from typing import Dict, List, Optional, Tuple
-import pandas as pd
 from datetime import datetime
-from pydantic import BaseModel as PydBaseModel, Field
-from pyomo.opt import SolverStatus, TerminationCondition
+from importlib.metadata import version
+from typing import Dict, List, Optional
+
+import pandas as pd
+from pydantic import Field
 
 
-class BaseModel(PydBaseModel):
-    class Config:
-        allow_population_by_field_name = True
-        json_encoders = {datetime: lambda dt: dt.strftime("%Y-%m-%dT%H:%M:%SZ")}
-        use_enum_values = True
+# class BaseModel(PydBaseModel):
+#     class Config:
+#         allow_population_by_field_name = True
+#         json_encoders = {datetime: lambda dt: dt.strftime("%Y-%m-%dT%H:%M:%SZ")}
+#         use_enum_values = True
 
 
 class ResultTimeseries(BaseModel):

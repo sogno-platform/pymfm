@@ -4,9 +4,10 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 from pydantic import BaseModel as PydBaseModel
-from pydantic import Field
+from pydantic import Field, ConfigDict
 
 INDEX_COLUMN = "time"
+
 
 def get_freq(*dfs):
     delta_t = None
@@ -19,7 +20,9 @@ def get_freq(*dfs):
             delta_t = df.index.freq
             continue
         if delta_t != df.index.freq:
-            raise AttributeError("All deltaT of the specified timeseries have to be the same")
+            raise AttributeError(
+                "All deltaT of the specified timeseries have to be the same"
+            )
     return delta_t
 
 
@@ -27,7 +30,6 @@ class StrEnum(str, Enum):
     """
     An enumeration class for representing string-based enums.
     """
-
     pass
 
 
@@ -36,10 +38,7 @@ class BaseModel(PydBaseModel):
     """
     Base Pydantic model with configuration settings to allow population by field name.
     """
-
-    class Config:
-        allow_population_by_field_name = True
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 # Assumes List of objects with an index attribute
@@ -61,9 +60,11 @@ def list_to_df(li: list, index_col: str = INDEX_COLUMN) -> pd.DataFrame:
     return df
 
 
-def extract_df(obj: BaseModel, attr: str, index_col: str = INDEX_COLUMN) -> Optional[pd.DataFrame]:
+def extract_df(
+    obj: BaseModel, attr: str, index_col: str = INDEX_COLUMN
+) -> Optional[pd.DataFrame]:
     # try:
-    li = obj.dict()[attr]
+    li = obj.model_dump()[attr]
     # except KeyError: # XXX should we let this throw?
     #     return None
     if li is None:
@@ -75,4 +76,6 @@ def df_to_list(df: pd.DataFrame) -> List[Dict]:
     df = df.reset_index()
     num_levels = df.columns.nlevels
     if num_levels > 1:
-        {col: df_to_list(df[col]) for col in df.columns.levels[0]}  # TODO unfinished, still needed?
+        {
+            col: df_to_list(df[col]) for col in df.columns.levels[0]
+        }  # TODO unfinished, still needed?

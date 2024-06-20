@@ -1,27 +1,28 @@
-from datetime import datetime
+import asyncio
 import logging
 import os
+from datetime import datetime
 from pathlib import Path
 from typing import List
-from pymfm.control.algorithms.controller import do_balancing, scheduling_or_real_time
-from service.crud import AsyncStorage
-from service.crud_fs import FileStorage
-import uvicorn
-import asyncio
 
-# import data_aux
-from pymfm.control.utils import data_input, data_output
-from pymfm.control.utils.mode_logic_handler import mode_logic_handler
-from service.crud_redis import RedisStorage  # XXX relative imports?
-from service.crud_memory import MemoryStorage
-from service.data_aux import JobComplete, Status
+import uvicorn
 from fastapi import APIRouter, BackgroundTasks, Depends, FastAPI, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
+
+# from pymfm.control.algorithms.controller import do_balancing, scheduling_or_real_time
+from service.crud_fs import FileStorage
+from service.crud_memory import MemoryStorage
+from service.crud_redis import RedisStorage  # XXX relative imports?
+from service.data_aux import JobComplete
 
 # from crud_fs import save_result, delete_result, get_result , get_latest, clean_up
 from starlette.responses import RedirectResponse
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from pymfm.control.algorithms.controller import scheduling_or_real_time
+
+# import data_aux
+from pymfm.control.utils import data_input, data_output
 
 log = logging.getLogger("server")
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
@@ -29,11 +30,8 @@ logging.getLogger("werkzeug").setLevel(logging.WARNING)
 
 security = HTTPBasic()
 
-JOB_FREQ = 5 * 60
 users = {
-    os.environ.get("BALANCING_USERNAME", "admin"): generate_password_hash(
-        os.environ.get("BALANCING_PASSWORD", "admin")
-    )
+    os.environ.get("BALANCING_USERNAME", "admin"): generate_password_hash(os.environ.get("BALANCING_PASSWORD", "admin"))
 }
 
 
@@ -52,19 +50,16 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
 app = FastAPI()
 
 balancing_router = APIRouter(
-    tags=["balancing"], dependencies=[Depends(get_current_username)]
+    tags=["balancing"],
 )
 
 # XXX handle this via settings in the future
-storage = FileStorage(
-    filepath=Path(__file__).parent / "store"
-)  # MemoryStorage() # RedisStorage()
+storage = FileStorage(filepath=Path(__file__).parent / "store")  # MemoryStorage() # RedisStorage()
+# storage = RedisStorage()
 
 
 @balancing_router.post("/")
-async def create_balancing_task(
-    input: data_input.InputData, background_tasks: BackgroundTasks
-) -> JobComplete:
+async def create_balancing_task(input: data_input.InputData, background_tasks: BackgroundTasks) -> JobComplete:
     log.info(f"received input data with id=<{input.id}>. Starting algorithm...")
     job = JobComplete(id=input.id, input=input)
     await storage.store(job)
@@ -117,7 +112,7 @@ def redirect_to_docs():
     return RedirectResponse(url=redirect_url)
 
 
-app.include_router(balancing_router, prefix="/balancing")
+app.include_router(balancing_router, prefix="/balancing", dependencies=[Depends(get_current_username)])
 
 
 if __name__ == "__main__":

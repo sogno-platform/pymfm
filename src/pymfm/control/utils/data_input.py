@@ -29,7 +29,7 @@ from typing import Dict, List, Optional, Union
 import pandas as pd
 from astral.location import LocationInfo
 from astral.sun import sun
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 
 from pymfm.control.utils.common import BaseModel, StrEnum
 
@@ -276,7 +276,7 @@ class InputData(BaseModel):
     #         )
     #     return meas
 
-    @validator("day_end", always=True)
+    @field_validator("day_end", always=True)
     def set_day_end(cls, v, values):
         """
         Validator to set day_end if not provided, based on sunset time in Berlin.

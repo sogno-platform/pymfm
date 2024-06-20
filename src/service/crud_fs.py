@@ -22,7 +22,7 @@ class FileStorage(AsyncStorage):
 
     async def store(self, job: data_aux.JobComplete) -> data_aux.JobComplete:
         with open(self.filepath / f"{job.id}.json", "w") as fp:
-            fp.write(job.json(by_alias=True))
+            fp.write(job.model_dump_json(by_alias=True))
         return job
 
     async def read(self, id: str) -> Optional[data_aux.JobComplete]:

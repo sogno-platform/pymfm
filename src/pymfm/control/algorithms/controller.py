@@ -3,7 +3,7 @@ import asyncio
 import datetime
 
 import pandas as pd
-from pymfm.control.utils.data_input import InputData, OperationMode
+from pymfm.control.utils.data_input import GenerationAndLoad, OperationMode
 from pymfm.control.utils.mode_logic_handler import mode_logic_handler, prep_data
 from service.crud import AsyncStorage
 from service.data_aux import JobComplete, Status
@@ -11,7 +11,7 @@ from service.data_aux import JobComplete, Status
 JOB_FREQ = 5 * 60
 
 
-def combine_prediction_measurement(raw_input: InputData, meas: pd.DataFrame = None):
+def combine_prediction_measurement(raw_input: GenerationAndLoad, meas: GenerationAndLoad = None):
     if meas is None:
         return raw_input
     raise NotImplementedError(
@@ -23,7 +23,7 @@ async def do_balancing(job: JobComplete, storage: AsyncStorage):
     try:
         job.status = Status.RUNNING
         await storage.store(job)
-        job.input = combine_prediction_measurement(job.input)
+        job.input = combine_prediction_measurement(job.input, None)
         result, (status, details) = mode_logic_handler(job.input)
         # out, status, details = data_output.df_to_output(result, job.id, status)
         if status == "ok":
