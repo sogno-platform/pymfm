@@ -3,7 +3,7 @@
     "application": "pymfm",
     "control_logic": "optimization_based",
     "operation_mode": "near_real_time",
-    "uc_start": "2024-04-01T00:00:00.000000Z",
+    "control_start": "2024-04-01T00:00:00.000000Z",
     "uc_end": "2024-06-01T23:45:00.000000Z",
     "day_end": "2021-04-01T18:00:00.000000Z",
     "repeat_seconds": 120,

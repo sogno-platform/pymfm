@@ -3,8 +3,8 @@
     "application": "pymfm",
     "control_logic": "rule_based",
     "operation_mode": "scheduling",
-    "uc_start": "2021-04-01T00:00:00.000Z",
-    "uc_end": "2021-04-01T23:45:00.000Z",
+    "control_start": "2021-04-01T00:15:00.000Z",
+    "control_end": "2021-04-01T23:30:00.000Z",
     "generation_and_load": {
         "values": [
             {

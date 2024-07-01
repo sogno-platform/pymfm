@@ -145,7 +145,7 @@ class BatterySpecs(BaseModel):
         le=1.0,
         ge=0.0,
         alias="initial_SoC",
-        description="The initial state of charge of the battery (SoC) in percentage at uc_start.",
+        description="The initial state of charge of the battery (SoC) in percentage at control_start.",
     )
     final_SoC: Optional[float] = Field(
         None,
@@ -253,17 +253,17 @@ class InputData(BaseModel):
     # @validator("generation_and_load")
     # def generation_and_load_start_before_timewindow(cls, meas, values):
     #     """
-    #     Validator to ensure generation_and_load starts before or at uc_start.
+    #     Validator to ensure generation_and_load starts before or at control_start.
 
     #     :param meas: The value of generation_and_load.
     #     :param values: The values dictionary.
     #     :return: The validated value.
     #     """
-    #     uc_start = values["uc_start"]
-    #     # Check if generation_and_load starts before or at uc_start
-    #     if uc_start < meas.values[0].timestamp:
+    #     control_start = values["control_start"]
+    #     # Check if generation_and_load starts before or at control_start
+    #     if control_start < meas.values[0].timestamp:
     #         raise ValueError(
-    #             f"generation_and_load have to start at or before uc_start. generation_and_load start at {meas.values[0].timestamp} uc_start was {uc_start}"
+    #             f"generation_and_load have to start at or before control_start. generation_and_load start at {meas.values[0].timestamp} control_start was {control_start}"
     #         )
     #     return meas
 
@@ -298,9 +298,9 @@ class InputData(BaseModel):
         # Check if day_end is not provided
         if v is not None:
             return v
-        # Calculate the sunset time for uc_start date and location (Berlin)
+        # Calculate the sunset time for control_start date and location (Berlin)
         berlin_location = LocationInfo("Berlin", "Germany", "Europe/Berlin", 52.52, 13.40)
-        s = sun(berlin_location.observer, date=values["uc_start"].date())
+        s = sun(berlin_location.observer, date=values.data["control_start"].date())
 
         # Set day_end to the sunset time
         sunset_time = s["sunset"].astimezone(timezone.utc)

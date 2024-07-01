@@ -220,7 +220,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
                 "application": "pymfm",
                 "control_logic": "rule_based",
                 "operation_mode": "scheduling",
-                "uc_start": output_df.index[0].strftime("%Y-%m-%dT%H:%M:%S.%fZ"), # TODO start names changed which one should that be control_start or job_start
+                "control_start": output_df.index[0].strftime("%Y-%m-%dT%H:%M:%S.%fZ"), # TODO start names changed which one should that be control_start or job_start
                 "uc_end": output_df.index[-1].strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
                 "results": output_df.to_dict(orient="records"),
             }
@@ -244,7 +244,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
             "application": "pymfm",
             "control_logic": "optimization_based",
             "operation_mode": "scheduling",
-            "uc_start": output_df.index[0].strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+            "control_start": output_df.index[0].strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
             "uc_end": output_df.index[-1].strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
             "results": output_df.to_dict(orient="records"),
         }
@@ -282,6 +282,7 @@ class ResultTimeseries(BaseModel):
     soc_bat: Dict[str, float] = Field(..., alias="SoC_bat")
     p_bat_kw: Dict[str, float] = Field(..., alias="P_bat_kW")
     p_pv_kw: Optional[float] = Field(None, alias="P_PV_kW")
+    p_net_before_kw: float = Field(..., alias="P_net_before_kW")
     p_net_after_kw: float = Field(..., alias="P_net_after_kW")
 
 
