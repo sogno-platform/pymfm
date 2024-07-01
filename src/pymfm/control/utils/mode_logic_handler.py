@@ -56,21 +56,21 @@ def mode_logic_handler(
 
     if data.control_logic == CL.RULE_BASED:
         output_df = RB.rule_based(df, df_battery_specs, delta_T_h)
+        min = output_df.P_net_after_kW.min()
+        max = output_df.P_net_after_kW.max()
+        peak_exp = -min if min < 0 else 0
+        peak_imp = max if max > 0 else 0
 
     elif data.control_logic == CL.OPTIMIZATION_BASED:
-        print(
-            "Input data has been read successfully. Running scheduling optimization-based control."
-        )
+        print("Input data has been read successfully. Running scheduling optimization-based control.")
 
         # Perform scheduling optimization-based control
-        (output_batteries, output_system, output_static, solver_status) = (
-            OptB.scheduling(
-                df,
-                df_battery_specs,
-                data.day_end,
-                data.bulk,
-                data.generation_and_load.pv_curtailment,
-            )
+        (output_batteries, output_system, output_static, solver_status) = OptB.scheduling(
+            df,
+            df_battery_specs,
+            data.day_end,
+            data.bulk,
+            data.generation_and_load.pv_curtailment,
         )
 
         print("Scheduling optimization-based control finished.")
@@ -88,34 +88,21 @@ def mode_logic_handler(
         )
         # output_df.columns = ["|".join(col) for col in output_df.columns.to_flat_index()]
         ## prep system output
-        output_system["P_net_after_kW"] = (
-            output_system.P_imp_kW - output_system.P_exp_kW
-        )
-        output_system.drop(
-            ["is_imp", "is_exp", "P_exp_kW", "P_imp_kW"], axis="columns", inplace=True
-        )
+        output_system["P_net_after_kW"] = output_system.P_imp_kW - output_system.P_exp_kW
+        output_system.drop(["is_imp", "is_exp", "P_exp_kW", "P_imp_kW"], axis="columns", inplace=True)
 
         ## combine
-        output_system.columns = pd.MultiIndex.from_product(
-            [output_system.columns, [""]]
-        )
+        output_system.columns = pd.MultiIndex.from_product([output_system.columns, [""]])
         output_df = output_df.join(output_system)
         peak_exp = output_static.peak_exp
         peak_imp = output_static.peak_imp
 
     else:
-        raise AttributeError(
-            "control logic needs to be either `rule_base` or `optimization`"
-        ) 
+        raise AttributeError("control logic needs to be either `rule_base` or `optimization`")
 
-    output_ts = [
-        validate_timestep(data.to_dict())
-        for time, data in output_df.reset_index().iterrows()
-    ]
+    output_ts = [validate_timestep(data.to_dict()) for time, data in output_df.reset_index().iterrows()]
 
-    out = BalancerOutput(
-        id=data.id, peak_imp=peak_imp, peak_exp=peak_exp, schedule=output_ts
-    )
+    out = BalancerOutput(id=data.id, peak_imp=peak_imp, peak_exp=peak_exp, schedule=output_ts)
 
     return (
         out,
@@ -130,14 +117,10 @@ def prep_data(data: InputData):
         )  # TODO generation and load should be named something else.
 
     # Prepare forecasted data
-    df_power = extract_df(
-        data.generation_and_load, attr="values", index_col="timestamp"
-    )
+    df_power = extract_df(data.generation_and_load, attr="values", index_col="timestamp")
 
     # Prepare power limitations data
-    df_limits = extract_df(
-        data, attr="P_net_after_kW_limitation", index_col="timestamp"
-    )
+    df_limits = extract_df(data, attr="P_net_after_kW_limitation", index_col="timestamp")
 
     # Prepare battery specifications data
     df_battery_specs = extract_df(data, attr="battery_specs", index_col="id")
@@ -150,4 +133,4 @@ def prep_data(data: InputData):
         df = df.join(df_limits)
 
     # TODO readd start and stop time
-    return df, df_battery_specs, delta_T_h
+    return df[data.control_start : data.control_end], df_battery_specs, delta_T_h
