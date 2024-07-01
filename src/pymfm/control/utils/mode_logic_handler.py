@@ -99,7 +99,8 @@ def mode_logic_handler(
 
     else:
         raise AttributeError("control logic needs to be either `rule_base` or `optimization`")
-
+    
+    output_df["P_net_before_kW"] = df.P_required_kW - df.P_available_kW
     output_ts = [validate_timestep(data.to_dict()) for time, data in output_df.reset_index().iterrows()]
 
     out = BalancerOutput(id=data.id, peak_imp=peak_imp, peak_exp=peak_exp, schedule=output_ts)
