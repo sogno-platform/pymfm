@@ -220,7 +220,7 @@ def prepare_json(mode_logic: dict, output_df: pd.DataFrame, output_directory: st
                 "application": "pymfm",
                 "control_logic": "rule_based",
                 "operation_mode": "scheduling",
-                "uc_start": output_df.index[0].strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+                "uc_start": output_df.index[0].strftime("%Y-%m-%dT%H:%M:%S.%fZ"), # TODO start names changed which one should that be control_start or job_start
                 "uc_end": output_df.index[-1].strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
                 "results": output_df.to_dict(orient="records"),
             }

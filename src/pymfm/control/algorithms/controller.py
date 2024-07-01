@@ -47,10 +47,10 @@ async def scheduling_or_real_time(
     if job.input.operation_mode == OperationMode.NEAR_REAL_TIME:
         await asyncio.sleep(
             (
-                job.input.uc_start - datetime.datetime.now(datetime.timezone.utc)
+                job.input.job_start - datetime.datetime.now(datetime.timezone.utc)
             ).total_seconds()
         )
-        while job.input.uc_end > datetime.datetime.now(datetime.timezone.utc):
+        while job.input.job_end > datetime.datetime.now(datetime.timezone.utc):
             await do_balancing(job, storage)
             await asyncio.sleep(job.input.repeat_seconds)
     else:

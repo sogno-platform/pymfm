@@ -216,12 +216,20 @@ class InputData(BaseModel):
     operation_mode: OperationMode = Field(
         ..., alias="operation_mode", description="The operation mode of the controller."
     )
-    uc_start: Optional[datetime] = Field(
+    control_start: Optional[datetime] = Field(
         None,
-        alias="uc_start",
+        alias="control_start",
         description="The start datetime of the control operation.",
     )
-    uc_end: Optional[datetime] = Field(None, alias="uc_end", description="The end datetime of the control operation.")
+    control_end: Optional[datetime] = Field(None, alias="control_end", description="The end datetime of the control operation.")
+    job_start: Optional[datetime] = Field(
+        None,
+        alias="job_start",
+        description="The start datetime when the job is executed for the first time.",
+    )
+    job_end: Optional[datetime] = Field(
+        None, alias="job_end", description="The end datetime after which no update on the control schedule is done."
+    )
     repeat_seconds: Optional[float] = None
     generation_and_load: GenerationAndLoad = Field(
         ...,
@@ -276,7 +284,7 @@ class InputData(BaseModel):
     #         )
     #     return meas
 
-    @field_validator("day_end", always=True)
+    @field_validator("day_end")
     def set_day_end(cls, v, values):
         """
         Validator to set day_end if not provided, based on sunset time in Berlin.
@@ -285,7 +293,7 @@ class InputData(BaseModel):
         :param values: The values dictionary.
         :return: The validated value.
         """
-        generation_and_load = values.get("generation_and_load")
+        generation_and_load = values.data.get("generation_and_load")
 
         # Check if day_end is not provided
         if v is not None:
