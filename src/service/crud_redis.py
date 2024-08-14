@@ -32,7 +32,7 @@ class RedisStorage(AsyncStorage):
         return await self.r_db.ping()
 
     async def store(self, job: data_aux.JobComplete) -> data_aux.JobComplete:
-        await self.r_db.set(job.id, job.json(by_alias=True))
+        await self.r_db.set(job.id, job.model_dump_json(by_alias=True))
         return job
 
     async def read(self, id: str) -> Optional[data_aux.JobComplete]:

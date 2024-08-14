@@ -47,7 +47,7 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
     app_data = forecast_data["application"]
     control_logic = scenario_data["control_logic"]
     operation_mode = scenario_data["operation_mode"]
-    uc_start = scenario_data["uc_start"]
+    control_start = scenario_data["control_start"]
     uc_end = scenario_data["uc_end"]
     day_end = scenario_data["day_end"]
     generation_and_load_data = forecast_data["generation_and_load"]
@@ -77,10 +77,10 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
         entry["timestamp"] for entry in generation_and_load_data
     }
 
-    # Check if uc_start, uc_end, and day_end are present in the generation_and_load_timestamps
-    if uc_start not in generation_and_load_timestamps:
+    # Check if control_start, uc_end, and day_end are present in the generation_and_load_timestamps
+    if control_start not in generation_and_load_timestamps:
         print(
-            f"Warning: uc_start '{uc_start}' is not present in generation_and_load timestamps."
+            f"Warning: control_start '{control_start}' is not present in generation_and_load timestamps."
         )
     if uc_end not in generation_and_load_timestamps:
         print(
@@ -97,7 +97,7 @@ def generate_scenario(forecast_input_file, scenario_input_file, output_file):
         "application": app_data,
         "control_logic": control_logic,
         "operation_mode": operation_mode,
-        "uc_start": uc_start,
+        "control_start": control_start,
         "uc_end": uc_end,
         "day_end": day_end,
         "generation_and_load": generation_and_load,

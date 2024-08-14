@@ -111,7 +111,7 @@ def generate_forecast(input_folder_path, output_folder_path, time_resolution):
             # Create a list to store the generation and load data
             generation_and_load = []
 
-            # Iterate over the timestamps from uc_start to uc_end with the desired time resolution
+            # Iterate over the timestamps from control_start to uc_end with the desired time resolution
             timestamp = start_forecast
             while timestamp <= end_forecast:
                 # Calculate the day of the year

@@ -27,7 +27,7 @@ dependencies = [
     "matplotlib==3.7.1",
     "scipy==1.11.0",
     "xlsxwriter==3.1.2",
-    "pydantic==1.10.9",
+    "pydantic~=2.7",
     "astral==3.2",
 ]
 version = "0.6.0"

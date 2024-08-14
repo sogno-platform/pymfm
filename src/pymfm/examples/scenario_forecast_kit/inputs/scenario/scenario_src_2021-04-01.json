@@ -2,7 +2,7 @@
     "application": "pymfm",
     "control_logic": "optimization_based",
     "operation_mode": "scheduling",
-    "uc_start": "2021-04-01T00:00:00.000000Z",
+    "control_start": "2021-04-01T00:00:00.000000Z",
     "uc_end": "2021-04-01T23:00:00.000000Z",
     "day_end": "2021-04-01T11:00:00.000000Z",
     "bulk": {
