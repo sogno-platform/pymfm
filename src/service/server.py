@@ -14,6 +14,8 @@ from service.crud_fs import FileStorage
 from service.crud_memory import MemoryStorage
 from service.crud_redis import RedisStorage  # XXX relative imports?
 from service.data_aux import JobComplete
+# from service.routers.single_job import router as balancing_router
+from measurement.router.measurement import router as meas_router
 
 # from crud_fs import save_result, delete_result, get_result , get_latest, clean_up
 from starlette.responses import RedirectResponse
@@ -113,7 +115,7 @@ def redirect_to_docs():
 
 
 app.include_router(balancing_router, prefix="/balancing", dependencies=[Depends(get_current_username)])
-
+app.include_router(meas_router, prefix="/measurement", dependencies=[Depends(get_current_username)])
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
