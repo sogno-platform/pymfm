@@ -1,20 +1,22 @@
 import logging
+from pathlib import Path
 from typing import List
 from fastapi import APIRouter, BackgroundTasks
 from pymfm.control.algorithms.controller import do_balancing
 from pymfm.control.utils import data_input
+from service.crud_fs import FileStorage
 from service.crud_redis import RedisStorage
 from service.data_aux import JobComplete
 
 log = logging.getLogger("server")
 
-balancing_router = APIRouter(
+router = APIRouter(
     tags=["balancing"],
 )
 
 # XXX handle this via settings in the future
-# storage = FileStorage(filepath=Path(__file__).parent / "store")  # MemoryStorage() # RedisStorage()
-storage = RedisStorage()
+storage = FileStorage(filepath=Path(__file__).parent.parent / "store")  # MemoryStorage() # RedisStorage()
+# storage = RedisStorage()
 
 
 @balancing_router.post("/", response_model_exclude_none=True)
