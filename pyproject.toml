@@ -29,8 +29,10 @@ dependencies = [
     "xlsxwriter==3.1.2",
     "pydantic~=2.7",
     "astral==3.2",
+    "sqlalchemy~=2.0",
+    "psycopg2-binary"
 ]
-version = "0.6.0"
+version = "0.6.1"
 dynamic = ["readme"]
 
 [tool.setuptools]

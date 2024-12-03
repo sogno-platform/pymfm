@@ -7,5 +7,15 @@ services:
       - 8000:8000
     environment:
       - REDIS_HOST=redis
-  redis:
-    image: redis:latest
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=pymfm
+      - POSTGRES_DB=pymfm-meas
+      - POSTGRES_HOST=timescale
+  timescale:
+    image: timescale/timescaledb-ha:pg16
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=pymfm
+      - POSTGRES_DB=pymfm-meas
+  # redis:
+  #   image: redis:latest

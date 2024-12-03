@@ -42,6 +42,7 @@ class BaseModel(PydBaseModel):
 
 
 # Assumes List of objects with an index attribute
+# TODO this is not in use anymore? Remove
 def from_df_validator(cls, df: pd.DataFrame):
     if not isinstance(df, pd.DataFrame):
         return df

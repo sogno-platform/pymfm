@@ -38,6 +38,7 @@ FROM dependency_build as pymfm_build
 RUN mkdir /pymfm
 COPY ./src/pymfm /pymfm/src/pymfm
 COPY ./src/service /pymfm/src/service
+COPY ./src/measurement /pymfm/src/measurement
 COPY ./pyproject.toml /pymfm/pyproject.toml
 WORKDIR /pymfm
 RUN python3 -m pip --no-cache-dir install .["service"]

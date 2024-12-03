@@ -2,6 +2,7 @@ import asyncio
 
 import datetime
 
+from measurement.router.query import get_data
 import pandas as pd
 from pymfm.control.utils.data_input import GenerationAndLoad, OperationMode
 from pymfm.control.utils.mode_logic_handler import mode_logic_handler, prep_data
@@ -11,19 +12,19 @@ from service.data_aux import JobComplete, Status
 JOB_FREQ = 5 * 60
 
 
-def combine_prediction_measurement(raw_input: GenerationAndLoad, meas: GenerationAndLoad = None):
+def combine_prediction_measurement(raw_input: GenerationAndLoad, meas: pd.DataFrame | None = None):
     if meas is None:
         return raw_input
-    raise NotImplementedError(
-        "combining measurements and predicitons has not been implemented."
-    )
+    print(meas)  # TODO replace with real combination algorithm
+    raise NotImplementedError("combining measurements and predicitons has not been implemented.")
 
 
 async def do_balancing(job: JobComplete, storage: AsyncStorage):
     try:
         job.status = Status.RUNNING
         await storage.store(job)
-        job.input = combine_prediction_measurement(job.input, None)
+        meas = get_data(job.input.measurement) if job.input.measurement else None
+        job.input.generation_and_load = combine_prediction_measurement(job.input.generation_and_load, meas)
         result, (status, details) = mode_logic_handler(job.input)
         # out, status, details = data_output.df_to_output(result, job.id, status)
         if status == "ok":
@@ -41,15 +42,9 @@ async def do_balancing(job: JobComplete, storage: AsyncStorage):
     return job
 
 
-async def scheduling_or_real_time(
-    job: JobComplete, storage: AsyncStorage, meas: pd.DataFrame = None
-):
+async def scheduling_or_real_time(job: JobComplete, storage: AsyncStorage, meas: pd.DataFrame = None):
     if job.input.operation_mode == OperationMode.NEAR_REAL_TIME:
-        await asyncio.sleep(
-            (
-                job.input.job_start - datetime.datetime.now(datetime.timezone.utc)
-            ).total_seconds()
-        )
+        await asyncio.sleep((job.input.job_start - datetime.datetime.now(datetime.timezone.utc)).total_seconds())
         while job.input.job_end > datetime.datetime.now(datetime.timezone.utc):
             job.input.control_start = datetime.datetime.now(datetime.timezone.utc)
             await do_balancing(job, storage)

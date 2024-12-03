@@ -221,7 +221,9 @@ class InputData(BaseModel):
         alias="control_start",
         description="The start datetime of the control operation.",
     )
-    control_end: Optional[datetime] = Field(None, alias="control_end", description="The end datetime of the control operation.")
+    control_end: Optional[datetime] = Field(
+        None, alias="control_end", description="The end datetime of the control operation."
+    )
     job_start: Optional[datetime] = Field(
         None,
         alias="job_start",
@@ -240,6 +242,9 @@ class InputData(BaseModel):
         None,
         alias="day_end",
         description="The end of the sunlight for the day timestamp (optional).",
+    )
+    measurement: Optional[str] = Field(
+        None, description="ID of the measurement to be incorporated into the prediction."
     )
     bulk: Optional[Bulk] = Field(None, alias="bulk", description="Bulk energy data (optional).")
     P_net_after_kW_limitation: Optional[List[P_net_after_kWLimitation]] = Field(
