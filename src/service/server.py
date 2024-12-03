@@ -6,23 +6,21 @@ from pathlib import Path
 from typing import List
 
 import uvicorn
-from fastapi import APIRouter, BackgroundTasks, Depends, FastAPI, HTTPException, status
+from fastapi import (APIRouter, BackgroundTasks, Depends, FastAPI,
+                     HTTPException, status)
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-
+from measurement.router.measurement import router as meas_router
 # from pymfm.control.algorithms.controller import do_balancing, scheduling_or_real_time
 from service.crud_fs import FileStorage
 from service.crud_memory import MemoryStorage
 from service.crud_redis import RedisStorage  # XXX relative imports?
 from service.data_aux import JobComplete
 from service.routers.single_job import router as balancing_router
-from measurement.router.measurement import router as meas_router
-
 # from crud_fs import save_result, delete_result, get_result , get_latest, clean_up
 from starlette.responses import RedirectResponse
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from pymfm.control.algorithms.controller import scheduling_or_real_time
-
 # import data_aux
 from pymfm.control.utils import data_input, data_output
 

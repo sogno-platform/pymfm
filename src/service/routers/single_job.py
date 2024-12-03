@@ -1,12 +1,15 @@
 import logging
 from pathlib import Path
 from typing import List
-from fastapi import APIRouter, BackgroundTasks
-from pymfm.control.algorithms.controller import do_balancing
-from pymfm.control.utils import data_input
+
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from service.crud_fs import FileStorage
 from service.crud_redis import RedisStorage
 from service.data_aux import JobComplete
+
+from pymfm.control.algorithms.controller import (do_balancing,
+                                                 scheduling_or_real_time)
+from pymfm.control.utils import data_input
 
 log = logging.getLogger("server")
 
@@ -19,21 +22,21 @@ storage = FileStorage(filepath=Path(__file__).parent.parent / "store")  # Memory
 # storage = RedisStorage()
 
 
-@balancing_router.post("/", response_model_exclude_none=True)
+@router.post("/")
 async def create_balancing_task(input: data_input.InputData, background_tasks: BackgroundTasks) -> JobComplete:
     log.info(f"received input data with id=<{input.id}>. Starting algorithm...")
     job = JobComplete(id=input.id, input=input)
     await storage.store(job)
-    background_tasks.add_task(do_balancing, job=job, storage=storage)
+    background_tasks.add_task(scheduling_or_real_time, job=job, storage=storage)
     return job
 
 
-@balancing_router.get("/", description="get the ids of all jobs")
+@router.get("/", description="get the ids of all jobs")
 async def get_ids_endpoint() -> List[str]:
     return await storage.all_ids()
 
 
-@balancing_router.get("/{id}")
+@router.get("/{id}")
 async def get_result_endpoint(id: str) -> JobComplete:
     output = await storage.read(id)
     if output is None:
@@ -52,7 +55,7 @@ async def get_result_endpoint(id: str) -> JobComplete:
 #     return {"success": True}
 
 
-@balancing_router.delete("/{id}")
+@router.delete("/{id}")
 async def delete_result_endpoint(id: str) -> JobComplete:
     try:
         result = await storage.delete(id)
