@@ -575,7 +575,7 @@ def scheduling(
     output_system = pd.DataFrame(index=model.T).rename_axis("time")
     output_batteries = pd.DataFrame(index=model.T).rename_axis("time")
     output_static = pd.Series(dtype=float)
-   model_vars = model.component_map(ctype=Var)
+    model_vars = model.component_map(ctype=Var)
 
     # output = pd.DataFrame(index=model.T)
     for k, var in model_vars.items():
