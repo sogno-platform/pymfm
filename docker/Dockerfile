@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 as dependency_build
+FROM ubuntu:22.04 AS dependency_build
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
@@ -34,7 +34,7 @@ WORKDIR /build
 RUN . ./install_scip.sh && export SCIP_AVAILABLE=TRUE || SCIP_AVAILABLE=FALSE
 RUN . ./install_gurobi.sh && export GUROBI_AVAILABLE=TRUE || GUROBI_AVAILABLE=FALSE
 
-FROM dependency_build as pymfm_build
+FROM dependency_build AS pymfm_build
 RUN mkdir /pymfm
 COPY ./src/pymfm /pymfm/src/pymfm
 COPY ./src/service /pymfm/src/service
