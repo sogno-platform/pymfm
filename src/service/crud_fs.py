@@ -15,10 +15,11 @@ log = logging.getLogger("server.crud")
 class FileStorage(AsyncStorage):
     def __init__(self, filepath: Union[Path, str]):
         self.filepath = Path(filepath)
+        self.filepath.mkdir(parents=True, exist_ok=True)
 
     async def all_ids(self):
         list_of_files = glob.glob(f"{self.filepath}/*")
-        return [file.rsplit("/",1)[1].removesuffix(".json") for file in list_of_files]
+        return [file.rsplit("/", 1)[1].removesuffix(".json") for file in list_of_files]
 
     async def store(self, job: data_aux.JobComplete) -> data_aux.JobComplete:
         with open(self.filepath / f"{job.id}.json", "w") as fp:
