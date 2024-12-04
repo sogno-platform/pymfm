@@ -99,7 +99,7 @@ def mode_logic_handler(
 
     else:
         raise AttributeError("control logic needs to be either `rule_base` or `optimization`")
-    
+
     output_df["P_net_before_kW"] = df.P_required_kW - df.P_available_kW
     output_ts = [validate_timestep(data.to_dict()) for time, data in output_df.reset_index().iterrows()]
 
@@ -133,5 +133,6 @@ def prep_data(data: InputData):
     if df_limits is not None:
         df = df.join(df_limits)
 
-    # TODO readd start and stop time
-    return df[data.control_start : data.control_end], df_battery_specs, delta_T_h
+    # Have to do it that way because tzinfo might be different classes and can not be in the same slice
+    trunc_df = df[: data.control_end][data.control_start :]
+    return trunc_df, df_battery_specs, delta_T_h
