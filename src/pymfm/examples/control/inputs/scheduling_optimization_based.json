@@ -613,7 +613,8 @@
         },
         {
             "timestamp": "2021-04-01T04:15:00Z",
-            "upper_bound": 50,"lower_bound": -50
+            "upper_bound": 50,
+            "lower_bound": -50
         },
         {
             "timestamp": "2021-04-01T04:30:00Z",
@@ -827,7 +828,8 @@
         },
         {
             "timestamp": "2021-04-01T15:00:00Z",
-            "upper_bound": 50,"lower_bound": -50
+            "upper_bound": 50,
+            "lower_bound": -50
         },
         {
             "timestamp": "2021-04-01T15:15:00Z",
