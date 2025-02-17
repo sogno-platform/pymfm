@@ -1,6 +1,6 @@
 import datetime
 from typing import List, Literal, Optional
-from fastapi import APIRouter, BackgroundTasks
+from fastapi import APIRouter, BackgroundTasks, HTTPException
 from pydantic import BaseModel, RootModel
 import pandas as pd
 from measurement.router.query import ENGINE, delete_table, get_data, insert_data, list_all_tables
@@ -61,13 +61,15 @@ def add_measurements(
     """Add measurements to an existing table"""
     df = pd.DataFrame.from_records(input.model_dump()["data"]).set_index("timestamp")
     insert_data(ts_id, df, exists)
-    return "ok"
+    return input
 
 
 @router.get("/{ts_id}")
 def get_measurements(ts_id: str, start: Optional[datetime.datetime] = None, end: Optional[datetime.datetime] = None):
-    return get_data(ts_id, start, end).reset_index().to_dict("records")
-
+    meas =  get_data(ts_id, start, end).reset_index().to_dict("records")
+    if meas is None:
+        raise HTTPException(404, "Measurement does not exist")
+    return meas
 
 @router.delete("/{ts_id}")
 def remove_measurement(ts_id: str):

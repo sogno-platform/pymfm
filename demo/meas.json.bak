@@ -1,0 +1,1188 @@
+{
+    "UC_case": {
+      "UC_name" : "UC1_rule_based_offline"  ,
+      "UC_start": "2021-04-01T0:00:00.000Z" ,
+      "UC_end"  : "2021-04-01T23:45:00.000Z"
+    },
+    "measurements": [
+      {
+        "Time": "2021-04-01T00:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 20.7,
+        "Real_iONS_kW": 21.93
+      },
+      {
+        "Time": "2021-04-01T00:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 18.675,
+        "Real_iONS_kW": 23.46
+      },
+      {
+        "Time": "2021-04-01T00:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 16.65,
+        "Real_iONS_kW": 21.78
+      },
+      {
+        "Time": "2021-04-01T00:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 14.85,
+        "Real_iONS_kW": 23.93
+      },
+      {
+        "Time": "2021-04-01T01:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 13.5,
+        "Real_iONS_kW": 20.94
+      },
+      {
+        "Time": "2021-04-01T01:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 12.6,
+        "Real_iONS_kW": 17.76
+      },
+      {
+        "Time": "2021-04-01T01:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 11.925,
+        "Real_iONS_kW": 17.89
+      },
+      {
+        "Time": "2021-04-01T01:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 11.475,
+        "Real_iONS_kW": 17.1
+      },
+      {
+        "Time": "2021-04-01T02:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 11.25,
+        "Real_iONS_kW": 17.88
+      },
+      {
+        "Time": "2021-04-01T02:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.8,
+        "Real_iONS_kW": 18.9
+      },
+      {
+        "Time": "2021-04-01T02:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.575,
+        "Real_iONS_kW": 18.18
+      },
+      {
+        "Time": "2021-04-01T02:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.575,
+        "Real_iONS_kW": 18.4260869565
+      },
+      {
+        "Time": "2021-04-01T03:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 18.672173913
+      },
+      {
+        "Time": "2021-04-01T03:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 18.9182608696
+      },
+      {
+        "Time": "2021-04-01T03:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 19.1643478261
+      },
+      {
+        "Time": "2021-04-01T03:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 19.4104347826
+      },
+      {
+        "Time": "2021-04-01T04:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 19.6565217391
+      },
+      {
+        "Time": "2021-04-01T04:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 19.9026086957
+      },
+      {
+        "Time": "2021-04-01T04:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 20.1486956522
+      },
+      {
+        "Time": "2021-04-01T04:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.575,
+        "Real_iONS_kW": 20.3947826087
+      },
+      {
+        "Time": "2021-04-01T05:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.8,
+        "Real_iONS_kW": 20.6408695652
+      },
+      {
+        "Time": "2021-04-01T05:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 11.025,
+        "Real_iONS_kW": 20.8869565217
+      },
+      {
+        "Time": "2021-04-01T05:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 11.7,
+        "Real_iONS_kW": 21.1330434783
+      },
+      {
+        "Time": "2021-04-01T05:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 12.825,
+        "Real_iONS_kW": 21.3791304348
+      },
+      {
+        "Time": "2021-04-01T06:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 14.85,
+        "Real_iONS_kW": 21.6252173913
+      },
+      {
+        "Time": "2021-04-01T06:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 17.55,
+        "Real_iONS_kW": 21.8713043478
+      },
+      {
+        "Time": "2021-04-01T06:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 20.7,
+        "Real_iONS_kW": 22.1173913043
+      },
+      {
+        "Time": "2021-04-01T06:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 24.075,
+        "Real_iONS_kW": 22.3634782609
+      },
+      {
+        "Time": "2021-04-01T07:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 27.0,
+        "Real_iONS_kW": 22.6095652174
+      },
+      {
+        "Time": "2021-04-01T07:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 25.0975,
+        "Real_iONS_kW": 22.8556521739
+      },
+      {
+        "Time": "2021-04-01T07:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 22.52,
+        "Real_iONS_kW": 23.1017391304
+      },
+      {
+        "Time": "2021-04-01T07:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 19.2675,
+        "Real_iONS_kW": 23.347826087
+      },
+      {
+        "Time": "2021-04-01T08:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 15.79,
+        "Real_iONS_kW": 23.5939130435
+      },
+      {
+        "Time": "2021-04-01T08:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 4.09,
+        "Real_iONS_kW": 23.84
+      },
+      {
+        "Time": "2021-04-01T08:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -7.835,
+        "Real_iONS_kW": 9.3
+      },
+      {
+        "Time": "2021-04-01T08:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -19.985,
+        "Real_iONS_kW": 9.18
+      },
+      {
+        "Time": "2021-04-01T09:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -32.36,
+        "Real_iONS_kW": -42.3
+      },
+      {
+        "Time": "2021-04-01T09:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -43.9875,
+        "Real_iONS_kW": 0.0
+      },
+      {
+        "Time": "2021-04-01T09:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -55.84,
+        "Real_iONS_kW": -70.38
+      },
+      {
+        "Time": "2021-04-01T09:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -67.6925,
+        "Real_iONS_kW": -89.87
+      },
+      {
+        "Time": "2021-04-01T10:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -79.545,
+        "Real_iONS_kW": -80.22
+      },
+      {
+        "Time": "2021-04-01T10:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -89.3,
+        "Real_iONS_kW": -76.17
+      },
+      {
+        "Time": "2021-04-01T10:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -99.055,
+        "Real_iONS_kW": -132.55
+      },
+      {
+        "Time": "2021-04-01T10:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -108.81,
+        "Real_iONS_kW": -146.77
+      },
+      {
+        "Time": "2021-04-01T11:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -118.565,
+        "Real_iONS_kW": -138.08
+      },
+      {
+        "Time": "2021-04-01T11:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -125.3025,
+        "Real_iONS_kW": -175.68
+      },
+      {
+        "Time": "2021-04-01T11:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -131.815,
+        "Real_iONS_kW": -175.08
+      },
+      {
+        "Time": "2021-04-01T11:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -138.1025,
+        "Real_iONS_kW": -191.71
+      },
+      {
+        "Time": "2021-04-01T12:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -143.94,
+        "Real_iONS_kW": -99.88
+      },
+      {
+        "Time": "2021-04-01T12:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -145.4375,
+        "Real_iONS_kW": -210.28
+      },
+      {
+        "Time": "2021-04-01T12:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -146.935,
+        "Real_iONS_kW": -234.14
+      },
+      {
+        "Time": "2021-04-01T12:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -148.6575,
+        "Real_iONS_kW": -111.6
+      },
+      {
+        "Time": "2021-04-01T13:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -151.055,
+        "Real_iONS_kW": -95.82
+      },
+      {
+        "Time": "2021-04-01T13:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -150.43,
+        "Real_iONS_kW": -120.47
+      },
+      {
+        "Time": "2021-04-01T13:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -150.48,
+        "Real_iONS_kW": -209.58
+      },
+      {
+        "Time": "2021-04-01T13:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -150.755,
+        "Real_iONS_kW": -120.11
+      },
+      {
+        "Time": "2021-04-01T14:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -151.03,
+        "Real_iONS_kW": -244.2
+      },
+      {
+        "Time": "2021-04-01T14:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -147.325,
+        "Real_iONS_kW": -253.18
+      },
+      {
+        "Time": "2021-04-01T14:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -143.395,
+        "Real_iONS_kW": -204.3
+      },
+      {
+        "Time": "2021-04-01T14:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -139.465,
+        "Real_iONS_kW": -179.21
+      },
+      {
+        "Time": "2021-04-01T15:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -135.535,
+        "Real_iONS_kW": -155.95
+      },
+      {
+        "Time": "2021-04-01T15:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -127.7025,
+        "Real_iONS_kW": -100.31
+      },
+      {
+        "Time": "2021-04-01T15:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -120.095,
+        "Real_iONS_kW": -81.12
+      },
+      {
+        "Time": "2021-04-01T15:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -112.2625,
+        "Real_iONS_kW": -32.22
+      },
+      {
+        "Time": "2021-04-01T16:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -104.43,
+        "Real_iONS_kW": -17.21
+      },
+      {
+        "Time": "2021-04-01T16:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -93.1725,
+        "Real_iONS_kW": -9.42
+      },
+      {
+        "Time": "2021-04-01T16:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -81.915,
+        "Real_iONS_kW": 5.52
+      },
+      {
+        "Time": "2021-04-01T16:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -70.2075,
+        "Real_iONS_kW": 8.7
+      },
+      {
+        "Time": "2021-04-01T17:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -58.275,
+        "Real_iONS_kW": -29.1
+      },
+      {
+        "Time": "2021-04-01T17:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -45.25,
+        "Real_iONS_kW": -112.26
+      },
+      {
+        "Time": "2021-04-01T17:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -32.0,
+        "Real_iONS_kW": -71.22
+      },
+      {
+        "Time": "2021-04-01T17:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -18.3,
+        "Real_iONS_kW": -65.88
+      },
+      {
+        "Time": "2021-04-01T18:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -4.375,
+        "Real_iONS_kW": -45.78
+      },
+      {
+        "Time": "2021-04-01T18:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 2.6025,
+        "Real_iONS_kW": 15.78
+      },
+      {
+        "Time": "2021-04-01T18:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 9.805,
+        "Real_iONS_kW": 27.84
+      },
+      {
+        "Time": "2021-04-01T18:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 17.0075,
+        "Real_iONS_kW": 54.17
+      },
+      {
+        "Time": "2021-04-01T19:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 23.985,
+        "Real_iONS_kW": 54.35
+      },
+      {
+        "Time": "2021-04-01T19:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 28.0275,
+        "Real_iONS_kW": 28.26
+      },
+      {
+        "Time": "2021-04-01T19:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 31.845,
+        "Real_iONS_kW": 33.78
+      },
+      {
+        "Time": "2021-04-01T19:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 34.9875,
+        "Real_iONS_kW": 40.38
+      },
+      {
+        "Time": "2021-04-01T20:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 37.68,
+        "Real_iONS_kW": 47.64
+      },
+      {
+        "Time": "2021-04-01T20:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 38.385,
+        "Real_iONS_kW": 44.28
+      },
+      {
+        "Time": "2021-04-01T20:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 38.415,
+        "Real_iONS_kW": 53.46
+      },
+      {
+        "Time": "2021-04-01T20:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 38.445,
+        "Real_iONS_kW": 52.37
+      },
+      {
+        "Time": "2021-04-01T21:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 38.7,
+        "Real_iONS_kW": 53.88
+      },
+      {
+        "Time": "2021-04-01T21:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 38.025,
+        "Real_iONS_kW": 42.24
+      },
+      {
+        "Time": "2021-04-01T21:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 37.575,
+        "Real_iONS_kW": 41.26
+      },
+      {
+        "Time": "2021-04-01T21:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 37.125,
+        "Real_iONS_kW": 43.5
+      },
+      {
+        "Time": "2021-04-01T22:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 36.45,
+        "Real_iONS_kW": 41.1
+      },
+      {
+        "Time": "2021-04-01T22:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 35.325,
+        "Real_iONS_kW": 37.82
+      },
+      {
+        "Time": "2021-04-01T22:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 33.525,
+        "Real_iONS_kW": 33.9
+      },
+      {
+        "Time": "2021-04-01T22:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 31.725,
+        "Real_iONS_kW": 38.46
+      },
+      {
+        "Time": "2021-04-01T23:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 29.475,
+        "Real_iONS_kW": 35.76
+      },
+      {
+        "Time": "2021-04-01T23:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 27.225,
+        "Real_iONS_kW": 37.08
+      },
+      {
+        "Time": "2021-04-01T23:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 25.2,
+        "Real_iONS_kW": 30.12
+      },
+      {
+        "Time": "2021-04-01T23:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 22.95,
+        "Real_iONS_kW": 25.8
+      },
+      {
+        "Time": "2021-04-02T00:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 19.35,
+        "Real_iONS_kW": 27.66
+      },
+      {
+        "Time": "2021-04-02T00:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 22.275,
+        "Real_iONS_kW": 25.31
+      },
+      {
+        "Time": "2021-04-02T00:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 20.7,
+        "Real_iONS_kW": 25.2
+      },
+      {
+        "Time": "2021-04-02T00:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 19.35,
+        "Real_iONS_kW": 25.68
+      },
+      {
+        "Time": "2021-04-02T01:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 18.0,
+        "Real_iONS_kW": 24.66
+      },
+      {
+        "Time": "2021-04-02T01:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 16.65,
+        "Real_iONS_kW": 21.48
+      },
+      {
+        "Time": "2021-04-02T01:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 15.3,
+        "Real_iONS_kW": 23.28
+      },
+      {
+        "Time": "2021-04-02T01:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 14.175,
+        "Real_iONS_kW": 20.82
+      },
+      {
+        "Time": "2021-04-02T02:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 13.05,
+        "Real_iONS_kW": 21.78
+      },
+      {
+        "Time": "2021-04-02T02:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 12.375,
+        "Real_iONS_kW": 21.18
+      },
+      {
+        "Time": "2021-04-02T02:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 11.7,
+        "Real_iONS_kW": 19.14
+      },
+      {
+        "Time": "2021-04-02T02:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 11.475,
+        "Real_iONS_kW": 20.82
+      },
+      {
+        "Time": "2021-04-02T03:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 11.025,
+        "Real_iONS_kW": 21.89
+      },
+      {
+        "Time": "2021-04-02T03:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.8,
+        "Real_iONS_kW": 21.83
+      },
+      {
+        "Time": "2021-04-02T03:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.575,
+        "Real_iONS_kW": 21.3
+      },
+      {
+        "Time": "2021-04-02T03:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 20.83
+      },
+      {
+        "Time": "2021-04-02T04:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 25.64
+      },
+      {
+        "Time": "2021-04-02T04:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 22.56
+      },
+      {
+        "Time": "2021-04-02T04:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 21.78
+      },
+      {
+        "Time": "2021-04-02T04:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 21.0
+      },
+      {
+        "Time": "2021-04-02T05:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 19.74
+      },
+      {
+        "Time": "2021-04-02T05:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 22.86
+      },
+      {
+        "Time": "2021-04-02T05:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 21.18
+      },
+      {
+        "Time": "2021-04-02T05:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 20.34
+      },
+      {
+        "Time": "2021-04-02T06:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 22.68
+      },
+      {
+        "Time": "2021-04-02T06:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.35,
+        "Real_iONS_kW": 24.78
+      },
+      {
+        "Time": "2021-04-02T06:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 10.575,
+        "Real_iONS_kW": 31.32
+      },
+      {
+        "Time": "2021-04-02T06:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 11.025,
+        "Real_iONS_kW": 32.22
+      },
+      {
+        "Time": "2021-04-02T07:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 11.7,
+        "Real_iONS_kW": 25.92
+      },
+      {
+        "Time": "2021-04-02T07:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 9.165,
+        "Real_iONS_kW": 25.08
+      },
+      {
+        "Time": "2021-04-02T07:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 7.08,
+        "Real_iONS_kW": 22.92
+      },
+      {
+        "Time": "2021-04-02T07:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 5.445,
+        "Real_iONS_kW": 19.68
+      },
+      {
+        "Time": "2021-04-02T08:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 4.26,
+        "Real_iONS_kW": 29.58
+      },
+      {
+        "Time": "2021-04-02T08:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -2.39,
+        "Real_iONS_kW": 28.08
+      },
+      {
+        "Time": "2021-04-02T08:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -8.815,
+        "Real_iONS_kW": 23.09
+      },
+      {
+        "Time": "2021-04-02T08:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -15.24,
+        "Real_iONS_kW": 21.18
+      },
+      {
+        "Time": "2021-04-02T09:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -21.665,
+        "Real_iONS_kW": 24.13
+      },
+      {
+        "Time": "2021-04-02T09:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -27.24,
+        "Real_iONS_kW": 4.62
+      },
+      {
+        "Time": "2021-04-02T09:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -33.265,
+        "Real_iONS_kW": 9.12
+      },
+      {
+        "Time": "2021-04-02T09:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -39.74,
+        "Real_iONS_kW": 5.28
+      },
+      {
+        "Time": "2021-04-02T10:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -46.44,
+        "Real_iONS_kW": 3.54
+      },
+      {
+        "Time": "2021-04-02T10:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -51.845,
+        "Real_iONS_kW": 4.14
+      },
+      {
+        "Time": "2021-04-02T10:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -57.7,
+        "Real_iONS_kW": -18.72
+      },
+      {
+        "Time": "2021-04-02T10:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -63.555,
+        "Real_iONS_kW": -33.78
+      },
+      {
+        "Time": "2021-04-02T11:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -69.185,
+        "Real_iONS_kW": -56.46
+      },
+      {
+        "Time": "2021-04-02T11:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -77.26,
+        "Real_iONS_kW": -92.5
+      },
+      {
+        "Time": "2021-04-02T11:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -85.335,
+        "Real_iONS_kW": -143.2
+      },
+      {
+        "Time": "2021-04-02T11:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -93.41,
+        "Real_iONS_kW": -82.61
+      },
+      {
+        "Time": "2021-04-02T12:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -101.935,
+        "Real_iONS_kW": 0.0
+      },
+      {
+        "Time": "2021-04-02T12:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -104.95,
+        "Real_iONS_kW": 1.98
+      },
+      {
+        "Time": "2021-04-02T12:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -108.415,
+        "Real_iONS_kW": -4.08
+      },
+      {
+        "Time": "2021-04-02T12:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -113.005,
+        "Real_iONS_kW": 3.78
+      },
+      {
+        "Time": "2021-04-02T13:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -118.045,
+        "Real_iONS_kW": 8.34
+      },
+      {
+        "Time": "2021-04-02T13:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -121.1825,
+        "Real_iONS_kW": 8.58
+      },
+      {
+        "Time": "2021-04-02T13:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -124.77,
+        "Real_iONS_kW": -22.2
+      },
+      {
+        "Time": "2021-04-02T13:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -128.3575,
+        "Real_iONS_kW": 9.48
+      },
+      {
+        "Time": "2021-04-02T14:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -131.27,
+        "Real_iONS_kW": -8.7
+      },
+      {
+        "Time": "2021-04-02T14:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -127.7925,
+        "Real_iONS_kW": -24.42
+      },
+      {
+        "Time": "2021-04-02T14:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -123.415,
+        "Real_iONS_kW": -35.23
+      },
+      {
+        "Time": "2021-04-02T14:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -118.8125,
+        "Real_iONS_kW": -84.35
+      },
+      {
+        "Time": "2021-04-02T15:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -113.985,
+        "Real_iONS_kW": -30.78
+      },
+      {
+        "Time": "2021-04-02T15:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -106.1375,
+        "Real_iONS_kW": -5.04
+      },
+      {
+        "Time": "2021-04-02T15:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -98.29,
+        "Real_iONS_kW": -9.9
+      },
+      {
+        "Time": "2021-04-02T15:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -90.6675,
+        "Real_iONS_kW": -34.38
+      },
+      {
+        "Time": "2021-04-02T16:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -82.82,
+        "Real_iONS_kW": -44.87
+      },
+      {
+        "Time": "2021-04-02T16:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -72.7975,
+        "Real_iONS_kW": -6.84
+      },
+      {
+        "Time": "2021-04-02T16:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -62.775,
+        "Real_iONS_kW": 10.68
+      },
+      {
+        "Time": "2021-04-02T16:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -52.3025,
+        "Real_iONS_kW": 6.24
+      },
+      {
+        "Time": "2021-04-02T17:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -41.605,
+        "Real_iONS_kW": -15.3
+      },
+      {
+        "Time": "2021-04-02T17:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -29.715,
+        "Real_iONS_kW": 17.4
+      },
+      {
+        "Time": "2021-04-02T17:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -17.375,
+        "Real_iONS_kW": -7.38
+      },
+      {
+        "Time": "2021-04-02T17:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": -4.585,
+        "Real_iONS_kW": 14.88
+      },
+      {
+        "Time": "2021-04-02T18:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 8.43,
+        "Real_iONS_kW": -4.98
+      },
+      {
+        "Time": "2021-04-02T18:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 14.27,
+        "Real_iONS_kW": 19.8
+      },
+      {
+        "Time": "2021-04-02T18:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 20.11,
+        "Real_iONS_kW": 31.12
+      },
+      {
+        "Time": "2021-04-02T18:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 25.95,
+        "Real_iONS_kW": 7.26
+      },
+      {
+        "Time": "2021-04-02T19:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 31.79,
+        "Real_iONS_kW": 44.76
+      },
+      {
+        "Time": "2021-04-02T19:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 33.9425,
+        "Real_iONS_kW": 40.22
+      },
+      {
+        "Time": "2021-04-02T19:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 35.645,
+        "Real_iONS_kW": 53.09
+      },
+      {
+        "Time": "2021-04-02T19:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 36.8975,
+        "Real_iONS_kW": 48.6
+      },
+      {
+        "Time": "2021-04-02T20:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 37.7,
+        "Real_iONS_kW": 55.91
+      },
+      {
+        "Time": "2021-04-02T20:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 37.3875,
+        "Real_iONS_kW": 47.7
+      },
+      {
+        "Time": "2021-04-02T20:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 36.85,
+        "Real_iONS_kW": 55.2
+      },
+      {
+        "Time": "2021-04-02T20:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 35.8625,
+        "Real_iONS_kW": 53.51
+      },
+      {
+        "Time": "2021-04-02T21:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 35.325,
+        "Real_iONS_kW": 49.86
+      },
+      {
+        "Time": "2021-04-02T21:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 34.875,
+        "Real_iONS_kW": 51.41
+      },
+      {
+        "Time": "2021-04-02T21:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 34.425,
+        "Real_iONS_kW": 47.57
+      },
+      {
+        "Time": "2021-04-02T21:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 34.2,
+        "Real_iONS_kW": 54.77
+      },
+      {
+        "Time": "2021-04-02T22:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 33.75,
+        "Real_iONS_kW": 37.92
+      },
+      {
+        "Time": "2021-04-02T22:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 32.85,
+        "Real_iONS_kW": 35.22
+      },
+      {
+        "Time": "2021-04-02T22:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 31.5,
+        "Real_iONS_kW": 39.72
+      },
+      {
+        "Time": "2021-04-02T22:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 29.7,
+        "Real_iONS_kW": 39.06
+      },
+      {
+        "Time": "2021-04-02T23:00:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 27.9,
+        "Real_iONS_kW": 34.32
+      },
+      {
+        "Time": "2021-04-02T23:15:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 25.65,
+        "Real_iONS_kW": 33.06
+      },
+      {
+        "Time": "2021-04-02T23:30:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 23.4,
+        "Real_iONS_kW": 34.5
+      },
+      {
+        "Time": "2021-04-02T23:45:00.000000Z",
+        "delta_T": 0.25,
+        "Cal_iONS_kW": 21.375,
+        "Real_iONS_kW": 33.0
+      }
+    ],
+    "forecast_metrics": [
+      {
+        "Date": "2021-04-01T00:00:00.000",
+        "DynFact": 1.06,
+        "Nscale": 1,
+        "Eavg": 2500,
+        "NumCust": 90,
+        "RMSE": 34.9762586961
+      },
+      {
+        "Date": "2021-04-02T00:00:00.000",
+        "DynFact": 1.06,
+        "Nscale": 1,
+        "Eavg": 2500,
+        "NumCust": 90,
+        "RMSE": 47.9335176747
+      }
+    ],
+    "flex_specs": {
+      "initial_SOF" :  50   ,
+      "Pf_dis_kW"   : 300   ,
+      "Pf_ch_kW"    : 300   ,
+      "min_SOF"     :   8.75,
+      "max_SOF"     :  87.5 ,
+      "Agg_cap_flex": 800
+    }
+  }
+  

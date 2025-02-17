@@ -1,24 +1,16 @@
 import datetime
 import os
 from typing import Literal, Optional, Union
+
 import pandas as pd
-from sqlalchemy import (
-    DateTime,
-    Float,
-    MetaData,
-    String,
-    create_engine,
-    text,
-    Table,
-    Column,
-    and_ as sqland,
-    case,
-)
-from fastapi import HTTPException
 import sqlalchemy
+from fastapi import HTTPException
+from sqlalchemy import Column, DateTime, Float, MetaData, String, Table
+from sqlalchemy import and_ as sqland
+from sqlalchemy import case, create_engine, text
+from sqlalchemy.exc import ProgrammingError
 
-
-DB_URL = f"postgresql://{os.getenv('POSTGRES_USER','postgres')}:{os.getenv('POSTGRES_PASSWORD','')}@{os.getenv('POSTGRES_HOST','localhost')}:5432/{os.getenv('POSTGRES_DB','postgres')}"
+DB_URL = f"postgresql://{os.getenv('POSTGRES_USER','pymfm')}:{os.getenv('POSTGRES_PASSWORD','password')}@{os.getenv('POSTGRES_HOST','localhost')}:5432/{os.getenv('POSTGRES_DB','pymfm-meas')}"
 ENGINE = create_engine(DB_URL, echo=True)
 META = MetaData()
 
@@ -71,7 +63,10 @@ def update_columns(table_id: str, data: pd.DataFrame):
     )
     # split df index into existing and new entries
     with ENGINE.connect() as conn:
-        existing_ts = [r[0] for r in conn.execute(get_times_query) if r[0] in data.index]
+        try:
+            existing_ts = [r[0] for r in conn.execute(get_times_query) if r[0] in data.index]
+        except ProgrammingError:
+            existing_ts = []
         new_ts = [ts for ts in data.index if ts not in existing_ts]
         conn.commit()
 
@@ -94,7 +89,8 @@ def update_columns(table_id: str, data: pd.DataFrame):
 
     with ENGINE.connect() as conn:
         # update existing
-        conn.execute(update_query)
+        if existing_ts:
+            conn.execute(update_query)
         # add new
         data.loc[new_ts].to_sql(table_id, con=conn, if_exists="append")
         conn.commit()
@@ -127,7 +123,9 @@ def get_data(table_id: str, start: Optional[datetime.datetime] = None, end: Opti
         try:
             return pd.read_sql(get_query, con=conn, index_col="timestamp")
         except sqlalchemy.exc.ProgrammingError:
-            raise HTTPException(404, "Measurement does not exist")
+            print(f"Measurement {table_id} does not exist.")
+            return None
+            # raise HTTPException(404, "Measurement does not exist")
 
 
 if __name__ == "__main__":
