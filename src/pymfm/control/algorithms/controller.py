@@ -12,20 +12,38 @@ from service.data_aux import JobComplete, Status
 JOB_FREQ = 5 * 60
 
 
-def combine_prediction_measurement(raw_input: GenerationAndLoad, meas: pd.DataFrame | None = None):
+def combine_prediction_measurement(df_gen_load: pd.DataFrame, meas: pd.DataFrame | None = None):
     if meas is None:
-        return raw_input
-    print(meas)  # TODO replace with real combination algorithm
-    raise NotImplementedError("combining measurements and predicitons has not been implemented.")
+        return df_gen_load
+    ind = df_gen_load.index.get_indexer(meas.index, method="pad")[-1]
+    # XXX does this need to check for ind + 1 >= len(df)?
+    rel_position = (meas.index[-1] - df_gen_load.index[ind]) / (df_gen_load.index[ind + 1] - df_gen_load.index[ind])
+    interpolation = (1 - rel_position) * (
+        df_gen_load.P_required_kW.iloc[ind] - df_gen_load.P_available_kW.iloc[ind]
+    ) + rel_position * (df_gen_load.P_required_kW.iloc[ind] - df_gen_load.P_available_kW.iloc[ind])
+    correction = interpolation - meas.value[-1]
+    # XXX should we copy the df?
+    if True:  # TODO case one Sun is not up
+        df_gen_load.P_required_kW = df_gen_load.P_required_kW - correction
+    else:
+        df_gen_load.P_available_kW = df_gen_load.P_available_kW + correction
+
+    return df_gen_load
 
 
 async def do_balancing(job: JobComplete, storage: AsyncStorage):
     try:
         job.status = Status.RUNNING
         await storage.store(job)
+        day_end = job.input.day_end
+        bulk = job.input.bulk
+        id = job.input.id
+        use_pv_curtailment = job.input.generation_and_load.pv_curtailment
         meas = get_data(job.input.measurement) if job.input.measurement else None
-        job.input.generation_and_load = combine_prediction_measurement(job.input.generation_and_load, meas)
-        result, (status, details) = mode_logic_handler(job.input)
+        df_gen_load, df_battery_specs, delta_T_h = prep_data(job.input)
+        trunc_df = df_gen_load[: job.input.control_end][job.input.control_start :]
+        trunc_df_adjusted = combine_prediction_measurement(trunc_df, meas)
+        result, (status, details) = mode_logic_handler(trunc_df_adjusted, df_battery_specs, delta_T_h, day_end, bulk, use_pv_curtailment, id)
         # out, status, details = data_output.df_to_output(result, job.id, status)
         if status == "ok":
             job.status = Status.SUCCESS
