@@ -15,13 +15,14 @@ JOB_FREQ = 5 * 60
 def combine_prediction_measurement(df_gen_load: pd.DataFrame, meas: pd.DataFrame | None = None):
     if meas is None:
         return df_gen_load
-    ind = df_gen_load.index.get_indexer(meas.index, method="pad")[-1]
+    last_meas = max(meas.index)
+    ind = df_gen_load.index.get_indexer([last_meas], method="pad")[-1]
     # XXX does this need to check for ind + 1 >= len(df)?
-    rel_position = (meas.index[-1] - df_gen_load.index[ind]) / (df_gen_load.index[ind + 1] - df_gen_load.index[ind])
+    rel_position = (last_meas - df_gen_load.index[ind]) / (df_gen_load.index[ind + 1] - df_gen_load.index[ind])
     interpolation = (1 - rel_position) * (
         df_gen_load.P_required_kW.iloc[ind] - df_gen_load.P_available_kW.iloc[ind]
-    ) + rel_position * (df_gen_load.P_required_kW.iloc[ind] - df_gen_load.P_available_kW.iloc[ind])
-    correction = interpolation - meas.value[-1]
+    ) + rel_position * (df_gen_load.P_required_kW.iloc[ind+1] - df_gen_load.P_available_kW.iloc[ind+1])
+    correction = interpolation - meas.value[last_meas]
     # XXX should we copy the df?
     if True:  # TODO case one Sun is not up
         df_gen_load.P_required_kW = df_gen_load.P_required_kW - correction
@@ -41,7 +42,11 @@ async def do_balancing(job: JobComplete, storage: AsyncStorage):
         use_pv_curtailment = job.input.generation_and_load.pv_curtailment
         meas = get_data(job.input.measurement) if job.input.measurement else None
         df_gen_load, df_battery_specs, delta_T_h = prep_data(job.input)
-        trunc_df = df_gen_load[: job.input.control_end][job.input.control_start :]
+        if meas is None:
+            t_start = job.input.control_start
+        else:
+            t_start = max(meas.index[-1], job.input.control_start)
+        trunc_df = df_gen_load[: job.input.control_end][t_start :]
         trunc_df_adjusted = combine_prediction_measurement(trunc_df, meas)
         result, (status, details) = mode_logic_handler(trunc_df_adjusted, df_battery_specs, delta_T_h, day_end, bulk, use_pv_curtailment, id)
         # out, status, details = data_output.df_to_output(result, job.id, status)
