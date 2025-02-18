@@ -569,6 +569,10 @@ def scheduling(
     model.obj = Objective(rule=obj_rule, sense=minimize)
     solver = optimization_solver.solve(model).solver
 
+
+    from pyomo.util.infeasible import log_infeasible_constraints
+    print("--------------------------------------")
+    print(log_infeasible_constraints(model))
     #####################################################################################################
     ##################################       POST PROCESSING             ################################
     # Initialize DataFrames and Series to store post-processing results
