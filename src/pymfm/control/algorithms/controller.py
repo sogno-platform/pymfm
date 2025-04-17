@@ -4,6 +4,7 @@ import datetime
 
 from measurement.router.query import get_data
 import pandas as pd
+from pymfm.control.algorithms.exc import InfeasableError
 from pymfm.control.utils.data_input import GenerationAndLoad, OperationMode
 from pymfm.control.utils.mode_logic_handler import mode_logic_handler, prep_data
 from service.crud import AsyncStorage
@@ -46,9 +47,11 @@ async def do_balancing(job: JobComplete, storage: AsyncStorage):
             t_start = job.input.control_start
         else:
             t_start = max(meas.index[-1], job.input.control_start)
-        trunc_df = df_gen_load[: job.input.control_end][t_start :]
+        trunc_df = df_gen_load[: job.input.control_end][t_start:]
         trunc_df_adjusted = combine_prediction_measurement(trunc_df, meas)
-        result, (status, details) = mode_logic_handler(trunc_df_adjusted, df_battery_specs, delta_T_h, day_end, bulk, use_pv_curtailment, id)
+        result, (status, details) = mode_logic_handler(
+            trunc_df_adjusted, df_battery_specs, delta_T_h, day_end, bulk, use_pv_curtailment, id
+        )
         # out, status, details = data_output.df_to_output(result, job.id, status)
         if status == "ok":
             job.status = Status.SUCCESS
@@ -57,6 +60,9 @@ async def do_balancing(job: JobComplete, storage: AsyncStorage):
         else:
             job.status = Status.FAILED
             job.details = details
+    except InfeasableError:
+        job.status = Status.FAILED
+        job.details = "There were no feasable solutions to the stated conditions."
     except Exception as exc:
         job.status = Status.FAILED
         job.details = "Job was parsed but could not be executed."
