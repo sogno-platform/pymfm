@@ -22,13 +22,22 @@ def combine_prediction_measurement(df_gen_load: pd.DataFrame, meas: pd.DataFrame
     rel_position = (last_meas - df_gen_load.index[ind]) / (df_gen_load.index[ind + 1] - df_gen_load.index[ind])
     interpolation = (1 - rel_position) * (
         df_gen_load.P_required_kW.iloc[ind] - df_gen_load.P_available_kW.iloc[ind]
-    ) + rel_position * (df_gen_load.P_required_kW.iloc[ind+1] - df_gen_load.P_available_kW.iloc[ind+1])
+    ) + rel_position * (df_gen_load.P_required_kW.iloc[ind + 1] - df_gen_load.P_available_kW.iloc[ind + 1])
     correction = interpolation - meas.value[last_meas]
     # XXX should we copy the df?
-    if True:  # TODO case one Sun is not up
-        df_gen_load.P_required_kW = df_gen_load.P_required_kW - correction
-    else:
-        df_gen_load.P_available_kW = df_gen_load.P_available_kW + correction
+    df_gen_load.P_required_kW = df_gen_load.P_required_kW.copy()
+    df_gen_load.P_available_kW = df_gen_load.P_available_kW.copy()
+    # 1. Add correction to generation/net access if any is expected
+    df_gen_load.P_available_kW[df_gen_load.P_available_kW != 0] += correction
+    # 2. Else subtract it to required power
+    df_gen_load.P_required_kW[df_gen_load.P_available_kW == 0] = (
+        df_gen_load.P_required_kW[df_gen_load.P_available_kW == 0] - correction
+    )
+    # 3. generation can not be negative shift both by the access amount
+    df_gen_load.P_required_kW[df_gen_load.P_available_kW < 0] -= df_gen_load.P_available_kW[
+        df_gen_load.P_available_kW < 0
+    ]
+    df_gen_load.P_available_kW[df_gen_load.P_available_kW < 0] = 0.0
 
     return df_gen_load
 
