@@ -1,0 +1,2 @@
+class InfeasableError(RuntimeError):
+    pass
