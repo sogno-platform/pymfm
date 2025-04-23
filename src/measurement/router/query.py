@@ -96,7 +96,11 @@ def update_columns(table_id: str, data: pd.DataFrame):
         conn.commit()
 
 
-def insert_data(table_id: str, data: pd.DataFrame, if_exists: Literal["fail"] | Literal["append"] | Literal["update"]):
+def insert_data(
+    table_id: str,
+    data: pd.DataFrame,
+    if_exists: Literal["fail"] | Literal["append"] | Literal["update"] | Literal["replace"],
+):
     tab = get_alch_table(table_id)
 
     if if_exists == "update":
