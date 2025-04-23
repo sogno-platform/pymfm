@@ -27,7 +27,7 @@ from enum import Enum
 from typing import Dict, List, Optional, Union
 
 import pandas as pd
-from astral.location import LocationInfo
+from astral import LocationInfo
 from astral.sun import sun
 from pydantic import Field, field_validator
 
@@ -138,7 +138,7 @@ class BatterySpecs(BaseModel):
     bat_type: str = Field(
         ...,
         alias="bat_type",
-        description="The type of the battery. Can be 'cbes' (community battery energy storage) or 'hbes' (household battery energy storage).",
+        description="The type of the battery. Can be 'cbes' (community battery energy storage) or 'hbes' (household battery energy storage).", # XXX should be a StrEnum
     )
     initial_SoC: float = Field(
         ...,

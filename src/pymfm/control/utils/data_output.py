@@ -287,7 +287,7 @@ class ResultTimeseries(BaseModel):
 
 
 class BalancerOutput(BaseModel):
-    id: str  # XXX this is weird place to have the have, it should be at the highest level
+    id: str  # XXX this is weird place to have this, it should be at the highest level
     version: str = version("pymfm")
     peak_imp: Optional[float] = None
     peak_exp: Optional[float] = None
