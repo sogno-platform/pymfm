@@ -27,7 +27,9 @@ from enum import Enum
 from typing import Dict, List, Optional, Union
 
 import pandas as pd
+
 from astral import LocationInfo
+
 from astral.sun import sun
 from pydantic import Field, field_validator
 

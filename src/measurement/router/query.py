@@ -11,6 +11,7 @@ from sqlalchemy import case, create_engine, text
 from sqlalchemy.exc import ProgrammingError
 
 DB_URL = f"postgresql://{os.getenv('POSTGRES_USER','pymfm')}:{os.getenv('POSTGRES_PASSWORD','password')}@{os.getenv('POSTGRES_HOST','localhost')}:5432/{os.getenv('POSTGRES_DB','pymfm-meas')}"
+
 ENGINE = create_engine(DB_URL, echo=True)
 META = MetaData()
 
@@ -67,6 +68,7 @@ def update_columns(table_id: str, data: pd.DataFrame):
             existing_ts = [r[0] for r in conn.execute(get_times_query) if r[0] in data.index]
         except ProgrammingError:
             existing_ts = []
+
         new_ts = [ts for ts in data.index if ts not in existing_ts]
         conn.commit()
 
@@ -91,6 +93,7 @@ def update_columns(table_id: str, data: pd.DataFrame):
         # update existing
         if existing_ts:
             conn.execute(update_query)
+
         # add new
         data.loc[new_ts].to_sql(table_id, con=conn, if_exists="append")
         conn.commit()
@@ -101,6 +104,7 @@ def insert_data(
     data: pd.DataFrame,
     if_exists: Literal["fail"] | Literal["append"] | Literal["update"] | Literal["replace"],
 ):
+
     tab = get_alch_table(table_id)
 
     if if_exists == "update":
@@ -130,6 +134,7 @@ def get_data(table_id: str, start: Optional[datetime.datetime] = None, end: Opti
             print(f"Measurement {table_id} does not exist.")
             return None
             # raise HTTPException(404, "Measurement does not exist")
+
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 import asyncio
+
 import datetime
 
 import pandas as pd
@@ -10,7 +11,9 @@ from pymfm.control.algorithms.exc import InfeasableError
 from pymfm.control.utils.data_input import GenerationAndLoad, OperationMode
 from pymfm.control.utils.mode_logic_handler import mode_logic_handler, prep_data
 
+
 JOB_FREQ = 5 * 60
+
 
 
 # XXX doing this one soc at a time is very inefficient
@@ -51,10 +54,12 @@ def combine_prediction_measurement(df_gen_load: pd.DataFrame, meas: pd.DataFrame
     return df_gen_load
 
 
+
 async def do_balancing(job: JobComplete, storage: AsyncStorage):
     try:
         job.status = Status.RUNNING
         await storage.store(job)
+
         day_end = job.input.day_end
         bulk = job.input.bulk
         id = job.input.id
@@ -72,10 +77,12 @@ async def do_balancing(job: JobComplete, storage: AsyncStorage):
             trunc_df_adjusted, df_battery_specs, delta_T_h, day_end, bulk, use_pv_curtailment, id
         )
 
+
         if status == "ok":
             job.status = Status.SUCCESS
             job.result = result
             job.details = details
+
             # XXX this will result in major errors if schedule and execution timesteps are different
             for bat_id, soc in result.schedule[1].soc_bat.items():  # index 0 is initial, index 1 is "next step"
                 job = await update_soc_internal(job, bat_id, soc)
@@ -85,6 +92,7 @@ async def do_balancing(job: JobComplete, storage: AsyncStorage):
     except InfeasableError:
         job.status = Status.FAILED
         job.details = "There were no feasable solutions to the stated conditions."
+
     except Exception as exc:
         job.status = Status.FAILED
         job.details = "Job was parsed but could not be executed."

@@ -8,9 +8,11 @@ from service.crud_redis import RedisStorage
 from service.data_aux import JobComplete
 
 from pymfm.control.algorithms.controller import (do_balancing,
+
                                                  scheduling_or_real_time,
                                                  update_soc_internal)
 from pymfm.control.utils.data_input import BatterySpecs, InputData
+
 
 log = logging.getLogger("server")
 
@@ -24,7 +26,9 @@ storage = FileStorage(filepath=Path(__file__).parent.parent / "store")  # Memory
 
 
 @router.post("/")
+
 async def create_balancing_task(input: InputData, background_tasks: BackgroundTasks) -> JobComplete:
+
     log.info(f"received input data with id=<{input.id}>. Starting algorithm...")
     job = JobComplete(id=input.id, input=input)
     await storage.store(job)
@@ -43,6 +47,7 @@ async def get_result_endpoint(id: str) -> JobComplete:
     if output is None:
         raise HTTPException(404, f"No job with id {id}")
     return output
+
 
 
 #### ENDPOINTS FOR BATTERIES ####
@@ -104,6 +109,7 @@ async def update_soc(job_id: str, battery_id: str, soc: float):
 
     job = await update_soc_internal(job, battery_id, soc)
     return await storage.store(job)
+
 
 
 # XXX is Updating of a task usefull? Does the job need to be finished? Does a data update replace the data or append it? etc
