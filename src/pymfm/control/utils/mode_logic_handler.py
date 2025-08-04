@@ -43,7 +43,7 @@ def mode_logic_handler(
     bulk,
     use_pv_curtailment: bool,
     id:str,
-    control_logic: CL = CL.OPTIMIZATION_BASED,
+    control_logic: CL,
 ) -> Tuple[BalancerOutput, tuple[SolverStatus, TerminationCondition]]:
     """
     Handle different control logic modes and operation modes.
