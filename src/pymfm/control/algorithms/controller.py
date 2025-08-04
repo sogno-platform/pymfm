@@ -77,7 +77,7 @@ async def do_balancing(job: JobComplete, storage: AsyncStorage):
         trunc_df = df_gen_load[: job.input.control_end][t_start:]
         trunc_df_adjusted = combine_prediction_measurement(trunc_df, meas)
         result, (status, details) = mode_logic_handler(
-            trunc_df_adjusted, df_battery_specs, delta_T_h, day_end, bulk, use_pv_curtailment, id
+            trunc_df_adjusted, df_battery_specs, delta_T_h, day_end, bulk, use_pv_curtailment, id, job.input.control_logic
         )
 
         if status == "ok":
