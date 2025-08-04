@@ -36,7 +36,6 @@ from pymfm.control.utils.data_output import BalancerOutput, validate_timestep
 
 
 def mode_logic_handler(
-
     df: pd.DataFrame,
     df_battery_specs: pd.DataFrame,
     delta_T_h: float,
@@ -45,10 +44,6 @@ def mode_logic_handler(
     use_pv_curtailment: bool,
     id:str,
     control_logic: CL = CL.OPTIMIZATION_BASED,
-    # df: pd.DataFrame,
-    # df_battery_specs: pd.DataFrame,
-    # delta_T_h: float,
-    data: InputData,
 ) -> Tuple[BalancerOutput, tuple[SolverStatus, TerminationCondition]]:
     """
     Handle different control logic modes and operation modes.
@@ -60,32 +55,26 @@ def mode_logic_handler(
     # battery_specs = data_input.input_prep(data.battery_specs)
 
     # prep data as Dataframes and default outputs
-
     # df, df_battery_specs, delta_T_h = prep_data(data)
 
     solver_status = (SolverStatus.ok, TerminationCondition.optimal)
     peak_exp = None
     peak_imp = None
 
-
     if control_logic == CL.RULE_BASED:
-
         output_df = RB.rule_based(df, df_battery_specs, delta_T_h)
         min = output_df.P_net_after_kW.min()
         max = output_df.P_net_after_kW.max()
         peak_exp = -min if min < 0 else 0
         peak_imp = max if max > 0 else 0
 
-
     elif control_logic == CL.OPTIMIZATION_BASED:
-
         print("Input data has been read successfully. Running scheduling optimization-based control.")
 
         # Perform scheduling optimization-based control
         (output_batteries, output_system, output_static, solver_status) = OptB.scheduling(
             df,
             df_battery_specs,
-
             day_end,
             bulk,
             use_pv_curtailment,
@@ -121,9 +110,7 @@ def mode_logic_handler(
     output_df["P_net_before_kW"] = df.P_required_kW - df.P_available_kW
     output_ts = [validate_timestep(data.to_dict()) for time, data in output_df.reset_index().iterrows()]
 
-
     out = BalancerOutput(id=id, peak_imp=peak_imp, peak_exp=peak_exp, schedule=output_ts)
-
 
     return (
         out,

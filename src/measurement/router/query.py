@@ -136,6 +136,5 @@ def get_data(table_id: str, start: Optional[datetime.datetime] = None, end: Opti
             # raise HTTPException(404, "Measurement does not exist")
 
 
-
 if __name__ == "__main__":
     print(get_data("test_data2", start=datetime.datetime(2024, 9, 12, 0, 5, 0)))
