@@ -22,6 +22,7 @@
 
 
 import datetime
+
 from typing import List, Tuple, Union
 import pandas as pd
 from pyomo.opt import SolverStatus, TerminationCondition
@@ -55,6 +56,7 @@ def mode_logic_handler(
 
     # prep data as Dataframes and default outputs
     # df, df_battery_specs, delta_T_h = prep_data(data)
+
     solver_status = (SolverStatus.ok, TerminationCondition.optimal)
     peak_exp = None
     peak_imp = None
@@ -139,4 +141,6 @@ def prep_data(data: InputData):
         df = df.join(df_limits)
 
     # Have to do it that way because tzinfo might be different classes and can not be in the same slice
+
     return df, df_battery_specs, delta_T_h
+

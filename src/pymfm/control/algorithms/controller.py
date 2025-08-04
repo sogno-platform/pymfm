@@ -2,15 +2,29 @@ import asyncio
 
 import datetime
 
-from measurement.router.query import get_data
 import pandas as pd
-from pymfm.control.algorithms.exc import InfeasableError
-from pymfm.control.utils.data_input import GenerationAndLoad, OperationMode
-from pymfm.control.utils.mode_logic_handler import mode_logic_handler, prep_data
+
+from measurement.router.query import get_data
+
 from service.crud import AsyncStorage
 from service.data_aux import JobComplete, Status
 
+from pymfm.control.algorithms.exc import InfeasableError
+from pymfm.control.utils.data_input import GenerationAndLoad, OperationMode
+from pymfm.control.utils.mode_logic_handler import mode_logic_handler, prep_data
+
+
 JOB_FREQ = 5 * 60
+
+
+# XXX doing this one soc at a time is very inefficient
+async def update_soc_internal(job: JobComplete, battery_id: str, soc: float):
+    # XXX not sure how liniting thinks bat might be a tuple
+    for bat in job.input.battery_specs:
+        if bat.id == battery_id:
+            bat.initial_SoC = soc
+    return job
+
 
 
 def combine_prediction_measurement(df_gen_load: pd.DataFrame, meas: pd.DataFrame | None = None):
@@ -46,6 +60,7 @@ async def do_balancing(job: JobComplete, storage: AsyncStorage):
     try:
         job.status = Status.RUNNING
         await storage.store(job)
+
         day_end = job.input.day_end
         bulk = job.input.bulk
         id = job.input.id
@@ -53,6 +68,9 @@ async def do_balancing(job: JobComplete, storage: AsyncStorage):
         meas = get_data(job.input.measurement) if job.input.measurement else None
         df_gen_load, df_battery_specs, delta_T_h = prep_data(job.input)
         if meas is None:
+
+            # XXX technically we are adjusting the user input here, this should be a priviledge only of the user
+
             t_start = job.input.control_start
         else:
             t_start = max(meas.index[-1], job.input.control_start)
@@ -61,17 +79,22 @@ async def do_balancing(job: JobComplete, storage: AsyncStorage):
         result, (status, details) = mode_logic_handler(
             trunc_df_adjusted, df_battery_specs, delta_T_h, day_end, bulk, use_pv_curtailment, id
         )
-        # out, status, details = data_output.df_to_output(result, job.id, status)
+
         if status == "ok":
             job.status = Status.SUCCESS
             job.result = result
             job.details = details
+
+            # XXX this will result in major errors if schedule and execution timesteps are different
+            for bat_id, soc in result.schedule[1].soc_bat.items():  # index 0 is initial, index 1 is "next step"
+                job = await update_soc_internal(job, bat_id, soc)
         else:
             job.status = Status.FAILED
             job.details = details
     except InfeasableError:
         job.status = Status.FAILED
         job.details = "There were no feasable solutions to the stated conditions."
+
     except Exception as exc:
         job.status = Status.FAILED
         job.details = "Job was parsed but could not be executed."
