@@ -26,9 +26,9 @@ import os
 from typing import List
 
 import pandas as pd
+from pymfm.control.algorithms.exc import InfeasableError
 import pyomo.kernel as pmo
-from pyomo.core import (ConcreteModel, Constraint, NonNegativeReals, Objective,
-                        Var, minimize)
+from pyomo.core import ConcreteModel, Constraint, NonNegativeReals, Objective, Var, minimize
 from pyomo.environ import SolverFactory
 from pyomo.opt import SolverStatus, TerminationCondition
 
@@ -568,6 +568,13 @@ def scheduling(
     ######################################################################################################
     model.obj = Objective(rule=obj_rule, sense=minimize)
     solver = optimization_solver.solve(model).solver
+
+    from pyomo.util.infeasible import log_infeasible_constraints
+
+    print("--------------------------------------")
+    log_infeasible_constraints(model)
+    if solver.termination_condition in (TerminationCondition.infeasible, TerminationCondition.infeasibleOrUnbounded):
+        raise InfeasableError("Problem was not solvable")
 
     #####################################################################################################
     ##################################       POST PROCESSING             ################################
