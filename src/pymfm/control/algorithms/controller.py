@@ -10,7 +10,7 @@ from service.crud import AsyncStorage
 from service.data_aux import JobComplete, Status
 
 from pymfm.control.algorithms.exc import InfeasableError
-from pymfm.control.utils.data_input import GenerationAndLoad, OperationMode
+from pymfm.control.utils.data_input import BatterySpecs, GenerationAndLoad, OperationMode
 from pymfm.control.utils.mode_logic_handler import mode_logic_handler, prep_data
 
 
@@ -19,7 +19,9 @@ JOB_FREQ = 5 * 60
 
 # XXX doing this one soc at a time is very inefficient
 async def update_soc_internal(job: JobComplete, battery_id: str, soc: float):
-    # XXX not sure how liniting thinks bat might be a tuple
+    if isinstance(job.input.battery_specs, BatterySpecs):
+        job.input.battery_specs.initial_SoC = soc
+        return job
     for bat in job.input.battery_specs:
         if bat.id == battery_id:
             bat.initial_SoC = soc
@@ -86,8 +88,9 @@ async def do_balancing(job: JobComplete, storage: AsyncStorage):
             job.details = details
 
             # XXX this will result in major errors if schedule and execution timesteps are different
-            for bat_id, soc in result.schedule[1].soc_bat.items():  # index 0 is initial, index 1 is "next step"
-                job = await update_soc_internal(job, bat_id, soc)
+            if job.input.operation_mode == OperationMode.NEAR_REAL_TIME:
+                for bat_id, soc in result.schedule[1].soc_bat.items():  # index 0 is initial, index 1 is "next step"
+                    job = await update_soc_internal(job, bat_id, soc)
         else:
             job.status = Status.FAILED
             job.details = details
