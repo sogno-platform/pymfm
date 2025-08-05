@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from typing import List
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 from service.crud_fs import FileStorage
 from service.crud_redis import RedisStorage
 from service.data_aux import JobComplete
@@ -90,7 +90,7 @@ async def update_battery_by_id(job_id: str, new_battery_specs: list[BatterySpecs
 
 
 @router.delete("/{job_id}/battery_specs")
-async def update_battery_by_id(job_id: str, battery_id: str):
+async def delete_battery_by_id(job_id: str, battery_id: str):
     job = await storage.read(job_id)
     assert job is not None, f"No Job with id {job_id}"
     assert job.input is not None, "This should never happen"
@@ -127,6 +127,6 @@ async def update_soc(job_id: str, battery_id: str, soc: float):
 async def delete_result_endpoint(id: str) -> JobComplete:
     try:
         result = await storage.delete(id)
-    except HTTPException as exc:
-        raise exc
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No result with this id")
     return result
