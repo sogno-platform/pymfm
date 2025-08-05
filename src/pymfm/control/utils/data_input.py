@@ -119,7 +119,7 @@ class GenerationAndLoad(BaseModel):
 
     pv_curtailment: bool = Field(
         False,
-        alias="bulk",
+        alias="pv_curtailment",
         description="The photovoltaic (PV) curtailment value (optional).",
     )
     values: List[GenerationAndLoadValues] = Field(
