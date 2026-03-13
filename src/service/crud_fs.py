@@ -42,10 +42,7 @@ class FileStorage(AsyncStorage):
 
     async def delete(self, id: str) -> Optional[data_aux.JobComplete]:
         ret = await self.read(id)
-        try:
-            os.remove(self.filepath / id)
-        except FileNotFoundError as exc:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No result with this id")
+        os.remove(self.filepath / f"{id}.json")
         return ret
 
 
@@ -56,37 +53,37 @@ class FileStorage(AsyncStorage):
 #     return result
 
 
-async def get_result(path: str) -> data_output.BalancerOutputWrapper:
-    # outpath = os.path.join("output", f"{id}.json")
-    try:
-        with open(path, "r") as outfile:
-            return json.load(outfile)
-    except FileNotFoundError:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No result with this id")
+# async def get_result(path: str) -> data_output.BalancerOutputWrapper:
+#     # outpath = os.path.join("output", f"{id}.json")
+#     try:
+#         with open(path, "r") as outfile:
+#             return json.load(outfile)
+#     except FileNotFoundError:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No result with this id")
 
 
-async def delete_result(path: str) -> data_output.BalancerOutputWrapper:
-    try:
-        os.remove(path)
-    except FileNotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No result with this id")
+# async def delete_result(path: str) -> data_output.BalancerOutputWrapper:
+#     try:
+#         os.remove(path)
+#     except FileNotFoundError as exc:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No result with this id")
 
 
-async def get_latest() -> data_output.BalancerOutputWrapper:
-    outpath = os.path.join(".", "output", "*")
-    list_of_files = glob.glob(outpath)
-    list_of_files.sort(key=os.path.getctime)
-    if len(list_of_files) == 0:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No results available")
-    return await get_result(list_of_files[0])
+# async def get_latest() -> data_output.BalancerOutputWrapper:
+#     outpath = os.path.join(".", "output", "*")
+#     list_of_files = glob.glob(outpath)
+#     list_of_files.sort(key=os.path.getctime)
+#     if len(list_of_files) == 0:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No results available")
+#     return await get_result(list_of_files[0])
 
 
-async def clean_up() -> List[str]:
-    outpath = os.path.join("output", "*")
-    list_of_files = glob.glob(outpath)
-    list_of_files.sort(key=os.path.getctime)
-    to_delete = list_of_files[:-10]
-    for path in to_delete:
-        log.debug(f" delete {path}")
-        os.remove(path)
-    return to_delete
+# async def clean_up() -> List[str]:
+#     outpath = os.path.join("output", "*")
+#     list_of_files = glob.glob(outpath)
+#     list_of_files.sort(key=os.path.getctime)
+#     to_delete = list_of_files[:-10]
+#     for path in to_delete:
+#         log.debug(f" delete {path}")
+#         os.remove(path)
+#     return to_delete

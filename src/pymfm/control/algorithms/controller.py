@@ -110,6 +110,11 @@ async def scheduling_or_real_time(job: JobComplete, storage: AsyncStorage, meas:
     if job.input.operation_mode == OperationMode.NEAR_REAL_TIME:
         await asyncio.sleep((job.input.job_start - datetime.datetime.now(datetime.timezone.utc)).total_seconds())
         while job.input.job_end > datetime.datetime.now(datetime.timezone.utc):
+            try:
+                await storage.read(job.id)
+            except:
+                print(f"Job with id {job.id} does not exist, it was likely deleted")
+                break
             job.input.control_start = datetime.datetime.now(datetime.timezone.utc)
             await do_balancing(job, storage)
             await asyncio.sleep(job.input.repeat_seconds)
