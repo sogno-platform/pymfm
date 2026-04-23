@@ -49,6 +49,7 @@ def get_pymfm(job_id: str) -> dict:
 
 def post_measurement(meas: dict):
     headers = {"accept": "application/json"}
+    headers["Content-Type"] = "application/json"
     response = requests.put(
         url=f"{pymfm_url_base}/measurement/{meas['id']}", headers=headers, data=json.dumps(meas, default=str), auth=auth
     )

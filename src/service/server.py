@@ -1,45 +1,38 @@
-import asyncio
+# The pymfm framework — FastAPI application entry point.
+
 import logging
 import os
-from datetime import datetime
 from pathlib import Path
-from typing import List
 
 import uvicorn
-from fastapi import (APIRouter, BackgroundTasks, Depends, FastAPI,
-                     HTTPException, status)
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from measurement.router.measurement import router as meas_router
-# from pymfm.control.algorithms.controller import do_balancing, scheduling_or_real_time
-from service.crud_fs import FileStorage
-from service.crud_memory import MemoryStorage
-from service.crud_redis import RedisStorage  # XXX relative imports?
-from service.data_aux import JobComplete
-from service.routers.single_job import router as balancing_router
-# from crud_fs import save_result, delete_result, get_result , get_latest, clean_up
 from starlette.responses import RedirectResponse
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from pymfm.control.algorithms.controller import scheduling_or_real_time
-# import data_aux
-from pymfm.control.utils import data_input, data_output
+from pymfm.config import settings
+from measurement.router.measurement import router as meas_router
+from service.routers.balancing import router as balancing_router
+from service.storage import FileStorage, MemoryStorage
+from service.storage.redis_backend import RedisStorage
 
 log = logging.getLogger("server")
 logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 logging.getLogger("werkzeug").setLevel(logging.WARNING)
 
+# Auth
+
 security = HTTPBasic()
 
-users = {
-    os.environ.get("BALANCING_USERNAME", "admin"): generate_password_hash(os.environ.get("BALANCING_PASSWORD", "admin"))
+_users = {
+    settings.auth_username: generate_password_hash(settings.auth_password)
 }
 
 
-def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
-    if credentials.username in users:
-        if check_password_hash(users.get(credentials.username), credentials.password):
-            return credentials.username
-
+def get_current_username(credentials: HTTPBasicCredentials = Depends(security)) -> str:
+    hashed = _users.get(credentials.username)
+    if hashed and check_password_hash(hashed, credentials.password):
+        return credentials.username
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Incorrect username or password",
@@ -47,28 +40,44 @@ def get_current_username(credentials: HTTPBasicCredentials = Depends(security)):
     )
 
 
-app = FastAPI()
+# ---------------------------------------------------------------------------
+# Storage — override STORAGE_BACKEND env var to switch implementations:
+#   "redis"   → RedisStorage
+#   "memory"  → MemoryStorage
+#   anything else (default) → FileStorage
+# ---------------------------------------------------------------------------
+
+_backend = os.environ.get("STORAGE_BACKEND", "file").lower()
+if _backend == "redis":
+    storage = RedisStorage()
+elif _backend == "memory":
+    storage = MemoryStorage()
+else:
+    storage = FileStorage(filepath=Path(__file__).parent / "store")
+
+# Make storage accessible to routers
+import service.routers.balancing as _balancing_module
+_balancing_module.storage = storage
+
+# App
+
+app = FastAPI(title="pymfm balancing service")
 
 
-# XXX handle this via settings in the future
-storage = FileStorage(filepath=Path(__file__).parent / "store")  # MemoryStorage() # RedisStorage()
-# storage = RedisStorage()
-
-
-@app.get("/health")
+@app.get("/health", tags=["meta"])
 def health() -> str:
     return "ok"
 
 
-@app.get("/")
+@app.get("/", include_in_schema=False)
 def redirect_to_docs():
-    """Redirect users to the docs of the default API version (typically the latest)"""
-    redirect_url = "/docs"  # replace with docs URL or use app.url_path_for()
-    return RedirectResponse(url=redirect_url)
+    return RedirectResponse(url="/docs")
 
 
-app.include_router(balancing_router, prefix="/balancing", dependencies=[Depends(get_current_username)])
-app.include_router(meas_router, prefix="/measurement", dependencies=[Depends(get_current_username)])
+auth_dep = [Depends(get_current_username)]
+app.include_router(balancing_router, prefix="/balancing", dependencies=auth_dep)
+app.include_router(meas_router, prefix="/measurement", dependencies=auth_dep)
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

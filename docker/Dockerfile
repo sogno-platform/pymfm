@@ -20,11 +20,12 @@ RUN apt-get install -yq --no-install-recommends wget \
     libboost-serialization-dev \
     libboost-regex-dev \
     libboost-iostreams-dev \
-    libtbb-dev libreadline-dev \ 
+    libtbb-dev libreadline-dev \
     pkg-config git liblapack-dev \
-    libgsl-dev flex bison \ 
+    libgsl-dev flex bison \
     libcliquer-dev gfortran file \
-    dpkg-dev libopenblas-dev rpm libtbb2
+    dpkg-dev libopenblas-dev rpm libtbb2 \
+    liblapack3 libmetis5 libmpfr6 libopenblas0 libopenmpi3 libquadmath0 libtbb12
 
 RUN mkdir /build
 COPY ./dep-build /build
