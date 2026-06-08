@@ -1,5 +1,4 @@
 import datetime
-import os
 from typing import Literal, Optional, Union
 
 import pandas as pd
@@ -10,9 +9,9 @@ from sqlalchemy import and_ as sqland
 from sqlalchemy import case, create_engine, text
 from sqlalchemy.exc import ProgrammingError
 
-DB_URL = f"postgresql://{os.getenv('POSTGRES_USER','pymfm')}:{os.getenv('POSTGRES_PASSWORD','password')}@{os.getenv('POSTGRES_HOST','localhost')}:5432/{os.getenv('POSTGRES_DB','pymfm-meas')}"
+from pymfm.config import settings
 
-ENGINE = create_engine(DB_URL, echo=True)
+ENGINE = create_engine(settings.db_url, echo=False)  # echo=True logs all queries including credentials
 META = MetaData()
 
 

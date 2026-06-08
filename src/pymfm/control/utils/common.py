@@ -1,30 +1,18 @@
-from datetime import datetime
+# The pymfm framework — shared utilities used across control and schema modules.
+
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
 import pandas as pd
-from pydantic import BaseModel as PydBaseModel
-from pydantic import Field, ConfigDict
+from pydantic import BaseModel as PydBaseModel, ConfigDict
 
-INDEX_COLUMN = "time"
+# Canonical name for the time index column used throughout the codebase.
+INDEX_COLUMN = "timestamp"
 
 
-def get_freq(*dfs):
-    delta_t = None
-    for df in dfs:
-        if df is None:
-            continue
-        if df.index.freq is None:
-            continue
-        if delta_t is None:
-            delta_t = df.index.freq
-            continue
-        if delta_t != df.index.freq:
-            raise AttributeError(
-                "All deltaT of the specified timeseries have to be the same"
-            )
-    return delta_t
-
+# ---------------------------------------------------------------------------
+# Pydantic base classes
+# ---------------------------------------------------------------------------
 
 class StrEnum(str, Enum):
     """
@@ -33,7 +21,6 @@ class StrEnum(str, Enum):
     pass
 
 
-# for global configuration
 class BaseModel(PydBaseModel):
     """
     Base Pydantic model with configuration settings to allow population by field name.
@@ -41,16 +28,34 @@ class BaseModel(PydBaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
 
-# Assumes List of objects with an index attribute
-# TODO this is not in use anymore? Remove
-def from_df_validator(cls, df: pd.DataFrame):
-    if not isinstance(df, pd.DataFrame):
-        return df
-    df = df.reset_index()
-    return df.to_dict(orient="records")
+# ---------------------------------------------------------------------------
+# DataFrame helpers
+# ---------------------------------------------------------------------------
+
+def get_freq(*dfs: Optional[pd.DataFrame]) -> pd.DateOffset:
+    """Return the shared frequency of all non-None DataFrames.
+
+    Raises
+    ------
+    ValueError
+        If two DataFrames have different inferred frequencies.
+    """
+    delta_t = None
+    for df in dfs:
+        if df is None or df.index.freq is None:
+            continue
+        if delta_t is None:
+            delta_t = df.index.freq
+        elif delta_t != df.index.freq:
+            raise ValueError(
+                f"All time series must share the same time step, "
+                f"but found {delta_t} and {df.index.freq}."
+            )
+    return delta_t
 
 
 def list_to_df(li: list, index_col: str = INDEX_COLUMN) -> pd.DataFrame:
+    """Convert a list of record dicts to a DataFrame indexed by *index_col*."""
     if not isinstance(li, list):
         li = [li]
     df = pd.DataFrame.from_records(li).set_index(index_col)
@@ -62,21 +67,15 @@ def list_to_df(li: list, index_col: str = INDEX_COLUMN) -> pd.DataFrame:
 
 
 def extract_df(
-    obj: BaseModel, attr: str, index_col: str = INDEX_COLUMN
+    obj: BaseModel,
+    attr: str,
+    index_col: str = INDEX_COLUMN,
 ) -> Optional[pd.DataFrame]:
-    # try:
-    li = obj.model_dump()[attr]
-    # except KeyError: # XXX should we let this throw?
-    #     return None
-    if li is None:
+    """Extract a list attribute from a Pydantic model and convert it to a DataFrame.
+
+    Returns None if the attribute value is None.
+    """
+    value = obj.model_dump()[attr]
+    if value is None:
         return None
-    return list_to_df(li, index_col)
-
-
-def df_to_list(df: pd.DataFrame) -> List[Dict]:
-    df = df.reset_index()
-    num_levels = df.columns.nlevels
-    if num_levels > 1:
-        {
-            col: df_to_list(df[col]) for col in df.columns.levels[0]
-        }  # TODO unfinished, still needed?
+    return list_to_df(value, index_col)
