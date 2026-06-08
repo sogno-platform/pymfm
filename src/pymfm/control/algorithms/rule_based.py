@@ -85,10 +85,11 @@ def _rule_based_step(
 
     new_soc = battery_specs.initial_SoC - (P_bat_kw * delta_T_h / battery_specs.bat_capacity_kWh)
 
-    return pd.Series(
-        {"SoC_bat": new_soc, "P_net_after_kW": excess_demand, "P_bat_kW": -P_bat_kw},  # charging: positiv, discharging: negativ
-        dtype=float,
-    )
+    output_ds = pd.Series(index=["SoC_bat", "P_net_after_kW", "P_bat_kW"], dtype=float)
+    output_ds["SoC_bat"] = new_soc
+    output_ds["P_net_after_kW"] = excess_demand
+    output_ds["P_bat_kW"] = -P_bat_kw  # charging: positiv, discharging: negativ
+    return output_ds
 
 
 def _run_rule_based(
@@ -114,7 +115,7 @@ def _run_rule_based(
     output_df = pd.DataFrame(rows, index=df.index)
     output_df.index.name = "timestamp"  # XXX should be one name everywhere instead of sometimes "time" and sometimes "timestamp"
 
-    battery_id = specs.id[0] if hasattr(specs, "id") and specs.id[0] is not None else "bat"
+    battery_id = specs.index[0] if specs.index[0] is not None else "bat"
     output_df.rename(
         columns={
             "P_bat_kW": ("P_bat_kW", battery_id),
