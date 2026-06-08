@@ -19,7 +19,7 @@ from pymfm.control.utils.common import BaseModel
 class ResultTimeseries(BaseModel):
     """Result values for a single timestep."""
 
-    time: datetime
+    timestamp: datetime
     soc_bat: Dict[str, float] = Field(..., alias="SoC_bat")
     p_bat_kw: Dict[str, float] = Field(..., alias="P_bat_kW")
     p_pv_kw: Optional[float] = Field(None, alias="P_PV_kW")
