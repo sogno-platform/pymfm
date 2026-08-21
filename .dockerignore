@@ -1,1 +1,9 @@
-Dockerfile
+*
+!pyproject.toml
+!src/
+!src/pymfm/
+!src/pymfm/**
+!src/service/
+!src/service/**
+!src/measurement/
+!src/measurement/**
